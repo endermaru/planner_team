@@ -3,6 +3,7 @@ import { Timestamp } from "firebase/firestore";
 
 const TodoList=({todos,addTodos,printTodos})=>{
 
+    //새로운 일정 추가 예시(상위에서 가져온 함수 사용)
     const add_Todos=()=>{
         const date = new Date();
         const timestamp=Timestamp.fromDate(date);

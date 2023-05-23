@@ -59,7 +59,6 @@ export default function Home() {
   }
   //db 추가하기(Id,이름,내용,시작날짜,종료날짜,진행도)
   const addTodos = async({_content,_timeStart,_timeEnd})=>{
-    console.log('!',_timeEnd)
     const docRef = await addDoc(todoDB,{
       userId:data?.user?.id,
       userName:data?.user?.name,
@@ -68,6 +67,7 @@ export default function Home() {
       timeStart:_timeStart,
       progress:0,
     });
+    setTodos([...todos,{id:docRef.id,userId:data?.user?.id,userName:data?.user?.name,content:_content,timeStart:_timeStart,timeEnd:_timeEnd}])
   };
 
   //db삭제 - todos 배열 안에서 특정 속성으로 원하는 item을 찾는 함수 필요
@@ -80,12 +80,9 @@ export default function Home() {
       })
     )
   }
+  //todos 배열 출력(확인용)
   const printTodos=(_todos)=>{
     console.log(_todos);
-  }
-
-  const dummyf=(a,b)=>{
-    console.log(a,b);
   }
 
 
@@ -115,7 +112,7 @@ export default function Home() {
       <button className="w-60 justify-self-center p-1 mr-4
                         bg-blue-500 text-white border border-blue-500 rounded 
                         hover:bg-white hover:text-blue-500" 
-              onClick={()=>printTodos(todos)}>더미 데이터 콘솔 출력
+              onClick={()=>printTodos(todos)}>더미 데이터 목록 콘솔 출력
       </button>
       <button className="w-60 justify-self-center p-1 mb-4
                         bg-blue-500 text-white border border-blue-500 rounded 
