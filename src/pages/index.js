@@ -2,7 +2,7 @@
 import TodoList from "../components/TodoList";
 import Calendar from "../components/Calendar";
 
-import React,{useState,useEffect} from "react";
+import React,{useState,useEffect,useRef} from "react";
 import {useSession,signIn,signOut} from "next-auth/react";
 import {useRouter} from "next/router";
 
@@ -18,13 +18,17 @@ import {
   orderBy,
   where,
 } from "firebase/firestore";
+
 import { Timestamp } from "firebase/firestore";
 
 
 //일정 db - 필드 이름(타입) : userId(str) / userName(str) / content(str) / timeStart(timestamp) / timeEnd(timestamp) / progress(int)
 const todoDB = collection(db,"todoDB");
+//메시지 로그 db - 필드 이름(타입) : who(str) / log(str) / time(timestamp)
+const messageDB = collection(db,"messageDB");
 
 export default function Home() {
+
   //주소를 이동시킬 라우터
   const router = useRouter();
   //현재 사용자 세션 정보
@@ -91,6 +95,44 @@ export default function Home() {
     getTodos();
   },[]);
 
+  //챗봇
+  const [messages,setMessages]=useState([]);//메시지 로그 배열
+  const [loading,setLoading]=useState(false);//메시지 로딩 중
+  const messagesEndRef=useRef(null); //마지막 메시지 위치
+
+  //메시지 전달 함수 (메시지와 사전규칙)
+  const handleSend=async (message)=>{
+    const updatedMessages=[...messages,message];
+    setMessages(updatedMessages); //로그 추가
+    setLoading(true);//로딩 시작
+
+    const response = await fetch("/api/chat",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+      },
+      body:JSON.stringify({
+        messages:updatedMessages.slice(-6), //가장 마지막 6개 로그를 보냄
+      }),
+    });
+    
+    if (!response.ok){
+      setLoading(false);
+      console.log(response)
+      throw new Error(response.statusText);
+    }
+    const result=await response.json();
+    if (!result){return;}
+    console.log(result)
+    setLoading(false);
+    setMessages((messages)=>[...messages,result]);
+  }
+
+  const sendMessage=()=>{
+    // var userInput = prompt("챗봇에게 말하기");
+    handleSend("챗봇에게 말하기");
+  }
+
   return (
     <div>
       {/*아래 부분은 테스트 컴포넌트입니다.*/}
@@ -114,10 +156,15 @@ export default function Home() {
                         hover:bg-white hover:text-blue-500" 
               onClick={()=>printTodos(todos)}>더미 데이터 목록 콘솔 출력
       </button>
-      <button className="w-60 justify-self-center p-1 mb-4
+      <button className="w-60 justify-self-center p-1 mr-4
                         bg-blue-500 text-white border border-blue-500 rounded 
                         hover:bg-white hover:text-blue-500" 
               onClick={signOut}>로그아웃
+      </button>
+      <button className="w-60 justify-self-center p-1 mr-4
+                        bg-blue-500 text-white border border-blue-500 rounded 
+                        hover:bg-white hover:text-blue-500" 
+              onClick={sendMessage}>챗봇에 메시지 보내기
       </button>
       {/*위 부분은 테스트 컴포넌트입니다.*/}
 
