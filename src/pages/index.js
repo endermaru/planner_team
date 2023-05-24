@@ -122,15 +122,16 @@ export default function Home() {
       throw new Error(response.statusText);
     }
     const result=await response.json();
+
     if (!result){return;}
     console.log(result)
     setLoading(false);
     setMessages((messages)=>[...messages,result]);
-  }
+  };
 
   const sendMessage=()=>{
     // var userInput = prompt("챗봇에게 말하기");
-    handleSend("챗봇에게 말하기");
+    handleSend({ role : "user", content : "챗봇에게 말하기"});
   }
 
   return (
