@@ -18,7 +18,7 @@ export const ChatInput = ({onSendMessage}) => {
             return;
         }
         //input 컴포넌트 안으로 들어온 onsendmessage에 인자 입력
-        onSendMessage("you are my assitant",content);
+        onSendMessage("you are my assitant",content,1);
         setContent("");
     };
     //shift를 같이 누른 엔터가 아니면 기본 엔터 실행 취소후 Send

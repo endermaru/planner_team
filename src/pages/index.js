@@ -1,6 +1,7 @@
 //component 가져오기
 import TodoList from "../components/TodoList";
 import Calendar from "../components/Calendar";
+import Feedback from "../components/Feedback";
 import {Chat} from "@/components/Chat";
 
 import React,{useState,useEffect,useRef} from "react";
@@ -19,9 +20,6 @@ import {
   orderBy,
   where,
 } from "firebase/firestore";
-
-import { Timestamp } from "firebase/firestore";
-
 
 //일정 db - 필드 이름(타입) : userId(str) / userName(str) / content(str) / timeStart(timestamp) / timeEnd(timestamp) / progress(int)
 const todoDB = collection(db,"todoDB");
@@ -42,6 +40,7 @@ export default function Home() {
 
   //일정 배열 생성
   const [todos,setTodos]=useState([]);
+  const [todoLoading,settodoLoading]=useState(true);
 
   //db 가져오기
   const getTodos = async()=>{
@@ -51,7 +50,7 @@ export default function Home() {
       todoDB,
       where("userId","==",data?.user?.id),
     )
-    // const q=query(todoDB);
+    settodoLoading(true);
     const results=await getDocs(q);
     const newTodos=[];
 
@@ -61,6 +60,7 @@ export default function Home() {
       newTodos.push({id:doc.id, ...doc.data(), timeStart:_timeStart, timeEnd:_timeEnd});
     });
     setTodos(newTodos);
+    settodoLoading(false);
   }
   //db 추가하기(Id,이름,내용,시작날짜,종료날짜,진행도)
   const addTodos = async({_content,_timeStart,_timeEnd})=>{
@@ -102,7 +102,7 @@ export default function Home() {
   }
 
   //메시지 전달 함수 (메시지와 사전규칙)
-  const handleSend=async (_systemPrompt,message)=>{
+  const handleSend=async (_systemPrompt,message,isSave)=>{
     message={ role : "user", content : message};
     _systemPrompt={role:"system",content:_systemPrompt}; //규칙맞게 가공
     const updatedMessages=[...messages,message];
@@ -115,8 +115,8 @@ export default function Home() {
         "Content-Type":"application/json",
       },
       body:JSON.stringify({
-        messages:updatedMessages.slice(-6), //가장 마지막 6개 로그를 보냄
-        systemPrompt:_systemPrompt,
+        messages:updatedMessages.slice(-6), 
+        systemPrompt:_systemPrompt,//가장 마지막 6개 로그와 규칙을 보냄
       }),
     });
     
@@ -126,7 +126,7 @@ export default function Home() {
       throw new Error(response.statusText);
     }
 
-    //firebase에 메시지 추가
+    //firebase에 요청 메시지 추가(기본)
     var now=new Date();
     await addDoc(messageDB,{
       userId:data?.user?.id,
@@ -140,21 +140,47 @@ export default function Home() {
     if (!result){
       return;
     }
-    // console.log(result);
+
+    //messages에 요청 메시지 추가
     setLoading(false);
-    setMessages((messages)=>[...messages,result]);
     
+    console.log(isSave);
     //응답값 저장
-    now=new Date();
-    await addDoc(messageDB,{
+    if (isSave){
+      console.log(result);
+      //messges배열에
+      setMessages((messages)=>[...messages,result]);
+      //firebase배열에
+      now=new Date();
+      await addDoc(messageDB,{
       userId:data?.user?.id,
       userName:data?.user?.name,
       role:result.role,
       content:result.content,
       date:now,
     });
+    } else {
+      return result; //대답을 반환해 별도 처리
+    }
   };
 
+  //조정된 메시지 출력
+  const handleAdd=async(_role,_content)=>{
+    const result={role:_role,content:_content}
+    //messges배열에
+    setMessages((messages)=>[...messages,result]);
+    //firebase배열에
+    now=new Date();
+    await addDoc(messageDB,{
+      userId:data?.user?.id,
+      userName:data?.user?.name,
+      role:_role,
+      content:_content,
+      date:now,
+    });
+  }
+
+  //메시지 로그 불러오기
   const handleReset=async()=>{
     if (!data?.user?.name){
       return;
@@ -174,22 +200,10 @@ export default function Home() {
     setMessages([...logs_arr,
       {
         role:"assistant",
-        content:"챗봇 'GPT'입니다. 무엇을 도와드릴까요?"
+        content:"무엇을 도와드릴까요?"
       }
     ]);
   };
-
-  useEffect(()=>{
-    getTodos();
-    handleReset();
-  },[data?.user?.name]); //세션이 불러와지면 실행
-
-  //데모 버튼
-  const sendMessage=()=>{
-    var userInput = prompt("챗봇에게 말하기");
-    handleSend("You are my teacher",userInput );
-    console.log(messages);
-  }
 
   //로그 삭제
   const deletelog=async()=>{
@@ -204,22 +218,28 @@ export default function Home() {
         content:"무엇을 도와드릴까요?"
       }
     ]);
-  }
+  };
+
+  useEffect(()=>{
+    getTodos();
+    handleReset();
+    console.log('completed');
+  },[data?.user?.name]); //세션이 불러와지면 실행
 
   return (
     <div>
       {/*아래 부분은 테스트 컴포넌트입니다.*/}
       <p>{`This is ${data?.user?.name}'s main page(auth check)`}</p>
-      {todos.length>0 && ( //todos를 불러올때까지 기다림
+      {!todoLoading && ( //todos를 불러올때까지 기다림
       <div>
         <p>{`Todo객체의 기본적인 정보`}</p>
         <ul className="list-disc ml-6">
-          <li>{`userId : ${todos[0].userId} (str)`}</li>
-          <li>{`userName : ${todos[0].userName} (str)`}</li>
-          <li>{`content : ${todos[0].content} (str)`}</li>
-          <li>{`timeStart : ${todos[0].timeStart} (timestamp)`}</li>
-          <li>{`timeEnd : ${todos[0].timeEnd} (timestamp)`}</li>
-          <li>{`progress : ${todos[0].progress} (int)`}</li>
+          <li>{`userId : ${todos[0]?.userId} (str)`}</li>
+          <li>{`userName : ${todos[0]?.userName} (str)`}</li>
+          <li>{`content : ${todos[0]?.content} (str)`}</li>
+          <li>{`timeStart : ${todos[0]?.timeStart} (timestamp)`}</li>
+          <li>{`timeEnd : ${todos[0]?.timeEnd} (timestamp)`}</li>
+          <li>{`progress : ${todos[0]?.progress} (int)`}</li>
         </ul>
       </div>
       )};
@@ -255,8 +275,8 @@ export default function Home() {
       </div>
 
       {/*각 컴포넌트-getTodos가 배열을 가져올 때까지 렌더링되지 않습니다.*/}
-      {todos.length > 0 && (
-        <div>
+      {!todoLoading && (
+        <div className="flex flex-row">
           {/*데이터와 함수를 전달*/}
           <TodoList
             todos={todos}
@@ -266,6 +286,9 @@ export default function Home() {
           <Calendar
             todos={todos}
             printTodos={printTodos}
+          />
+          <Feedback
+            todos={todos}
           />
         </div>
       )}
