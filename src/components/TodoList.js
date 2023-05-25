@@ -1,13 +1,11 @@
 import React, {useState,useEffect} from "react";
-import { Timestamp } from "firebase/firestore";
 
 const TodoList=({todos,addTodos,printTodos})=>{
 
-    //새로운 일정 추가 예시(상위에서 가져온 함수 사용)
+    //새로운 일정 추가 예시(상위에서 가져온 함수 사용) - 인자 사용 가능
     const add_Todos=()=>{
         const date = new Date();
-        const timestamp=Timestamp.fromDate(date);
-        addTodos({_content:"content2",_timeStart:timestamp,_timeEnd:timestamp});
+        addTodos({_content:"content2",_timeStart:date,_timeEnd:date});
     }
     
     return (

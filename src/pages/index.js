@@ -1,6 +1,7 @@
 //component 가져오기
 import TodoList from "../components/TodoList";
 import Calendar from "../components/Calendar";
+import {Chat} from "@/components/Chat";
 
 import React,{useState,useEffect,useRef} from "react";
 import {useSession,signIn,signOut} from "next-auth/react";
@@ -45,12 +46,12 @@ export default function Home() {
   //db 가져오기
   const getTodos = async()=>{
     // 유저별로 가져올 때 사용
-    // if (!data?.user?.name) return; 세션정보가 있고/유저가 있고/이름이 있으면 통과
-    // const q=query(
-    //   todoDB,
-    //   where("userId","==",data?.user?.id),
-    // )
-    const q=query(todoDB);
+    if (!data?.user?.name) return; //세션정보가 있고/유저가 있고/이름이 있으면 통과
+    const q=query(
+      todoDB,
+      where("userId","==",data?.user?.id),
+    )
+    // const q=query(todoDB);
     const results=await getDocs(q);
     const newTodos=[];
 
@@ -86,52 +87,123 @@ export default function Home() {
   }
   //todos 배열 출력(확인용)
   const printTodos=(_todos)=>{
-    console.log(_todos);
+    console.log("todos",_todos);
+    console.log("messages",messages);
   }
-
-
-  //최초 실행(새로고침) 시 1회 실행
-  useEffect(()=>{
-    getTodos();
-  },[]);
 
   //챗봇
   const [messages,setMessages]=useState([]);//메시지 로그 배열
   const [loading,setLoading]=useState(false);//메시지 로딩 중
   const messagesEndRef=useRef(null); //마지막 메시지 위치
 
+  //애니메이션
+  const scrollToBottom=()=>{
+    messagesEndRef.current?.scrolllIntoView({behavior:"smooth"});
+  }
+
   //메시지 전달 함수 (메시지와 사전규칙)
-  const handleSend=async (message)=>{
+  const handleSend=async (_systemPrompt,message)=>{
+    message={ role : "user", content : message};
+    _systemPrompt={role:"system",content:_systemPrompt}; //규칙맞게 가공
     const updatedMessages=[...messages,message];
     setMessages(updatedMessages); //로그 추가
     setLoading(true);//로딩 시작
 
-    const response = await fetch("/api/chat",{
+    const response = await fetch("/api/openApi",{
       method:"POST",
       headers:{
         "Content-Type":"application/json",
       },
       body:JSON.stringify({
         messages:updatedMessages.slice(-6), //가장 마지막 6개 로그를 보냄
+        systemPrompt:_systemPrompt,
       }),
     });
     
     if (!response.ok){
       setLoading(false);
-      console.log(response)
+      // console.log(response)
       throw new Error(response.statusText);
     }
-    const result=await response.json();
 
-    if (!result){return;}
-    console.log(result)
+    //firebase에 메시지 추가
+    var now=new Date();
+    await addDoc(messageDB,{
+      userId:data?.user?.id,
+      userName:data?.user?.name,
+      role:message.role,
+      content:message.content,
+      date:now,
+    });
+
+    const result=await response.json();
+    if (!result){
+      return;
+    }
+    // console.log(result);
     setLoading(false);
     setMessages((messages)=>[...messages,result]);
+    
+    //응답값 저장
+    now=new Date();
+    await addDoc(messageDB,{
+      userId:data?.user?.id,
+      userName:data?.user?.name,
+      role:result.role,
+      content:result.content,
+      date:now,
+    });
   };
 
+  const handleReset=async()=>{
+    if (!data?.user?.name){
+      return;
+    }
+    const q=query(
+      messageDB,
+      where("userName","==",data?.user?.name),
+      orderBy("date","asc"),
+    )
+
+    // const q=query(messageDB,orderBy("date","asc"));
+    const logs_data=await getDocs(q);
+    const logs_arr=[];
+    logs_data.docs.forEach((doc)=>{
+      logs_arr.push({role:doc.data()["role"],content:doc.data()["content"]});
+    });
+    setMessages([...logs_arr,
+      {
+        role:"assistant",
+        content:"챗봇 'GPT'입니다. 무엇을 도와드릴까요?"
+      }
+    ]);
+  };
+
+  useEffect(()=>{
+    getTodos();
+    handleReset();
+  },[data?.user?.name]); //세션이 불러와지면 실행
+
+  //데모 버튼
   const sendMessage=()=>{
-    // var userInput = prompt("챗봇에게 말하기");
-    handleSend({ role : "user", content : "챗봇에게 말하기"});
+    var userInput = prompt("챗봇에게 말하기");
+    handleSend("You are my teacher",userInput );
+    console.log(messages);
+  }
+
+  //로그 삭제
+  const deletelog=async()=>{
+    const q=query(messageDB);
+    const logs_data=await getDocs(q);
+    logs_data.forEach((doc)=>{
+      deleteDoc(doc.ref);
+    });
+    setMessages([
+      {
+        role:"assistant",
+        content:"무엇을 도와드릴까요?"
+      }
+    ]);
   }
 
   return (
@@ -165,9 +237,22 @@ export default function Home() {
       <button className="w-60 justify-self-center p-1 mr-4
                         bg-blue-500 text-white border border-blue-500 rounded 
                         hover:bg-white hover:text-blue-500" 
-              onClick={sendMessage}>챗봇에 메시지 보내기
+              onClick={deletelog}>챗 로그 삭제
       </button>
       {/*위 부분은 테스트 컴포넌트입니다.*/}
+
+      
+      {/*챗봇 컴포넌트*/}
+      <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
+        <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
+          <Chat
+            messages={messages}
+            loading={loading}
+            onSendMessage={handleSend}
+          />
+          <div ref={messagesEndRef} /> {/*항상 메시지의 끝에 옴-여기까지 스크롤*/}
+        </div>
+      </div>
 
       {/*각 컴포넌트-getTodos가 배열을 가져올 때까지 렌더링되지 않습니다.*/}
       {todos.length > 0 && (

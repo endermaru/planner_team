@@ -16,14 +16,14 @@ export default async (req,res) => {
         return;
     }
     const {messages}=req.body; //req.body의 message속성 {role:"user",content:"요청사항"}
-    console.log(messages)
+    const {systemPrompt}=req.body; //req.body의 systemPrompt속성 {role:"system",content:"사전규칙"}
 
     //req에 대한 res 받아오기
     const completion=await openai.createChatCompletion({
         model:"gpt-3.5-turbo",
         temperature:0.7, //답변 랜덤성
         max_tokens:512, //문답 토큰 길이
-        messages:[{ role: "system", content: systemPrompt },...messages.slice(-6),], //사전규칙과 메시지 전달
+        messages:[systemPrompt,...messages.slice(-6),], //사전규칙과 메시지 전달
     })
 
     //res 반환
