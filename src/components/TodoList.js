@@ -4,8 +4,7 @@ const TodoList=({todos,addTodos,printTodos})=>{
 
     //새로운 일정 추가 예시(상위에서 가져온 함수 사용) - 인자 사용 가능
     const add_Todos=()=>{
-        const date = new Date();
-        addTodos({_content:"content2",_timeStart:date,_timeEnd:date});
+        addTodos({_content:"content2",_timeStart:"2023-05-30T10:00:00",_timeEnd:"2023-05-30T11:00:00"});
     }
     
     return (

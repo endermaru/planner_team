@@ -19,6 +19,7 @@ import {
   deleteDoc,
   orderBy,
   where,
+  Timestamp,
 } from "firebase/firestore";
 
 //일정 db - 필드 이름(타입) : userId(str) / userName(str) / content(str) / timeStart(timestamp) / timeEnd(timestamp) / progress(int)
@@ -68,12 +69,19 @@ export default function Home() {
       userId:data?.user?.id,
       userName:data?.user?.name,
       content:_content,
-      timeEnd:_timeEnd,
-      timeStart:_timeStart,
+      timeEnd:Timestamp.fromDate(new Date(_timeEnd)),
+      timeStart:Timestamp.fromDate(new Date(_timeStart)),
       progress:0,
     });
     setTodos([...todos,{id:docRef.id,userId:data?.user?.id,userName:data?.user?.name,content:_content,timeStart:_timeStart,timeEnd:_timeEnd}])
   };
+
+  //db 수정
+  const modiTodo = (id) => {
+    const selected=todos.filter((todo)=>todo.id===id)[0]
+    setItem(selected.item);setDate(selected.date);setbut("수정하기");
+    setmodid(id);
+  }
 
   //db삭제 - todos 배열 안에서 특정 속성으로 원하는 item을 찾는 함수 필요
   const delTodo=(id)=>{
@@ -100,11 +108,32 @@ export default function Home() {
   const scrollToBottom=()=>{
     messagesEndRef.current?.scrolllIntoView({behavior:"smooth"});
   }
-
+  
+  //정규표현식 함수
+  const re_f=async(sent)=>{
+    console.log("re_f",sent);
+    const sentence=sent;
+    const pattern = /\[method:"(\w+)",timeStart:"([^"]+)",timeEnd:"([^"]+)",content:"([^"]+)"\]/;
+    const match = sentence.match(pattern);
+    if (match) {
+      const method = match[1];
+      const timeStart = match[2];
+      const timeEnd = match[3];
+      const content = match[4];
+      if (method=="add"){
+        console.log(timeStart);
+        addTodos({ _content: content, _timeStart: timeStart, _timeEnd: timeEnd });
+        handleAdd("assistant","일정이 추가되었습니다!");
+      }
+    } else {
+      console.log("re_f failed");
+      return -1;
+    }
+  }
   //메시지 전달 함수 (메시지와 사전규칙)
   const handleSend=async (_systemPrompt,message,isSave)=>{
-    message={ role : "user", content : message};
-    _systemPrompt={role:"system",content:_systemPrompt}; //규칙맞게 가공
+    console.log("handleSend",message);
+    message={ role : "user", content : message};//규칙맞게 가공
     const updatedMessages=[...messages,message];
     setMessages(updatedMessages); //로그 추가
     setLoading(true);//로딩 시작
@@ -115,14 +144,14 @@ export default function Home() {
         "Content-Type":"application/json",
       },
       body:JSON.stringify({
-        messages:updatedMessages.slice(-6), 
-        systemPrompt:_systemPrompt,//가장 마지막 6개 로그와 규칙을 보냄
+        messages:[message], //input하나만 보냄 
+        systemPrompt:_systemPrompt,//규칙을 보냄
       }),
     });
     
     if (!response.ok){
       setLoading(false);
-      // console.log(response)
+      console.log("response",response);
       throw new Error(response.statusText);
     }
 
@@ -140,11 +169,16 @@ export default function Home() {
     if (!result){
       return;
     }
+    console.log("result",result);
 
     //messages에 요청 메시지 추가
     setLoading(false);
-    
-    console.log(isSave);
+
+    //정규표현식을 통과하면 메시지 표시 없이 내부 처리
+    if (re_f(result.content)){
+      isSave=0;
+    }
+
     //응답값 저장
     if (isSave){
       console.log(result);
@@ -170,7 +204,7 @@ export default function Home() {
     //messges배열에
     setMessages((messages)=>[...messages,result]);
     //firebase배열에
-    now=new Date();
+    const now=new Date();
     await addDoc(messageDB,{
       userId:data?.user?.id,
       userName:data?.user?.name,
@@ -241,6 +275,15 @@ export default function Home() {
           <li>{`timeEnd : ${todos[0]?.timeEnd} (timestamp)`}</li>
           <li>{`progress : ${todos[0]?.progress} (int)`}</li>
         </ul>
+        <br/>
+        <div className="flex flex-col">
+          <p>{`There are ${todos.length} todos.`}</p>
+        {todos.map((todo)=>(
+                    <div key={todo.id} className="my-1 sm:my-1.5 bg-orange-300 border border-black">
+                        {`${todo.content} / ${todo.timeStart} ~ ${todo.timeEnd}`}
+                    </div>
+                ))}
+        </div>
       </div>
       )};
       {/*테스트용 버튼*/}
