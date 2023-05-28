@@ -7,6 +7,13 @@ const TodoList=({todos,addTodos,printTodos})=>{
         addTodos({_content:"content2",_timeStart:"2023-05-30T10:00:00",_timeEnd:"2023-05-30T11:00:00"});
     }
     
+
+
+    
+// (지윤) TodoList 목록 정렬을 위한 css 설정
+const borderStyle =
+  "pb-1 pt-1 text-center border-2 border-gray-300 rounded-t-lg"
+
     return (
         <div>
             {/*샘플 코드입니다.*/}
