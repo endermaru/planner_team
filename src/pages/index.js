@@ -389,6 +389,14 @@ export default function Home() {
             {tab==3 &&(
             <Feedback className="w-3/5"
               todos={todos}
+              todoList={<TodoList className="w-3/5"
+                                  data={data}
+                                  todoLoading={todoLoading}
+                                  todos={todos}
+                                  addTodo={addTodos}
+                                  modiTodo={modiTodo}
+                                  delTodo={delTodo}
+                                  />}
             />
             )}
           </div>

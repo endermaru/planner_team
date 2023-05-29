@@ -12,7 +12,7 @@ const TodoList=({data,todoLoading,todos,addTodo,modiTodo,delTodo})=>{
     "pb-1 pt-1 text-center border-2 border-gray-300 rounded-t-lg"
 
     return (
-        <div className="p-5">
+        <div className="flex flex-col max-w-full p-5">
             {/*(지윤) 아래 부분은 todoList 탭에서 보여야 하는 내용들입니다. */}
         <p>{`${data?.user?.name}님의 할 일 목록입니다.`}</p>
         {!todoLoading && ( //todos를 불러올때까지 기다림
