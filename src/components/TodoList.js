@@ -12,7 +12,7 @@ const TodoList=({data,todoLoading,todos,addTodo,modiTodo,delTodo})=>{
     "pb-1 pt-1 text-center border-2 border-gray-300 rounded-t-lg"
 
     return (
-        <div>
+        <div className="p-5">
             {/*(지윤) 아래 부분은 todoList 탭에서 보여야 하는 내용들입니다. */}
         <p>{`${data?.user?.name}님의 할 일 목록입니다.`}</p>
         {!todoLoading && ( //todos를 불러올때까지 기다림
@@ -21,8 +21,8 @@ const TodoList=({data,todoLoading,todos,addTodo,modiTodo,delTodo})=>{
             <li className="mb-1 flex">
               <div className={`${borderStyle} ml-3 w-20`}>분류</div>
               <div className={`${borderStyle} ml-3 w-60`}>할 일</div>
-              <div className={`${borderStyle} ml-3 w-80`}>시작 시점</div>
-              <div className={`${borderStyle} ml-3 w-80`}>종료 시점</div>
+              <div className={`${borderStyle} ml-3 w-60`}>시작 시점</div>
+              <div className={`${borderStyle} ml-3 w-60`}>종료 시점</div>
               <div className={`${borderStyle} ml-3 w-32`}>진행도</div>
               <div className={`${borderStyle} ml-3 w-16`}>수정</div>
               <div className={`${borderStyle} ml-3 w-16`}>제거</div>
@@ -35,8 +35,8 @@ const TodoList=({data,todoLoading,todos,addTodo,modiTodo,delTodo})=>{
                         <li className="mb-1 flex">
                           <div className="ml-3 w-20 py-1 border-b-2 border-gray-300 text-center">{todo.category}</div>
                           <div className="ml-3 w-60 py-1 border-b-2 border-gray-300 text-center">{todo.content}</div>
-                          <div className="ml-3 w-80 py-1 border-b-2 border-gray-300 text-center"> {todo.timeStart.toLocaleString()}</div>
-                          <div className="ml-3 w-80 py-1 border-b-2 border-gray-300 text-center"> {todo.timeEnd.toLocaleString()}</div>
+                          <div className="ml-3 w-60 py-1 border-b-2 border-gray-300 text-center"> {todo.timeStart.toLocaleString()}</div>
+                          <div className="ml-3 w-60 py-1 border-b-2 border-gray-300 text-center"> {todo.timeEnd.toLocaleString()}</div>
                           <div className="ml-3 w-32 py-1 border-b-2 border-gray-300 text-center">{todo.progress}</div>
                           <div className="ml-3 w-16 py-1 border-b-2 border-gray-300 text-center">
                             <button onClick={() => modiTodo(todo.id)}>✏️</button>
