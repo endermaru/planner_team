@@ -2,6 +2,62 @@ import React, { useState, useEffect } from "react";
 
 const Calendar = ({ todos, printTodos }) => {
   const [date, setDate] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState(null);
+
+  const generateCalendarDays = () => {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+
+    const calendarDays = [];
+
+    // Generate days for the previous month
+    const previousMonthLastDate = new Date(
+      currentYear,
+      currentMonth,
+      0
+    ).getDate();
+    for (let i = firstDayOfMonth.getDay() - 1; i >= 0; i--) {
+      const date = new Date(
+        currentYear,
+        currentMonth - 1,
+        previousMonthLastDate - i
+      );
+      calendarDays.push({
+        date: date.toISOString().split("T")[0],
+        day: date.getDate(),
+        isCurrentMonth: false,
+      });
+    }
+
+    // Generate days for the current month
+    for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
+      const date = new Date(currentYear, currentMonth, i);
+      calendarDays.push({
+        date: date.toISOString().split("T")[0],
+        day: date.getDate(),
+        isCurrentMonth: true,
+      });
+    }
+
+    // Generate days for the next month
+    const remainingDays = 42 - calendarDays.length; // 42 is the total number of days in a 6-week calendar
+    for (let i = 1; i <= remainingDays; i++) {
+      const date = new Date(currentYear, currentMonth + 1, i);
+      calendarDays.push({
+        date: date.toISOString().split("T")[0],
+        day: date.getDate(),
+        isCurrentMonth: false,
+      });
+    }
+
+    return calendarDays;
+  };
+
+  const calendarDays = generateCalendarDays();
 
   // Function to handle previous month button click
   const handlePrevMonth = () => {
@@ -65,6 +121,37 @@ const Calendar = ({ todos, printTodos }) => {
           calendar's print
         </button>
       </div>
+      <div className="calendar-grid">
+        {calendarDays.map((day) => (
+          <div
+            key={day.date}
+            onClick={() => setSelectedDay(day.date)}
+            className={`calendar-day ${
+              day.isCurrentMonth ? "current-month" : "other-month"
+            } ${day.date === selectedDay ? "selected" : ""}`}
+          >
+            <span>{day.day}</span>
+            {/* ...other day information or styling... */}
+          </div>
+        ))}
+      </div>
+
+      {selectedDay && (
+        <div className="popup-page">
+          <h2>{selectedDay}</h2>
+          {todos
+            .filter((todo) => {
+              const todoDate = todo.timeStart.toISOString().split("T")[0];
+              return todoDate === selectedDay;
+            })
+            .map((todo) => (
+              <div key={todo.id} className="todo-item">
+                <p>{todo.content}</p>
+                {/* ...other todo information or styling... */}
+              </div>
+            ))}
+        </div>
+      )}
     </div>
   );
 };
