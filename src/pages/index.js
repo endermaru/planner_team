@@ -75,7 +75,9 @@ export default function Home() {
       timeStart: Timestamp.fromDate(new Date(_timeStart)),
       progress: 0,
     });
-    setTodos([
+    _timeStart = Timestamp.fromDate(new Date(_timeStart)).toDate();
+    _timeEnd = Timestamp.fromDate(new Date(_timeEnd)).toDate();
+    const newTodos = [
       ...todos,
       {
         id: docRef.id,
@@ -84,8 +86,13 @@ export default function Home() {
         content: _content,
         timeStart: _timeStart,
         timeEnd: _timeEnd,
+        progress: 0,
       },
-    ]);
+    ].sort(
+      (a, b) =>
+        new Date(a.timeStart).getTime() - new Date(b.timeStart).getTime()
+    );
+    setTodos(newTodos);
   };
 
   //db 수정
@@ -116,25 +123,23 @@ export default function Home() {
   //챗봇
   const [messages, setMessages] = useState([]); //메시지 로그 배열
   const [loading, setLoading] = useState(false); //메시지 로딩 중
-  const messagesEndRef = useRef(null); //마지막 메시지 위치
-
-  //애니메이션
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrolllIntoView({ behavior: "smooth" });
-  };
 
   //정규표현식 함수
   const re_f = async (sent) => {
     console.log("re_f", sent);
     const sentence = sent;
-    const pattern =
+    //추가
+    const pattern1 =
       /\[method:"(\w+)",timeStart:"([^"]+)",timeEnd:"([^"]+)",content:"([^"]+)"\]/;
-    const match = sentence.match(pattern);
-    if (match) {
-      const method = match[1];
-      const timeStart = match[2];
-      const timeEnd = match[3];
-      const content = match[4];
+    const match1 = sentence.match(pattern1);
+    //삭제
+    const pattern2 = /\[method:"(\w+)",timeStart:"([^"]+)",content:"([^"]+)"\]/;
+    const match2 = sentence.match(pattern2);
+    if (match1) {
+      const method = match1[1];
+      const timeStart = match1[2];
+      const timeEnd = match1[3];
+      const content = match1[4];
       if (method == "add") {
         console.log(timeStart);
         addTodos({
@@ -144,9 +149,68 @@ export default function Home() {
         });
         handleAdd("assistant", "일정이 추가되었습니다!");
       }
+    } else if (match2) {
+      const method = match2[1];
+      const timeStart = match2[2];
+      const content = match2[3];
+      const del_todo = [];
+      //따로 시간까지 지정되었을 경우
+      if (timeStart != "0") {
+        const _timeStart = Timestamp.fromDate(new Date(timeStart))
+          .toDate()
+          .toString();
+        console.log(_timeStart.slice(0, 16));
+        const close_todo = []; //근사치 배열
+        for (const item of todos) {
+          if (
+            item.content.includes(content) &&
+            _timeStart === item.timeStart.toString()
+          ) {
+            del_todo.push(item);
+          } else if (
+            item.content.includes(content) &&
+            _timeStart.slice(0, 16) === item.timeStart.toString().slice(0, 16)
+          ) {
+            close_todo.push(item);
+          }
+        }
+        if (del_todo.length == 0 && close_todo.length > 0) {
+          for (const item of close_todo) {
+            del_todo.push(item);
+          }
+        }
+      } else {
+        //시간없이 찾을 경우
+        for (const item of todos) {
+          if (item.content.includes(content)) {
+            del_todo.push(item);
+          }
+        }
+      }
+      console.log(del_todo);
+      //2개 이상인지 확인
+      if (del_todo.length === 1) {
+        delTodo(del_todo[0].id);
+        handleAdd("assistant", "일정이 삭제되었습니다!");
+      } else if (del_todo.length > 1) {
+        handleAdd(
+          "assistant",
+          "동일한 일정이 존재합니다. 날짜를 포함한 문장으로 삭제해주세요."
+        );
+      } else {
+        handleAdd("assistant", "해당 조건을 만족하는 일정을 찾을 수 없습니다!");
+      }
     } else {
-      console.log("re_f failed");
-      return -1;
+      if (sentence.includes("method:")) {
+        handleAdd(
+          "assistant",
+          "처리 과정에서 오류가 발생했습니다. 다시 시도해주세요."
+        );
+        console.log("func failed");
+      } else {
+        console.log("re_f failed");
+        return -1;
+      }
     }
   };
   //메시지 전달 함수 (메시지와 사전규칙)
@@ -175,14 +239,14 @@ export default function Home() {
     }
 
     //firebase에 요청 메시지 추가(기본)
-    var now = new Date();
-    await addDoc(messageDB, {
-      userId: data?.user?.id,
-      userName: data?.user?.name,
-      role: message.role,
-      content: message.content,
-      date: now,
-    });
+    // var now=new Date();
+    // await addDoc(messageDB,{
+    //   userId:data?.user?.id,
+    //   userName:data?.user?.name,
+    //   role:message.role,
+    //   content:message.content,
+    //   date:now,
+    // });
 
     const result = await response.json();
     if (!result) {
@@ -194,8 +258,11 @@ export default function Home() {
     setLoading(false);
 
     //정규표현식을 통과하면 메시지 표시 없이 내부 처리
-    if (re_f(result.content)) {
-      isSave = 0;
+    isSave = 0;
+    const cnt = await re_f(result.content);
+    if (cnt == -1) {
+      console.log("!");
+      isSave = 1;
     }
 
     //응답값 저장
@@ -204,14 +271,14 @@ export default function Home() {
       //messges배열에
       setMessages((messages) => [...messages, result]);
       //firebase배열에
-      now = new Date();
-      await addDoc(messageDB, {
-        userId: data?.user?.id,
-        userName: data?.user?.name,
-        role: result.role,
-        content: result.content,
-        date: now,
-      });
+      // now=new Date();
+      // await addDoc(messageDB,{
+      // userId:data?.user?.id,
+      // userName:data?.user?.name,
+      // role:result.role,
+      // content:result.content,
+      // date:now,
+      // });
     } else {
       return result; //대답을 반환해 별도 처리
     }
@@ -223,14 +290,14 @@ export default function Home() {
     //messges배열에
     setMessages((messages) => [...messages, result]);
     //firebase배열에
-    const now = new Date();
-    await addDoc(messageDB, {
-      userId: data?.user?.id,
-      userName: data?.user?.name,
-      role: _role,
-      content: _content,
-      date: now,
-    });
+    // const now=new Date();
+    // await addDoc(messageDB,{
+    //   userId:data?.user?.id,
+    //   userName:data?.user?.name,
+    //   role:_role,
+    //   content:_content,
+    //   date:now,
+    // });
   };
 
   //메시지 로그 불러오기
@@ -277,86 +344,127 @@ export default function Home() {
     ]);
   };
 
+  const [tab, setTab] = useState(1);
+
   useEffect(() => {
     getTodos();
     handleReset();
     console.log("completed");
   }, [data?.user?.name]); //세션이 불러와지면 실행
 
+  //스타일 지정
+  const buttonStyle =
+    "h-15 mr-3 p-3 bg-neutral text-white font-semibold\
+                    border rounded-md border-2 border-white\
+                    hover:bg-white hover:text-red-500";
+
+  const activeStyle =
+    "w-10 h-1/3 pb-10\
+                    bg-stone-700 text-white font-bold";
+  const grayStyle =
+    "w-10 h-1/3 border pb-10\
+                    bg-stone-300 text-black font-semibold\
+                    hover:bg-stone-400";
+
   return (
-    <div>
-      {/*아래 부분은 테스트 컴포넌트입니다.*/}
-      <p>{`This is ${data?.user?.name}'s main page(auth check)`}</p>
-      {!todoLoading && ( //todos를 불러올때까지 기다림
-        <div>
-          <p>{`Todo객체의 기본적인 정보`}</p>
-          <ul className="list-disc ml-6">
-            <li>{`userId : ${todos[0]?.userId} (str)`}</li>
-            <li>{`userName : ${todos[0]?.userName} (str)`}</li>
-            <li>{`content : ${todos[0]?.content} (str)`}</li>
-            <li>{`timeStart : ${todos[0]?.timeStart} (timestamp)`}</li>
-            <li>{`timeEnd : ${todos[0]?.timeEnd} (timestamp)`}</li>
-            <li>{`progress : ${todos[0]?.progress} (int)`}</li>
-          </ul>
-          <br />
-          <div className="flex flex-col">
-            <p>{`There are ${todos.length} todos.`}</p>
-            {todos.map((todo) => (
-              <div
-                key={todo.id}
-                className="my-1 sm:my-1.5 bg-orange-300 border border-black"
-              >
-                {`${todo.content} / ${todo.timeStart} ~ ${todo.timeEnd}`}
-              </div>
-            ))}
-          </div>
+    <div className="h-screen max-h-screen flex flex-col">
+      {!todoLoading && (
+        <div className="max-h-[10%] w-full flex flex-1 flex-row bg-red-500 items-end p-3">
+          <p className="flex text-white font-bold text-4xl mr-5 p-3 border rounded-md border-2 border-white">{`PLANNER : ${data?.user?.name}'s page`}</p>
+          {/*테스트용 버튼*/}
+          <button className={buttonStyle} onClick={signOut}>
+            로그아웃
+          </button>
+          <button className={buttonStyle} onClick={deletelog}>
+            챗 로그 삭제
+          </button>
+          <button
+            className={buttonStyle}
+            onClick={() => {
+              printTodos(todos);
+            }}
+          >
+            array 출력
+          </button>
         </div>
       )}
-      ;{/*테스트용 버튼*/}
-      <button
-        className="w-60 justify-self-center p-1 mr-4
-                        bg-blue-500 text-white border border-blue-500 rounded 
-                        hover:bg-white hover:text-blue-500"
-        onClick={() => printTodos(todos)}
-      >
-        더미 데이터 목록 콘솔 출력
-      </button>
-      <button
-        className="w-60 justify-self-center p-1 mr-4
-                        bg-blue-500 text-white border border-blue-500 rounded 
-                        hover:bg-white hover:text-blue-500"
-        onClick={signOut}
-      >
-        로그아웃
-      </button>
-      <button
-        className="w-60 justify-self-center p-1 mr-4
-                        bg-blue-500 text-white border border-blue-500 rounded 
-                        hover:bg-white hover:text-blue-500"
-        onClick={deletelog}
-      >
-        챗 로그 삭제
-      </button>
-      {/*위 부분은 테스트 컴포넌트입니다.*/}
-      {/*챗봇 컴포넌트*/}
-      <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
-        <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
-          <Chat
-            messages={messages}
-            loading={loading}
-            onSendMessage={handleSend}
-          />
-          <div ref={messagesEndRef} />{" "}
-          {/*항상 메시지의 끝에 옴-여기까지 스크롤*/}
-        </div>
-      </div>
+
       {/*각 컴포넌트-getTodos가 배열을 가져올 때까지 렌더링되지 않습니다.*/}
       {!todoLoading && (
-        <div className="flex flex-row">
-          {/*데이터와 함수를 전달*/}
-          <TodoList todos={todos} addTodos={addTodos} printTodos={printTodos} />
-          <Calendar todos={todos} printTodos={printTodos} />
-          <Feedback todos={todos} />
+        <div className="flex flex-1 flex-row max-h-[90%] border border-2">
+          {/*챗봇 컴포넌트*/}
+          <div className="flex w-1/4">
+            <div className="h-full w-full">
+              <Chat
+                messages={messages}
+                loading={loading}
+                onSendMessage={handleSend}
+              />
+            </div>
+          </div>
+
+          {/*탭에 따른 컴포넌트-데이터와 함수를 전달*/}
+          <div className="flex flex-row w-3/4 h-full border">
+            {/*탭버튼*/}
+            <div className="flex flex-col place-content-start">
+              <button
+                className={tab == 1 ? activeStyle : grayStyle}
+                onClick={() => setTab(1)}
+              >
+                {tab == 1 ? "⚪" : "🔘"}
+                {<p className="mt-3 text-lg rotate-90">Calendar</p>}
+              </button>
+              <button
+                className={tab == 2 ? activeStyle : grayStyle}
+                onClick={() => setTab(2)}
+              >
+                {tab == 2 ? "⚪" : "🔘"}
+                {<p className="mt-3 text-lg rotate-90">TodoList</p>}
+              </button>
+              <button
+                className={tab == 3 ? activeStyle : grayStyle}
+                onClick={() => setTab(3)}
+              >
+                {tab == 3 ? "⚪" : "🔘"}
+                {<p className="mt-3 text-lg rotate-90">Feedback</p>}
+              </button>
+            </div>
+            {tab == 1 && (
+              <Calendar
+                className="w-3/5"
+                todos={todos}
+                printTodos={printTodos}
+              />
+            )}
+            {tab == 2 && (
+              <TodoList
+                className="w-3/5"
+                data={data}
+                todoLoading={todoLoading}
+                todos={todos}
+                addTodo={addTodos}
+                modiTodo={modiTodo}
+                delTodo={delTodo}
+              />
+            )}
+            {tab == 3 && (
+              <Feedback
+                className="w-3/5"
+                todos={todos}
+                todoList={
+                  <TodoList
+                    className="w-3/5"
+                    data={data}
+                    todoLoading={todoLoading}
+                    todos={todos}
+                    addTodo={addTodos}
+                    modiTodo={modiTodo}
+                    delTodo={delTodo}
+                  />
+                }
+              />
+            )}
+          </div>
         </div>
       )}
     </div>
