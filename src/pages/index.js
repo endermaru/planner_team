@@ -3,7 +3,9 @@ import TodoList from "../components/TodoList";
 import Calendar from "../components/Calendar";
 import Feedback from "../components/Feedback";
 import {Chat} from "@/components/Chat";
+import ModiModal from "@/components/ModiModal";
 
+import Modal from 'react-modal';
 import React,{useState,useEffect,useRef} from "react";
 import {useSession,signIn,signOut} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -80,11 +82,39 @@ export default function Home() {
   };
 
   //db 수정
-  const modiTodo = (id) => {
-    const selected=todos.filter((todo)=>todo.id===id)[0]
-    setItem(selected.item);setDate(selected.date);setbut("수정하기");
-    setmodid(id);
+  const modiTodo = (modid,_content,_timeStart,_timeEnd,_progress) => {
+    const newTodos=todos.map((todo)=>{
+      if (todo.id==modid){
+          const todoDoc=doc(todoDB,modid);
+          _timeStart=Timestamp.fromDate(new Date(_timeStart)).toDate();
+          _timeEnd=Timestamp.fromDate(new Date(_timeEnd)).toDate();
+          updateDoc(todoDoc,{content:_content,timeStart:_timeStart,timeEnd:_timeEnd,progress:_progress});
+          return {...todo,content:_content,timeStart:_timeStart,timeEnd:_timeEnd,progress:_progress};
+      } else {
+        return todo;
+      }
+    })
+    setTodos(newTodos);
   }
+  
+  //수정 모달창
+  const [isOpen,setIsOpen]=useState(false);
+  const [id_moditodo,setid_moditodo]=useState('');
+  const openModal=()=>{
+    setIsOpen(true);
+  }
+  const closeModal=()=>{
+    setIsOpen(false);
+  }
+  //db 수정 - 모달 창에 넘기는 기능
+  const openModimodal = (id) => {
+    setid_moditodo(id);
+    openModal();
+  }
+  //모달 창 root 설정
+  useEffect(()=>{
+    Modal.setAppElement('#root');
+  },[]);
 
   //db삭제 - todos 배열 안에서 특정 속성으로 원하는 item을 찾는 함수 필요
   const delTodo=(id)=>{
@@ -98,8 +128,9 @@ export default function Home() {
   }
   //todos 배열 출력(확인용)
   const printTodos=(_todos)=>{
-    console.log("todos",_todos);
-    console.log("messages",messages);
+    // setid_moditodo(_todos[0]?.id)
+    // console.log(id_moditodo);
+    setIsOpen(!isOpen);
   }
 
   //챗봇
@@ -108,75 +139,89 @@ export default function Home() {
   
   //정규표현식 함수
   const re_f=async(sent)=>{
-    console.log("re_f",sent);
-    const sentence=sent;
-    //추가
-    const pattern1 = /\[method:"(\w+)",timeStart:"([^"]+)",timeEnd:"([^"]+)",content:"([^"]+)"\]/;
-    const match1 = sentence.match(pattern1);
-    //삭제
-    const pattern2 = /\[method:"(\w+)",timeStart:"([^"]+)",content:"([^"]+)"\]/;
-    const match2 = sentence.match(pattern2);
-    if (match1) {
-      const method = match1[1];
-      const timeStart = match1[2];
-      const timeEnd = match1[3];
-      const content = match1[4];
-      if (method=="add"){
-        console.log(timeStart);
-        addTodos({ _content: content, _timeStart: timeStart, _timeEnd: timeEnd });
+    const sentence=sent.replace(/\n/g,"");
+    const pattern=/\{.*?\}/;
+    const match = sentence.match(pattern);
+    if (match) {
+      const jStr=JSON.parse(match[0]);
+
+      if (jStr.method==="add"){
+        addTodos({_content:jStr.content,_timeStart:jStr.timeStart,_timeEnd:jStr.timeEnd});
         handleAdd("assistant","일정이 추가되었습니다!");
-      }
-    } else if (match2) {
-      const method=match2[1];
-      const timeStart=match2[2];
-      const content=match2[3];      
-      const del_todo=[];
-      //따로 시간까지 지정되었을 경우
-      if (timeStart!="0"){
-        const _timeStart=Timestamp.fromDate(new Date(timeStart)).toDate().toString();
-        console.log(_timeStart.slice(0,16));
-        const close_todo=[]; //근사치 배열
-        for (const item of todos){
-          if (item.content.includes(content) && _timeStart===item.timeStart.toString()){
-            del_todo.push(item);
-          } else if (item.content.includes(content) && _timeStart.slice(0,16)===item.timeStart.toString().slice(0,16)){
-            close_todo.push(item);
-          }
-        }
-        if (del_todo.length==0 && close_todo.length>0){
-          for (const item of close_todo){
-            del_todo.push(item);
-          }
+
+      } else if (jStr.method==="delete") {
+        const resultFind=findSchedule(jStr);
+        console.log("result",resultFind);
+        if (resultFind===0){
+          handleAdd("assistant","해당 조건을 만족하는 일정을 찾을 수 없습니다.");
+        } else if (resultFind===-1){
+          handleAdd("assistant","조건에 맞는 일정이 2개 이상 존재합니다. 날짜와 시간을 정확히 작성해주세요.");
+        } else {
+          delTodo(resultFind.id);
+          handleAdd("assistant","일정이 삭제되었습니다.");
         }
 
-      } else {
-        //시간없이 찾을 경우
-        for (const item of todos){
-          if (item.content.includes(content)){
-            del_todo.push(item);
-          }
+      } else if (jStr.method==="modification") {
+        const resultFind=findSchedule(jStr);
+        if (resultFind===0){
+          handleAdd("assistant","해당 조건을 만족하는 일정을 찾을 수 없습니다.");
+        } else if (resultFind===-1){
+          handleAdd("assistant","조건에 맞는 일정이 2개 이상 존재합니다. 날짜와 시간을 정확히 작성해주세요.");
+        } else {
+          openModimodal(resultFind);
+          handleAdd("assistant","일정 수정페이지로 이동합니다.");
         }
-      }
-      console.log(del_todo);
-      //2개 이상인지 확인
-      if (del_todo.length===1){
-        delTodo(del_todo[0].id);
-        handleAdd("assistant","일정이 삭제되었습니다!");
-      } else if (del_todo.length>1){
-        handleAdd("assistant","동일한 일정이 존재합니다. 날짜를 포함한 문장으로 삭제해주세요.");
       } else {
-        handleAdd("assistant","해당 조건을 만족하는 일정을 찾을 수 없습니다!");
+        //정규표현식은 작동했으나 명령 수행 불가
+        handleAdd("assistant","명령이 제대로 수행되지 않았습니다. 다시 시도해주세요.");
       }
     } else {
-      if (sentence.includes('method:')){
-        handleAdd("assistant","처리 과정에서 오류가 발생했습니다. 다시 시도해주세요.")
-        console.log("func failed")
-      } else {
-        console.log("re_f failed");
-        return (-1)
-      }
+      //정규표현식 작동 안함
+      console.log("re_f failed");
+      return (-1)
     }
   }
+
+  const findSchedule=(jStr)=>{
+    const timeStart=jStr.timeStart;
+    const content=jStr.content;      
+    const exact_todo=[];
+    //따로 시간까지 지정되었을 경우
+    if (timeStart!="0"){
+      const _timeStart=Timestamp.fromDate(new Date(timeStart)).toDate().toString();
+      const close_todo=[]; //근사치 배열
+      for (const item of todos){
+        if (item.content.includes(content) && _timeStart===item.timeStart.toString()){
+          exact_todo.push(item);
+        } else if (item.content.includes(content) && _timeStart.slice(0,16)===item.timeStart.toString().slice(0,16)){
+          close_todo.push(item);
+        }
+      }
+      if (exact_todo.length==0 && close_todo.length>0){
+        for (const item of close_todo){
+          exact_todo.push(item);
+        }
+      }
+    } else {
+      //시간없이 찾을 경우
+      for (const item of todos){
+        if (item.content.includes(content)){
+          exact_todo.push(item);
+        }
+      }
+    }
+    //2개 이상인지 확인
+    if (exact_todo.length===1){
+      return (exact_todo[0].id);
+    } else if (exact_todo.length>1){
+      //일정중복
+      return (-1);
+    } else {
+      //일정없음
+      return (0);
+    }
+  }
+
   //메시지 전달 함수 (메시지와 사전규칙)
   const handleSend=async (_systemPrompt,message,isSave)=>{
     console.log("handleSend",message);
@@ -225,7 +270,6 @@ export default function Home() {
     isSave=0;
     const cnt=await re_f(result.content);
     if (cnt==-1){
-      console.log("!");
       isSave=1;
     }
 
@@ -304,6 +348,7 @@ export default function Home() {
     ]);
   };
 
+  //탭 바꾸기
   const [tab,setTab]=useState(1);
 
   useEffect(()=>{
@@ -312,8 +357,6 @@ export default function Home() {
     console.log('completed');
   },[data?.user?.name]); //세션이 불러와지면 실행
 
-
-  
   //스타일 지정
   const buttonStyle="h-15 mr-3 p-3 bg-neutral text-white font-semibold\
                     border rounded-md border-2 border-white\
@@ -324,9 +367,16 @@ export default function Home() {
   const grayStyle="w-10 h-1/3 border pb-10\
                     bg-stone-300 text-black font-semibold\
                     hover:bg-stone-400"
-
   return (
-    <div className="h-screen max-h-screen flex flex-col">
+    <div id='root' className="h-screen max-h-screen flex flex-col">
+      {/*수정 시 나오는 모달창*/}
+      <ModiModal isOpen={isOpen}
+                closeModal={closeModal} 
+                modifunc={modiTodo}
+                handleAdd={handleAdd}
+                todos={todos} 
+                id_moditodo={id_moditodo}
+                />
       {!todoLoading&&
         <div className="max-h-[10%] w-full flex flex-1 flex-row bg-red-500 items-end p-3">
           <p className="flex text-white font-bold text-4xl mr-5 p-3 border rounded-md border-2 border-white">{`PLANNER : ${data?.user?.name}'s page`}</p>
@@ -338,7 +388,7 @@ export default function Home() {
                   onClick={deletelog}>챗 로그 삭제
           </button>
           <button className={buttonStyle}
-                  onClick={()=>{printTodos(todos)}}>array 출력
+                  onClick={()=>{printTodos(todos);}}>array 출력
           </button>
         </div>
       }
@@ -383,8 +433,8 @@ export default function Home() {
               todoLoading={todoLoading}
               todos={todos}
               addTodo={addTodos}
-              modiTodo={modiTodo}
               delTodo={delTodo}
+              openModi={openModimodal}
             />)}
             {tab==3 &&(
             <Feedback className="w-3/5"

@@ -1,6 +1,7 @@
 import { Configuration,OpenAIApi } from "openai";
 
 const configuration = new Configuration({
+    organization:process.env.OPENAI_ORGANIZATION,
     apiKey:process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration); //api 객체 생성
@@ -23,7 +24,7 @@ export default async (req,res) => {
     const completion=await openai.createChatCompletion({
         model:"gpt-3.5-turbo",
         temperature:0.7, //답변 랜덤성
-        max_tokens:512, //문답 토큰 길이
+        max_tokens:1500, //문답 토큰 길이
         messages:[...systemPrompt,...messages.slice(-6),], //사전규칙과 메시지 전달
     })
 
