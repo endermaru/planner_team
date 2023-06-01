@@ -556,7 +556,7 @@ export default function Home() {
                   </div>
                   {tab == 1 && (
                     <Calendar
-                      className="w-2/3"
+                      className="w-fit"
                       todos={todos}
                       printTodos={printTodos}
                     />
