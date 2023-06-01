@@ -6,7 +6,7 @@ import { isSameMonth, isSameDay, addDays, parse } from "date-fns";
 
 const RenderHeader = ({ currentMonth, prevMonth, nextMonth }) => {
   return (
-    <div className="header row">
+    <div className="w-full flex flex-row justify-center items-center">
       <div className="col col-start">
         <span className="text">
           <span className="text month">{format(currentMonth, "M")}월</span>
@@ -32,7 +32,11 @@ const RenderDays = () => {
     );
   }
 
-  return <div className="days row">{days}</div>;
+  return (
+    <div className="days row flex flex-row justify-center items-center">
+      {days}
+    </div>
+  );
 };
 const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
   const monthStart = startOfMonth(currentMonth);
@@ -61,7 +65,7 @@ const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
               : "valid"
           }`}
           key={day}
-          onClick={() => onDateClick(parse(date, dd, cloneDay))}
+          onClick={() => onDateClick(parse(cloneDay, "dd", new Date()))}
         >
           <span
             className={
@@ -77,7 +81,7 @@ const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
       day = addDays(day, 1);
     }
     rows.push(
-      <div className="row" key={day}>
+      <div className="row flex flex-row justify-center items-center" key={day}>
         {days}
       </div>
     );
