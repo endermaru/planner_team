@@ -17,12 +17,14 @@ const RenderHeader = ({ currentMonth, prevMonth, nextMonth }) => {
       </div>
       <div className="col w-1/5 h-full flex flex-row justify-end items-baseline ml-5 col-end">
         <Icon
-          icon="bi:arrow-left-circle-fill"
-          className="w-3/12 h-full ml-3"
+          icon="bi:arrow-left-circle"
+          color="gray"
+          className="w-3/12 h-full ml-3 hover:fill-gray-darkest"
           onClick={prevMonth}
         />
         <Icon
-          icon="bi:arrow-right-circle-fill"
+          icon="bi:arrow-right-circle"
+          color="gray"
           className="w-3/12 h-full ml-3"
           onClick={nextMonth}
         />
@@ -67,13 +69,13 @@ const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
       formattedDate = format(day, "d");
       const cloneDay = day;
       days.push(
-        <div className="w-1/6 h-max flex flex-col justify-end items-center px-1 m-1">
+        <div className="w-1/6 h-max flex flex-col justify-start items-center px-1 m-1">
           <div
-            className={`col w-16 h-16 flex flex-col justify-end items-center px-1 rounded-full cell ${
+            className={`col w-16 h-16 flex flex-col justify-center items-center px-1 rounded-full cell ${
               !isSameMonth(day, monthStart)
                 ? "disabled "
                 : isSameDay(day, selectedDate)
-                ? "selected"
+                ? "selected bg-orange text-gray-lightest"
                 : format(currentMonth, "M") !== format(day, "M")
                 ? "not-valid"
                 : "valid rounded-full bg-gray-light"
@@ -106,7 +108,7 @@ const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
     days = [];
   }
   return (
-    <div className="body w-full h-4/5 flex flex-col justify-center items-center">
+    <div className="body w-full h-4/5 flex flex-col justify-center items-center mb-3">
       {rows}
     </div>
   );
