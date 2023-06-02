@@ -23,19 +23,19 @@ const Feedback = ({ todos, todoList }) => {
       <p className={titleStyle}>{score}</p>
       <div class="flex flex-row-reverse justify-center">
         <button class="bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange  peer-focus:bg-orange rounded-full w-12 h-12 mx-2"
-                onclick = {setscore(1)}>
+                onClick = { () =>setscore(1)}>
         </button>
         <button class="bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange  peer-focus:bg-orange rounded-full w-12 h-12 mx-2"
-                onclick = {setscore(2)}>
+                onClick = { () =>setscore(2)}>
         </button>        
         <button class="bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange  peer-focus:bg-orange rounded-full w-12 h-12 mx-2"
-                onclick = {setscore(3)}>
+                onClick = { () =>setscore(3)}>
         </button>        
         <button class="bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange  peer-focus:bg-orange rounded-full w-12 h-12 mx-2"
-                onclick = {setscore(4)}>
+                onClick = { () =>setscore(4)}>
         </button>        
         <button class="bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange  peer-focus:bg-orange rounded-full w-12 h-12 mx-2"
-                onclick = {setscore(5)}>
+                onClick = { () =>setscore(5)}>
         </button>
       </div>
       <p className={titleStyle}>
