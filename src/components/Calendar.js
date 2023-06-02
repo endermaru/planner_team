@@ -79,11 +79,17 @@ const RenderCells = ({
   onDateClick,
   modalIsOpen,
   setModalIsOpen,
+  closeHover,
+  isCloseHovering,
+  notCloseHovering,
+  todos,
+  printTodos,
 }) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfWeek(monthStart);
   const endDate = endOfWeek(monthEnd);
+  const nowDate = new Date();
 
   const rows = [];
   let days = [];
@@ -105,10 +111,12 @@ const RenderCells = ({
                 : ""*/
               !isSameMonth(day, monthStart)
                 ? "disabled "
-                : isSameDay(day, selectedDate)
+                : isSameDay(day, nowDate)
                 ? "selected bg-orange text-gray-lightest hover:bg-blue"
                 : format(currentMonth, "M") !== format(day, "M")
                 ? "not-valid"
+                : isSameDay(day, selectedDate)
+                ? "bg-blue text-gray-lightest"
                 : "valid bg-gray-light hover:bg-blue hover:text-gray-lightest"
             }`}
             key={day}
@@ -138,12 +146,62 @@ const RenderCells = ({
     );
     days = [];
   }
+  const customStyles = {
+    content: {
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      width: "30vw",
+      height: "45vh",
+      transform: "translate(-50%,-50%)",
+      backgroundColor: "white",
+      padding: 0,
+    },
+  };
+
+  const findTodo = (_todos, day) => {
+    const _modi = _todos.find((todo) => todo.id === id);
+    if (_modi) {
+      setContent(_modi?.content);
+      var _timeStart = new Date(_modi?.timeStart);
+      _timeStart.setUTCHours(_timeStart.getUTCHours() + 9);
+      _timeStart = _timeStart.toISOString().slice(0, -2);
+      setTimeStart(_timeStart);
+      var _timeEnd = new Date(_modi?.timeEnd);
+      _timeEnd.setUTCHours(_timeEnd.getUTCHours() + 9);
+      _timeEnd = _timeEnd.toISOString().slice(0, -2);
+      //setTimeEnd(_timeEnd);
+    }
+    return _modi;
+  };
+
   return (
     <div className="body w-full h-4/5 flex flex-col justify-center items-center mb-3">
       {rows}
-      <Modal isOpen={modalIsOpen}>
-        This is Modal content
-        <button onClick={() => setModalIsOpen(false)}>Modal Open</button>
+
+      <Modal
+        isOpen={modalIsOpen}
+        className="w-2/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl"
+        contentLabel="Modal for calendar"
+        style={customStyles}
+        onRequestClose={() => setModalIsOpen(false)}
+      >
+        <div className="flex w-full flex-row justify-between items-end px-5 pb-3 pt-5 bg-blue text-xl text-gray-lightest rounded-t-xl">
+          <div>날짜별 일정 ${format(selectedDate, "dd")}</div>
+          <Icon
+            icon={`${
+              closeHover ? "carbon:close-filled" : "carbon:close-outline"
+            }`}
+            color="white"
+            className="w-8 h-8"
+            onMouseOver={isCloseHovering}
+            onMouseOut={notCloseHovering}
+            onClick={() => setModalIsOpen(false)}
+          />
+        </div>
+        <div className="flex w-full pt-5 pb-10 px-10 flex-col justify-start items-start">
+          {/* print todos here */}
+        </div>
       </Modal>
     </div>
   );
@@ -156,6 +214,7 @@ const Calendar = ({ todos, printTodos }) => {
   const [nextHover, setNextHover] = useState(false);
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [closeHover, setCloseHover] = useState(false);
 
   const isPrevHovering = () => {
     setPrevHover(true);
@@ -176,10 +235,19 @@ const Calendar = ({ todos, printTodos }) => {
   const nextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
   };
+
   const onDateClick = (day) => {
-    //setSelectedDate(day);
+    setSelectedDate(day);
     setModalIsOpen(true);
   };
+
+  const isCloseHovering = () => {
+    setCloseHover(true);
+  };
+  const notCloseHovering = () => {
+    setCloseHover(false);
+  };
+
   return (
     <div className="calendar w-full h-full">
       <RenderHeader
@@ -197,9 +265,13 @@ const Calendar = ({ todos, printTodos }) => {
       <RenderCells
         currentMonth={currentMonth}
         selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
         onDateClick={onDateClick}
         modalIsOpen={modalIsOpen}
         setModalIsOpen={setModalIsOpen}
+        closeHover={closeHover}
+        isCloseHovering={isCloseHovering}
+        notCloseHovering={notCloseHovering}
       />
     </div>
   );
