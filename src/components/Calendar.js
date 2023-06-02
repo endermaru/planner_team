@@ -4,7 +4,17 @@ import { format, addMonths, subMonths } from "date-fns";
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek } from "date-fns";
 import { isSameMonth, isSameDay, addDays, parse } from "date-fns";
 
-const RenderHeader = ({ currentMonth, prevMonth, nextMonth }) => {
+const RenderHeader = ({
+  currentMonth,
+  prevMonth,
+  nextMonth,
+  prevHover,
+  nextHover,
+  isPrevHovering,
+  notPrevHovering,
+  isNextHovering,
+  notNextHovering,
+}) => {
   return (
     <div className="w-full flex flex-row justify-between items-baseline p-4">
       <div className="col w-4/5 h-full flex flex-col justify-center items-start mr-1 col-start">
@@ -17,15 +27,23 @@ const RenderHeader = ({ currentMonth, prevMonth, nextMonth }) => {
       </div>
       <div className="col w-1/5 h-full flex flex-row justify-end items-baseline ml-5 col-end">
         <Icon
-          icon="bi:arrow-left-circle"
+          icon={`${
+            prevHover ? "bi:arrow-left-circle-fill" : "bi:arrow-left-circle"
+          }`}
           color="gray"
-          className="w-3/12 h-full ml-3 hover:fill-gray-darkest"
+          className="w-3/12 h-full ml-3"
+          onMouseOver={isPrevHovering}
+          onMouseOut={notPrevHovering}
           onClick={prevMonth}
         />
         <Icon
-          icon="bi:arrow-right-circle"
+          icon={`${
+            nextHover ? "bi:arrow-right-circle-fill" : "bi:arrow-right-circle"
+          }`}
           color="gray"
           className="w-3/12 h-full ml-3"
+          onMouseOver={isNextHovering}
+          onMouseOut={notNextHovering}
           onClick={nextMonth}
         />
       </div>
@@ -69,7 +87,7 @@ const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
       formattedDate = format(day, "d");
       const cloneDay = day;
       days.push(
-        <div className="w-1/6 h-max flex flex-col justify-start items-center px-1 m-1">
+        <div className="w-1/6 h-max flex flex-col justify-start items-center px-1 my-2">
           <div
             className={`col w-16 h-16 flex flex-col justify-center items-center px-1 rounded-full cell ${
               !isSameMonth(day, monthStart)
@@ -81,7 +99,7 @@ const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
                 : "valid rounded-full bg-gray-light"
             }`}
             key={day}
-            onClick={() => onDateClick(parse(cloneDay, "dd", new Date()))}
+            //onClick={() => onDateClick(parse(cloneDay, "dd", new Date()))}
           >
             <span
               className={
@@ -117,6 +135,21 @@ const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
 const Calendar = ({ todos, printTodos }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [prevHover, setPrevHover] = useState(false);
+  const [nextHover, setNextHover] = useState(false);
+
+  const isPrevHovering = () => {
+    setPrevHover(true);
+  };
+  const notPrevHovering = () => {
+    setPrevHover(false);
+  };
+  const isNextHovering = () => {
+    setNextHover(true);
+  };
+  const notNextHovering = () => {
+    setNextHover(false);
+  };
 
   const prevMonth = () => {
     setCurrentMonth(subMonths(currentMonth, 1));
@@ -133,6 +166,12 @@ const Calendar = ({ todos, printTodos }) => {
         currentMonth={currentMonth}
         prevMonth={prevMonth}
         nextMonth={nextMonth}
+        prevHover={prevHover}
+        nextHover={nextHover}
+        isPrevHovering={isPrevHovering}
+        notPrevHovering={notPrevHovering}
+        isNextHovering={isNextHovering}
+        notNextHovering={notNextHovering}
       />
       <RenderDays />
       <RenderCells
