@@ -4,6 +4,8 @@ import { format, addMonths, subMonths } from "date-fns";
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek } from "date-fns";
 import { isSameMonth, isSameDay, addDays, parse } from "date-fns";
 
+import Modal from "react-modal";
+
 const RenderHeader = ({
   currentMonth,
   prevMonth,
@@ -71,7 +73,13 @@ const RenderDays = () => {
     </div>
   );
 };
-const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
+const RenderCells = ({
+  currentMonth,
+  selectedDate,
+  onDateClick,
+  modalIsOpen,
+  setModalIsOpen,
+}) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfWeek(monthStart);
@@ -104,7 +112,7 @@ const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
                 : "valid bg-gray-light hover:bg-blue hover:text-gray-lightest"
             }`}
             key={day}
-            //onClick={() => onDateClick(parse(cloneDay, "dd", new Date()))}
+            onClick={() => onDateClick(day)}
           >
             <span
               className={
@@ -133,6 +141,10 @@ const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
   return (
     <div className="body w-full h-4/5 flex flex-col justify-center items-center mb-3">
       {rows}
+      <Modal isOpen={modalIsOpen}>
+        This is Modal content
+        <button onClick={() => setModalIsOpen(false)}>Modal Open</button>
+      </Modal>
     </div>
   );
 };
@@ -142,6 +154,8 @@ const Calendar = ({ todos, printTodos }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [prevHover, setPrevHover] = useState(false);
   const [nextHover, setNextHover] = useState(false);
+
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const isPrevHovering = () => {
     setPrevHover(true);
@@ -164,6 +178,7 @@ const Calendar = ({ todos, printTodos }) => {
   };
   const onDateClick = (day) => {
     //setSelectedDate(day);
+    setModalIsOpen(true);
   };
   return (
     <div className="calendar w-full h-full">
@@ -183,6 +198,8 @@ const Calendar = ({ todos, printTodos }) => {
         currentMonth={currentMonth}
         selectedDate={selectedDate}
         onDateClick={onDateClick}
+        modalIsOpen={modalIsOpen}
+        setModalIsOpen={setModalIsOpen}
       />
     </div>
   );
