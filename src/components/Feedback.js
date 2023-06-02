@@ -22,20 +22,20 @@ const Feedback = ({ todos, todoList }) => {
       <p className={titleStyle}>3. 오늘 하루에 대한 총점수 매기기</p>
       {/* <p className={titleStyle}>{score}</p> */}
       <div class="flex flex-row-reverse justify-center">
-        <button class="bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange  peer-focus:bg-orange rounded-full w-12 h-12 mx-2"
-                onClick = { () =>setscore(5)}>
+        <button class={`bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${score === 5 ? 'bg-orange' : ''}`}
+                onClick = { () =>setscore(5) }>
         </button>
-        <button class="bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange  peer-focus:bg-orange rounded-full w-12 h-12 mx-2"
-                onClick = { () =>setscore(4)}>
+        <button class={`bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${score === 4 ? 'bg-orange' : ''}`}
+                onClick = { () =>setscore(4) }>
         </button>        
-        <button class="bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange  peer-focus:bg-orange rounded-full w-12 h-12 mx-2"
-                onClick = { () =>setscore(3)}>
+        <button class={`bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${score === 3 ? 'bg-orange' : ''}`}
+                onClick = { () =>setscore(3) }>
         </button>        
-        <button class="bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange  peer-focus:bg-orange rounded-full w-12 h-12 mx-2"
-                onClick = { () =>setscore(2)}>
+        <button class={`bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${score === 2 ? 'bg-orange' : ''}`}
+                onClick = { () =>setscore(2) }>
         </button>        
-        <button class="bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange  peer-focus:bg-orange rounded-full w-12 h-12 mx-2"
-                onClick = { () =>setscore(1)}>
+        <button class={`bg-gray-light peer peer-hover:bg-orange hover:bg-orange focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${score === 1 ? 'bg-orange' : ''}`}
+                onClick = { () =>setscore(1) }>
         </button>
       </div>
       <p className={titleStyle}>
@@ -44,7 +44,8 @@ const Feedback = ({ todos, todoList }) => {
       <input className={inputStyle} type="text" />
       <p className={titleStyle}>5. 조언 중 참고할 점 작성하기</p>
       <input className={inputStyle} type="text" />
-      <button className="w-1/5 p-1 bg-orange text-white border border-orange rounded hover:bg-gray-light hover:text-orange">
+      <button className="mt-4 w-1/5 p-1 bg-orange text-white border border-orange rounded hover:bg-gray-light hover:text-orange">
+        onClick = { () =>setscore(0)}
       저장하기
       </button>
 
