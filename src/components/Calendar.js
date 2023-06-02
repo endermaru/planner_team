@@ -90,13 +90,18 @@ const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
         <div className="w-1/6 h-max flex flex-col justify-start items-center px-1 my-2">
           <div
             className={`col w-16 h-16 flex flex-col justify-center items-center px-1 rounded-full cell ${
+              /*isSameMonth(day, monthStart)
+                ? "bg-gray-light hover:bg-blue hover:text-gray-lightest"
+                : isSameDay(day, selectedDate)
+                ? "selected bg-orange text-gray-lightest hover:bg-blue"
+                : ""*/
               !isSameMonth(day, monthStart)
                 ? "disabled "
                 : isSameDay(day, selectedDate)
-                ? "selected bg-orange text-gray-lightest"
+                ? "selected bg-orange text-gray-lightest hover:bg-blue"
                 : format(currentMonth, "M") !== format(day, "M")
                 ? "not-valid"
-                : "valid rounded-full bg-gray-light"
+                : "valid bg-gray-light hover:bg-blue hover:text-gray-lightest"
             }`}
             key={day}
             //onClick={() => onDateClick(parse(cloneDay, "dd", new Date()))}
@@ -158,7 +163,7 @@ const Calendar = ({ todos, printTodos }) => {
     setCurrentMonth(addMonths(currentMonth, 1));
   };
   const onDateClick = (day) => {
-    setSelectedDate(day);
+    //setSelectedDate(day);
   };
   return (
     <div className="calendar w-full h-full">
