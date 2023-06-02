@@ -6,16 +6,26 @@ import { isSameMonth, isSameDay, addDays, parse } from "date-fns";
 
 const RenderHeader = ({ currentMonth, prevMonth, nextMonth }) => {
   return (
-    <div className="w-full flex flex-row justify-center items-center">
-      <div className="col col-start">
-        <span className="text">
-          <span className="text month">{format(currentMonth, "M")}월</span>
+    <div className="w-full flex flex-row justify-between items-baseline p-4">
+      <div className="col w-4/5 h-full flex flex-col justify-center items-start mr-1 col-start">
+        <span className="text-l">
+          <span className="text-4xl month mx-4 font-semibold">
+            {format(currentMonth, "M")}
+          </span>
           {format(currentMonth, "yyyy")}
         </span>
       </div>
-      <div className="col col-end">
-        <Icon icon="bi:arrow-left-circle-fill" onClick={prevMonth} />
-        <Icon icon="bi:arrow-right-circle-fill" onClick={nextMonth} />
+      <div className="col w-1/5 h-full flex flex-row justify-end items-baseline ml-5 col-end">
+        <Icon
+          icon="bi:arrow-left-circle-fill"
+          className="w-3/12 h-full ml-3"
+          onClick={prevMonth}
+        />
+        <Icon
+          icon="bi:arrow-right-circle-fill"
+          className="w-3/12 h-full ml-3"
+          onClick={nextMonth}
+        />
       </div>
     </div>
   );
@@ -26,14 +36,17 @@ const RenderDays = () => {
 
   for (let i = 0; i < 7; i++) {
     days.push(
-      <div className="col" key={i}>
+      <div
+        className="col w-1/6 h-full flex flex-col justify-end items-start px-1 bg-gray-dark text-gray-lightest border-gray-lightest border"
+        key={i}
+      >
         {date[i]}
       </div>
     );
   }
 
   return (
-    <div className="days row flex flex-row justify-center items-center">
+    <div className="days w-full h-fit p-1 row flex flex-row justify-between items-center">
       {days}
     </div>
   );
@@ -54,40 +67,49 @@ const RenderCells = ({ currentMonth, selectedDate, onDateClick }) => {
       formattedDate = format(day, "d");
       const cloneDay = day;
       days.push(
-        <div
-          className={`col cell ${
-            !isSameMonth(day, monthStart)
-              ? "disabled"
-              : isSameDay(day, selectedDate)
-              ? "selected"
-              : format(currentMonth, "M") !== format(day, "M")
-              ? "not-valid"
-              : "valid"
-          }`}
-          key={day}
-          onClick={() => onDateClick(parse(cloneDay, "dd", new Date()))}
-        >
-          <span
-            className={
-              format(currentMonth, "M") !== format(day, "M")
-                ? "text not-valid"
-                : ""
-            }
+        <div className="w-1/6 h-max flex flex-col justify-end items-center px-1 m-1">
+          <div
+            className={`col w-16 h-16 flex flex-col justify-end items-center px-1 rounded-full cell ${
+              !isSameMonth(day, monthStart)
+                ? "disabled "
+                : isSameDay(day, selectedDate)
+                ? "selected"
+                : format(currentMonth, "M") !== format(day, "M")
+                ? "not-valid"
+                : "valid rounded-full bg-gray-light"
+            }`}
+            key={day}
+            onClick={() => onDateClick(parse(cloneDay, "dd", new Date()))}
           >
-            {formattedDate}
-          </span>
+            <span
+              className={
+                format(currentMonth, "M") !== format(day, "M")
+                  ? "text not-valid"
+                  : ""
+              }
+            >
+              {formattedDate}
+            </span>
+          </div>
         </div>
       );
       day = addDays(day, 1);
     }
     rows.push(
-      <div className="row flex flex-row justify-center items-center" key={day}>
+      <div
+        className="row w-full h-full flex flex-row justify-between items-center"
+        key={day}
+      >
         {days}
       </div>
     );
     days = [];
   }
-  return <div className="body">{rows}</div>;
+  return (
+    <div className="body w-full h-4/5 flex flex-col justify-center items-center">
+      {rows}
+    </div>
+  );
 };
 
 const Calendar = ({ todos, printTodos }) => {
@@ -104,7 +126,7 @@ const Calendar = ({ todos, printTodos }) => {
     setSelectedDate(day);
   };
   return (
-    <div className="calendar">
+    <div className="calendar w-full h-full">
       <RenderHeader
         currentMonth={currentMonth}
         prevMonth={prevMonth}
