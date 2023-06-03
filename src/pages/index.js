@@ -25,9 +25,11 @@ import {
 } from "firebase/firestore";
 
 //일정 db - 필드 이름(타입) : userId(str) / userName(str) / content(str) / timeStart(timestamp) / timeEnd(timestamp) / progress(int)
-const todoDB = collection(db, "todoDB");
+const todoDB = db.collection("todoDB");
 //메시지 로그 db - 필드 이름(타입) : who(str) / log(str) / time(timestamp)
-const messageDB = collection(db, "messageDB");
+const messageDB = db.collection("messageDB");
+
+const feedbackDB = db.collection("feedbackDB");
 
 export default function Home() {
   //주소를 이동시킬 라우터
@@ -159,6 +161,31 @@ export default function Home() {
     // console.log(id_moditodo);
     setIsOpen(!isOpen);
   };
+
+  const [feedback, setfeedback] = useState([]);
+
+  const getFeedback = async () => {
+    if (!data?.user?.name) {
+      return;
+    }
+    const q = query(
+      feedbackDB,
+      where("userName", "==", data?.user?.name),
+      orderBy("date", "asc")
+    );
+
+    const result = await getDocs(q);
+    const feed = [];
+
+    result.docs.forEach((doc)=> {
+      feed.push({id:doc.id, ...doc.data()});
+    });
+
+    setfeedback(feed);
+    };
+
+
+
 
   //챗봇
   const [messages, setMessages] = useState([]); //메시지 로그 배열
@@ -410,6 +437,7 @@ export default function Home() {
   useEffect(() => {
     getTodos();
     handleReset();
+    getFeedback();
     console.log("completed");
   }, [data?.user?.name]); //세션이 불러와지면 실행
 
