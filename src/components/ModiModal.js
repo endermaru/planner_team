@@ -5,48 +5,93 @@ import react,{useEffect,useState} from "react";
 const ModiModal=({isOpen,closeModal,modifunc,handleAdd,todos,id_moditodo})=>{
   const [modi,setModi]=useState('');
   const [content,setContent]=useState('');
+  const [category,setCategory]=useState('');
   const [timeStart,setTimeStart]=useState('');
   const [timeEnd,setTimeEnd]=useState('');
   const [progress,setProgress]=useState(0);
-
+  
+  //날짜 변환기
+  const dateToString=(date)=>{
+    const dateObj=new Date(date);
+    // console.log(dateObj);
+    const y=dateObj.getFullYear();
+    const m=dateObj.getMonth()+1;
+    const d=dateObj.getDate();
+    const h=dateObj.getHours();
+    const mi=dateObj.getMinutes();
+    return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}T${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
+  }
 
   const findTodo=(_todos,id)=>{
     const _modi=_todos.find(todo=>todo.id===id);
     if (_modi){
       setContent(_modi?.content);
-      var _timeStart=new Date(_modi?.timeStart);
-      _timeStart.setUTCHours(_timeStart.getUTCHours() + 9);
-      _timeStart=_timeStart.toISOString().slice(0,-2);
-      setTimeStart(_timeStart);
-      var _timeEnd=new Date(_modi?.timeEnd);
-      _timeEnd.setUTCHours(_timeEnd.getUTCHours() + 9);
-      _timeEnd=_timeEnd.toISOString().slice(0,-2);
-      setTimeEnd(_timeEnd);
+      setCategory(_modi?.category);
+      setTimeStart(dateToString(_modi?.timeStart));
+      setTimeEnd(dateToString(_modi?.timeEnd));
     }
     return _modi;
   }
+
+  //날짜 수정 시 따라가기
+  const cmpTodo=()=>{
+    if (timeStart>timeEnd){
+      const stStr=dateToString(timeStart);
+      const edStr=dateToString(timeEnd);
+      //날짜가 달라질 경우
+      if (stStr.slice(8,10)!==edStr.slice(8,10) || stStr.slice(5,7)!==stStr.slice(5,7) || stStr.slice(0,4)!==edStr.slice(0,4))
+      { 
+        setTimeEnd(stStr.slice(0,10)+edStr.slice(10,));
+      }
+      //시간이 달라질 경우
+      else
+      {
+        setTimeEnd(stStr);
+      }
+    };
+  }
+
+  const dateToStart=()=>{
+    const stStr=dateToString(timeStart);
+    const edStr=dateToString(timeEnd);
+    setTimeEnd(stStr.slice(0,10)+edStr.slice(10,));
+  }
+
+  const allDay=()=>{
+    const stStr=dateToString(timeStart);
+    setTimeStart(stStr.slice(0,10)+"T00:00");
+    setTimeEnd(stStr.slice(0,10)+"T23:59");
+
+  }
   useEffect(()=>{
     setModi(findTodo(todos,id_moditodo));
-    console.log(id_moditodo);
   },[isOpen]);
 
+  useEffect(()=>{
+    cmpTodo();
+  },[timeStart]);
+
   const modi_todo=()=>{
-    modifunc(id_moditodo,content,timeStart,timeEnd,progress);
+    modifunc(id_moditodo,content,category,timeStart,timeEnd,progress);
   };
 
-  const buttonStyle='justify-items-end w-32 p-1 mx-3 rounded text-black font-semibold\
-                    border border-2 boder-gray-400 bg-white hover:bg-gray-200 focus:ring-1 focus:ring-gray-400'
+  const buttonStyle='justify-items-end w-28 ml-3 p-1 rounded text-gray-darkest font-semibold\
+                    border border-1 border-gray-light bg-gray hover:bg-gray-dark hover:text-gray-lightest hover:border-gray-dark focus:ring-1 focus:ring-gray'
 
   const customStyles={
+    overlay:{
+      backgroundColor: 'rgba(128,128,128, 0.3)',
+    },
     content:{
       position:'absolute',
       top:'50%',
       left:'50%',
-      width:'30vw',
-      height:'45vh',
+      width:'500px',
+      height:'460px',
       transform: 'translate(-50%,-50%)',
-      backgroundColor:'white',
+      backgroundColor:'gray-lightest',
       padding:0,
+      border:0,
       borderRadius:'10px',
     },
   };
@@ -58,56 +103,69 @@ const ModiModal=({isOpen,closeModal,modifunc,handleAdd,todos,id_moditodo})=>{
       shouldCloseOnOverlayClick={false} 
       contentLabel="Modal for modification"
     >
-      <div className='bg-white h-full flex flex-col'>
+      <div className='bg-gray-lightest w-full h-full flex flex-col'>
 
         <div className='w-full bg-red-500'>
-          <p className='px-5 py-3 text-white text-2xl font-semibold'>일정 수정 페이지</p>
+          <p className='px-5 py-3 bg-orange text-gray-lightest text-2xl font-semibold'>일정 수정하기</p>
         </div>
 
-        <div className='flex flex-col h-full place-content-center'>
-          <div className='flex flex-row items-center place-content-center my-2'>
-            <p className='text-end w-1/6 font-semibold'>일정 이름 : </p>
-            <input
-              type="text"
-              className="w-1/2 p-1 ml-4 border border-gray-300 rounded shadow-lg"
-              value={content}
-              onChange={(e)=>setContent(e.target.value)}
-            />
-          </div>
-          <div className='flex flex-row items-center place-content-center my-2'>
-            <p className='text-end w-1/6 font-semibold'>시작 날짜 : </p>
-            <input
-              type="datetime-local"
-              className="w-1/2 ml-4 p-1 border border-gray-300 rounded shadow-lg"
-              value={timeStart}
-              onChange={(e)=>{setTimeStart(e.target.value)}}
-            />
-          </div>
-          <div className='flex flex-row items-center place-content-center my-2'>
-            <p className='text-end w-1/6 font-semibold'>종료 날짜 : </p>
-            <input
-              type="datetime-local"
-              className="w-1/2 p-1 ml-4 border border-gray-300 rounded shadow-lg"
-              value={timeEnd}
-              onChange={(e)=>{setTimeEnd(e.target.value)}}
-            />
-          </div>
-          <div className='flex flex-row items-center place-content-center my-2'>
-            <p className='text-end w-1/6 font-semibold'>진행도 : </p>
-            <input
-              type="integer"
-              className="w-1/2 p-1 ml-4 border border-gray-300 rounded shadow-lg"
-              value={progress}
-              onChange={(e)=>{setProgress(e.target.value)}}
-            />
-          </div>
+        <div className='grid gap-4 grid-cols-3 mx-10 my-5 place-content-center'>
+          <p className='align-middle text-end font-semibold p-1'>일정 이름 : </p>
+          <input
+            type="text"
+            className="col-span-2 align-middle p-1 border border-gray-300 rounded shadow-md"
+            value={content}
+            onChange={(e)=>setContent(e.target.value)}
+          />
+
+          <p className='align-middle text-end font-semibold p-1'>카테고리 : </p>
+          <input
+            type="text"
+            className="col-span-2 align-middle p-1 border border-gray-300 rounded shadow-md"
+            value={category}
+            onChange={(e)=>setCategory(e.target.value)}
+          />
+          <p className='align-middle text-end font-semibold p-1'>시작 날짜 : </p>
+          <input
+            type="datetime-local"
+            className="col-span-2 align-middle p-1 border border-gray-300 rounded shadow-md"
+            value={timeStart}
+            onChange={(e)=>{setTimeStart(e.target.value)}}
+          />
+          <p className='align-middle text-end font-semibold p-1'>종료 날짜 : </p>
+          <input
+            type="datetime-local"
+            className="col-span-2 align-middle p-1 border border-gray-300 rounded shadow-md"
+            value={timeEnd}
+            onChange={(e)=>{setTimeEnd(e.target.value)}}
+          />
+          <div></div>
+          <button className='col-span-1 w-full justify-self-end py-1 px-3 rounded text-gray-darkest font-semibold
+            bg-gray
+            hover:bg-gray-dark hover:text-gray-lightest hover:border-gray-light
+            focus:ring-1 focus:ring-gray'
+            onClick={(allDay)}>{`종일`}
+          </button>
+          <button className='col-span-1 justify-self-end py-1 px-3 rounded text-gray-darkest font-semibold
+            bg-gray
+            hover:bg-gray-dark hover:text-gray-lightest hover:border-gray-light
+            focus:ring-1 focus:ring-gray'
+            onClick={(dateToStart)}>{`시작 날짜와 맞추기`}
+          </button>
+          <p className='align-middle text-end font-semibold p-1'>진행도 : </p>
+          <input
+            type="integer"
+            className="col-span-2 align-middle p-1 border border-gray-300 rounded shadow-md"
+            value={progress}
+            onChange={(e)=>{setProgress(e.target.value)}}
+          />
         </div>
-        <div className='flex flex-row h-1/6 place-items-center justify-end'>
+        <div className='flex flex-row mb-5 mx-10 place-items-center justify-end'>
           <button className={`${buttonStyle}`} onClick={closeModal}>취소</button>
           <button className={`${buttonStyle}`} onClick={()=>{
             modi_todo();
             closeModal();
-            handleAdd("assistant","일정이 수정되었습니다.")
+            handleAdd("assistant",`"${modi.content}" 일정이 수정되었습니다.`)
           }}>확인</button>
         </div>
       </div>

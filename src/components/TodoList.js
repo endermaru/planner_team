@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from "react";
 
-const TodoList = ({ data, todoLoading, todos, addTodo, delTodo, openModi }) => {
-  //새로운 일정 추가 예시(상위에서 가져온 함수 사용) - 인자 사용 가능
-  const add_Todos = () => {
-    addTodo({
-      _content: "content2",
-      _timeStart: "2023-05-30T10:00:00",
-      _timeEnd: "2023-05-30T11:00:00",
-    });
-  };
+const TodoList = ({ data, todoLoading, todos, delTodo, openModi }) => {
+
+  //날짜 변환기
+  const dateToString=(date)=>{
+    const dateObj=new Date(date);
+    // console.log(dateObj);
+    const y=dateObj.getFullYear();
+    const m=dateObj.getMonth()+1;
+    const d=dateObj.getDate();
+    const h=dateObj.getHours();
+    const mi=dateObj.getMinutes();
+
+    var hf="오전";
+    if (h>=12) hf="오후"
+    // console.log(y,m,d,hf,String(h).padStart(2, "0"),String(mi).padStart(2, "0"));
+    return `${m}월 ${d}일 ${hf} ${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
+  }
 
   // (지윤) TodoList 목록 정렬을 위한 css 설정
   const tableCategory = "py-2 font-semibold  text-left  pl-2";
@@ -18,7 +26,7 @@ const TodoList = ({ data, todoLoading, todos, addTodo, delTodo, openModi }) => {
   const activeCell = "font-bold text-gray-darkest";
 
   return (
-    <div className="max-w-full w-full overflow-y-scroll no-scrollbar">
+    <div className="max-w-full w-full overflow-y-scroll p-5 no-scrollbar">
       <div className="flex h-10 border-b-[1px] pl-12 items-center">
         <div className={`${activeCell} pr-4`}>최신순</div>
         <div className={`${grayCell} pr-4`}>진행도순</div>
@@ -49,11 +57,11 @@ const TodoList = ({ data, todoLoading, todos, addTodo, delTodo, openModi }) => {
                   <td className={tableCell}>{item.category}</td>
                   <td className={tableCell}>{item.content}</td>
                   <td className={tableCell}>
-                    {item.timeStart.toLocaleString().slice(6, 20)}
+                    {dateToString(item.timeStart)}
                   </td>{" "}
                   <td className={tableCell}>-</td>
                   <td className={tableCell}>
-                    {item.timeEnd.toLocaleString().slice(6, 20)}
+                    {dateToString(item.timeEnd)}
                   </td>
                   <td className={tableCell}>{item.progress}</td>
                   <td className={tableCell}>

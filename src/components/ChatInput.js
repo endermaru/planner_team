@@ -105,12 +105,13 @@ export const ChatInput = ({ onSendMessage }) => {
         TODAY:${nowString},
         Analyze purpose of user's sententce : "add" || "delete" || "modification"
         Write in Markdown, Write only JSON format. Write timeStart and timeEnd only in ISO 8601 format
-        1. "add" : return {"method":"add","timeStart":start time,"timeEnd":end time,"content":the name of schedule}
+        1. "add" : return {"method":"add","category":"대외활동"||"학업"||"자격증"||"인턴","timeStart":start time,"timeEnd":end time,"content":the name of schedule}
+        -Determine which category is appropriate for the schedule. If you can't find proper category, then return another most suitable category you think in korean.
         -If there is only date but no time, start time is 00:00:00 and end time is 23:59:59.
-        ex) "6월 6일 현충일 추가해줘" -> "timeStart":"2023-06-06T00:00:00", "timeEnd":"2023-06-06T23:59:59"
+        ex) "6월 6일 현충일 추가해줘" -> "category":"기념일","timeStart":"2023-06-06T00:00:00", "timeEnd":"2023-06-06T23:59:59"
         -If there is no end date and time, end time is 1 hour after of start time.
-        ex) "오후 11시 공부 추가해" -> "timeStart":"${ex3}","timeEnd":"${ex4}"
-        ex) "다음주 화요일 17시 회의 추가해" -> "timeStart":"${nextTuesday}","timeEnd":"${nextTuesday_end}"
+        ex) "오후 11시 공부 추가해" -> "category":"학업","timeStart":"${ex3}","timeEnd":"${ex4}"
+        ex) "다음주 화요일 17시 모임 추가해" -> "category":"약속","timeStart":"${nextTuesday}","timeEnd":"${nextTuesday_end}"
 
         2. "delete" : return {"method":"delete","timeStart":start time,"content":the name of schedule}
         ex) "6월 3일 오후 3시 운동 없애줘." -> return {"method":"delete","timeStart":"2023-06-03T15:00:00","content":"운동"}
@@ -132,7 +133,7 @@ export const ChatInput = ({ onSendMessage }) => {
     ];
 
     //input 컴포넌트 안으로 들어온 onsendmessage에 인자 입력
-    console.log("?", systemPrompt);
+    // console.log("?", systemPrompt);
     onSendMessage(systemPrompt, content, 1);
     setContent("");
   };
