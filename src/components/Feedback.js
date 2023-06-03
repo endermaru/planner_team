@@ -4,6 +4,10 @@ const Feedback = ({ todos, todoList }) => {
   const titleStyle = "text-xl font-semibold mt-5 mb-2";
   const inputStyle = "min-h-[44px] border border-2 w-4/5 relative";
   const [score, setscore] = useState()
+  
+  const addfeedback = () => {
+    
+  };
   return (
     <div className="flex flex-col w-full p-5 overflow-y-scroll no-scrollbar">
       <p className={titleStyle}>1. 진행도 표시하기</p>
