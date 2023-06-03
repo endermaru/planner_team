@@ -25,12 +25,9 @@ import {
 } from "firebase/firestore";
 
 //일정 db - 필드 이름(타입) : userId(str) / userName(str) / content(str) / timeStart(timestamp) / timeEnd(timestamp) / progress(int)
-const todoDB = collection(db,"todoDB");
-
+const todoDB = collection(db, "todoDB");
 //메시지 로그 db - 필드 이름(타입) : who(str) / log(str) / time(timestamp)
-const messageDB = collection(db,"messageDB");
-
-const feedbackDB = collection(db, "feedbackDB");
+const messageDB = collection(db, "messageDB");
 
 export default function Home() {
   //주소를 이동시킬 라우터
@@ -71,11 +68,12 @@ export default function Home() {
     settodoLoading(false);
   };
   //db 추가하기(Id,이름,내용,시작날짜,종료날짜,진행도)
-  const addTodos = async ({ _content, _timeStart, _timeEnd }) => {
+  const addTodos = async ({ _content,_category, _timeStart, _timeEnd }) => {
     const docRef = await addDoc(todoDB, {
       userId: data?.user?.id,
       userName: data?.user?.name,
       content: _content,
+      category: _category,
       timeEnd: Timestamp.fromDate(new Date(_timeEnd)),
       timeStart: Timestamp.fromDate(new Date(_timeStart)),
       progress: 0,
@@ -89,6 +87,7 @@ export default function Home() {
         userId: data?.user?.id,
         userName: data?.user?.name,
         content: _content,
+        category:_category,
         timeStart: _timeStart,
         timeEnd: _timeEnd,
         progress: 0,
@@ -101,7 +100,7 @@ export default function Home() {
   };
 
   //db 수정
-  const modiTodo = (modid, _content, _timeStart, _timeEnd, _progress) => {
+  const modiTodo = (modid, _content,_category, _timeStart, _timeEnd, _progress) => {
     const newTodos = todos.map((todo) => {
       if (todo.id == modid) {
         const todoDoc = doc(todoDB, modid);
@@ -109,6 +108,7 @@ export default function Home() {
         _timeEnd = Timestamp.fromDate(new Date(_timeEnd)).toDate();
         updateDoc(todoDoc, {
           content: _content,
+          category:_category,
           timeStart: _timeStart,
           timeEnd: _timeEnd,
           progress: _progress,
@@ -116,6 +116,7 @@ export default function Home() {
         return {
           ...todo,
           content: _content,
+          category:_category,
           timeStart: _timeStart,
           timeEnd: _timeEnd,
           progress: _progress,
@@ -159,34 +160,9 @@ export default function Home() {
   //todos 배열 출력(확인용)
   const printTodos = (_todos) => {
     // setid_moditodo(_todos[0]?.id)
-    // console.log(id_moditodo);
-    setIsOpen(!isOpen);
+    console.log(_todos);
+    // setIsOpen(!isOpen);
   };
-
-  const [feedback, setfeedback] = useState([]);
-
-  const getFeedback = async () => {
-    if (!data?.user?.name) {
-      return;
-    }
-    const q = query(
-      feedbackDB,
-      where("userName", "==", data?.user?.name),
-      orderBy("date", "asc")
-    );
-
-    const result = await getDocs(q);
-    const feed = [];
-
-    result.docs.forEach((doc)=> {
-      feed.push({id:doc.id, ...doc.data()});
-    });
-
-    setfeedback(feed);
-    };
-
-
-
 
   //챗봇
   const [messages, setMessages] = useState([]); //메시지 로그 배열
@@ -203,6 +179,7 @@ export default function Home() {
       if (jStr.method === "add") {
         addTodos({
           _content: jStr.content,
+          _category: jStr.category,
           _timeStart: jStr.timeStart,
           _timeEnd: jStr.timeEnd,
         });
@@ -257,26 +234,43 @@ export default function Home() {
   const findSchedule = (jStr) => {
     const timeStart = jStr.timeStart;
     const content = jStr.content;
-    const exact_todo = [];
+    const exact_todo = []; //날짜 시간 확인
+    const close_todo = []; //날짜만 확인
+
     //따로 시간까지 지정되었을 경우
     if (timeStart != "0") {
-      const _timeStart = Timestamp.fromDate(new Date(timeStart))
-        .toDate()
-        .toString();
-      const close_todo = []; //근사치 배열
+      const dateObj = new Date(timeStart);
+
+      const y=dateObj.getFullYear();
+      const m=dateObj.getMonth()+1;
+      const d=dateObj.getDate();
+      const h=dateObj.getHours();
+      const mi=dateObj.getMinutes();
+      
+      const _timeStart = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}T${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
+      console.log(_timeStart.slice(0,10));
+
       for (const item of todos) {
+        //각 todo에 대한 문자열 생성
+        const y2=item.timeStart.getFullYear();
+        const m2=item.timeStart.getMonth()+1;
+        const d2=item.timeStart.getDate();
+        const h2=item.timeStart.getHours();
+        const mi2=item.timeStart.getMinutes();
+        const todoTime = `${y2}-${String(m2).padStart(2, "0")}-${String(d2).padStart(2, "0")}T${String(h2).padStart(2, "0")}:${String(mi2).padStart(2, "0")}`;
         if (
           item.content.includes(content) &&
-          _timeStart === item.timeStart.toString()
+          _timeStart === todoTime
         ) {
           exact_todo.push(item);
         } else if (
           item.content.includes(content) &&
-          _timeStart.slice(0, 16) === item.timeStart.toString().slice(0, 16)
+          _timeStart.slice(0, 10) === todoTime.slice(0, 10)
         ) {
           close_todo.push(item);
         }
       }
+      //날짜 같은 일정만 존재할 때 옮겨주기
       if (exact_todo.length == 0 && close_todo.length > 0) {
         for (const item of close_todo) {
           exact_todo.push(item);
@@ -304,7 +298,7 @@ export default function Home() {
 
   //메시지 전달 함수 (메시지와 사전규칙)
   const handleSend = async (_systemPrompt, message, isSave) => {
-    console.log("handleSend", message);
+    // console.log("handleSend", message);
     message = { role: "user", content: message }; //규칙맞게 가공
     const updatedMessages = [...messages, message];
     setMessages(updatedMessages); //로그 추가
@@ -438,7 +432,6 @@ export default function Home() {
   useEffect(() => {
     getTodos();
     handleReset();
-    getFeedback();
     console.log("completed");
   }, [data?.user?.name]); //세션이 불러와지면 실행
 
@@ -450,10 +443,10 @@ export default function Home() {
                     hover:bg-white hover:text-orange";
 
   const activeStyle =
-    "w-10 h-32\
+    "w-full h-32\
     justify-center items-start pt-3 flex bg-gray-dark border-b-[1px] text-gray-lightest border-gray-darkest";
   const grayStyle =
-    "w-10 h-32\
+    "w-full h-32\
     flex justify-center items-start pt-3 bg-gray-lightest text-gray-darkest font-semibold\
                     hover:bg-gray-light border-b-[1px] border-gray-darkest";
 
@@ -464,146 +457,139 @@ export default function Home() {
   const circleLight = "flex mx-auto h-3 w-3 bg-gray rounded-full";
 
   return (
-    <div className="">
-      <div className="mx-auto max-w-4xl h-xl pt-6 pb-24 no-scrollbar">
-        <div className="relative isolate overflow-hidden bg-gray-lightest shadow-xl rounded-3xl  ">
-          <div id="root" className=" font-ibm">
-            {/*수정 시 나오는 모달창*/}
-            <ModiModal
-              isOpen={isOpen}
-              closeModal={closeModal}
-              modifunc={modiTodo}
-              handleAdd={handleAdd}
-              todos={todos}
-              id_moditodo={id_moditodo}
-            />
-            {!todoLoading && (
-              <div className="max-h-13 w-full flex bg-orange items-center p-3 pt-6 pr-5 border-b-[1px] border-gray-dark">
-                <div className="flex items-center flex-grow">
-                  <div className="text-gray-lightest tracking-tight font-bold text-2xl pl-2">{`PLANNER : ${data?.user?.name}'s page`}</div>
-                  {/*테스트용 버튼*/}
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button className={topbuttonStyle} onClick={signOut}>
-                    로그아웃
-                  </button>
-                  <button className={topbuttonStyle} onClick={deletelog}>
-                    챗 로그 삭제
+    <div className="mx-auto max-w-5xl h-screen pt-6 pb-24 no-scrollbar">
+      <div id="root" className="flex flex-col w-full h-max-screen h-full relative isolate overflow-hidden bg-gray-lightest shadow-xl rounded-3xl">
+        {/*수정 시 나오는 모달창*/}
+        <ModiModal
+        isOpen={isOpen}
+        closeModal={closeModal}
+        modifunc={modiTodo}
+        handleAdd={handleAdd}
+        todos={todos}
+        id_moditodo={id_moditodo}
+        />
+        {/*제목 div*/}
+        {!todoLoading && (
+        <div className="h-13 min-h-13 w-full flex bg-orange items-center p-3 pt-6 pr-5 border-b-[1px] border-gray-dark">
+          <div className="flex items-center flex-grow">
+            <div className="text-gray-lightest tracking-tight font-bold text-2xl pl-2">{`PLANNER : ${data?.user?.name}'s page`}</div>
+            {/*테스트용 버튼*/}
+          </div>
+          <div className="flex items-center space-x-2">
+            <button className={topbuttonStyle} onClick={signOut}>
+              로그아웃
+            </button>
+            <button className={topbuttonStyle} onClick={deletelog}>
+              챗 로그 삭제
+            </button>
+            <button
+              className={topbuttonStyle}
+              onClick={() => {
+                printTodos(todos);
+              }}
+            >
+              array 출력
+            </button>
+          </div>
+        </div>
+        )}
+
+        {/*각 컴포넌트-getTodos가 배열을 가져올 때까지 렌더링되지 않습니다.*/}
+        {!todoLoading && (
+            <div className="w-full h-screen flex flex-row overflow-auto">
+              {/*챗봇 컴포넌트*/}
+              <div className="w-[350px] flex-none h-full">
+                <Chat
+                  messages={messages}
+                  loading={loading}
+                  onSendMessage={handleSend}
+                />
+              </div>
+
+              {/*탭버튼*/}
+              <div className="w-12 border-x-[1px] border-x-gray-darkest">
+                  <button
+                    className={tab == 1 ? activeStyle : grayStyle}
+                    onClick={() => setTab(1)}
+                  >
+                    {tab == 1 ? (
+                      <div>
+                        <div className={circleDark} />
+                        <p className="mt-7 text-base font-bold rotate-90">
+                          Calendar
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className={circleLight} />
+                        <p className="mt-7 text-base font-normal rotate-90">
+                          Calendar
+                        </p>
+                      </div>
+                    )}
+                    {}
                   </button>
                   <button
-                    className={topbuttonStyle}
-                    onClick={() => {
-                      printTodos(todos);
-                    }}
+                    className={tab == 2 ? activeStyle : grayStyle}
+                    onClick={() => setTab(2)}
                   >
-                    array 출력
+                    {tab == 2 ? (
+                      <div>
+                        <div className={circleDark} />
+                        <p className="mt-6 text-base font-bold rotate-90">
+                          Todolist
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className={circleLight} />
+                        <p className="mt-6 text-base font-normal rotate-90">
+                          Todolist
+                        </p>
+                      </div>
+                    )}
                   </button>
-                </div>
+                  <button
+                    className={tab == 3 ? activeStyle : grayStyle}
+                    onClick={() => setTab(3)}
+                  >
+                    {tab == 3 ? (
+                      <div>
+                        <div className={circleDark} />
+                        <p className="mt-7 text-base font-bold rotate-90">
+                          Feedback
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className={circleLight} />
+                        <p className="mt-7 text-base font-normal rotate-90">
+                          Feedback
+                        </p>
+                      </div>
+                    )}
+                  </button>
               </div>
-            )}
 
-            {/*각 컴포넌트-getTodos가 배열을 가져올 때까지 렌더링되지 않습니다.*/}
-            {!todoLoading && (
-              <div className="flex flex-1 flex-row h-3xl">
-                {/*챗봇 컴포넌트*/}
-                <div className="flex w-1/3">
-                  <div className="h-full w-full">
-                    <Chat
-                      messages={messages}
-                      loading={loading}
-                      onSendMessage={handleSend}
-                    />
-                  </div>
-                </div>
-
-                {/*탭에 따른 컴포넌트-데이터와 함수를 전달*/}
-                {/*대체 왜 아래에 붙어서 나오는 걸까요?...뭐가 문제인지 모르겠습니다...*/}
-                <div className="flex flex-row w-2/3 h-full">
-                  {/*탭버튼*/}
-                  <div className="flex flex-col place-content-start border-x-[1px] border-x-gray-darkest">
-                    <button
-                      className={tab == 1 ? activeStyle : grayStyle}
-                      onClick={() => setTab(1)}
-                    >
-                      {tab == 1 ? (
-                        <div>
-                          <div className={circleDark} />
-                          <p className="mt-7 text-base font-bold rotate-90">
-                            Calendar
-                          </p>
-                        </div>
-                      ) : (
-                        <div>
-                          <div className={circleLight} />
-                          <p className="mt-7 text-base font-normal rotate-90">
-                            Calendar
-                          </p>
-                        </div>
-                      )}
-                      {}
-                    </button>
-                    <button
-                      className={tab == 2 ? activeStyle : grayStyle}
-                      onClick={() => setTab(2)}
-                    >
-                      {tab == 2 ? (
-                        <div>
-                          <div className={circleDark} />
-                          <p className="mt-6 text-base font-bold rotate-90">
-                            Todolist
-                          </p>
-                        </div>
-                      ) : (
-                        <div>
-                          <div className={circleLight} />
-                          <p className="mt-6 text-base font-normal rotate-90">
-                            Todolist
-                          </p>
-                        </div>
-                      )}
-                    </button>
-                    <button
-                      className={tab == 3 ? activeStyle : grayStyle}
-                      onClick={() => setTab(3)}
-                    >
-                      {tab == 3 ? (
-                        <div>
-                          <div className={circleDark} />
-                          <p className="mt-7 text-base font-bold rotate-90">
-                            Feedback
-                          </p>
-                        </div>
-                      ) : (
-                        <div>
-                          <div className={circleLight} />
-                          <p className="mt-7 text-base font-normal rotate-90">
-                            Feedback
-                          </p>
-                        </div>
-                      )}
-                    </button>
-                  </div>
+              <div className="flex overflow-auto w-full">
                   {tab == 1 && (
                     <Calendar
-                      className="w-fit"
                       todos={todos}
                       printTodos={printTodos}
                     />
                   )}
                   {tab == 2 && (
                     <TodoList
-                      className="w-2/3"
                       data={data}
                       todoLoading={todoLoading}
                       todos={todos}
-                      addTodo={addTodos}
                       delTodo={delTodo}
                       openModi={openModimodal}
                     />
                   )}
                   {tab == 3 && (
+                    <div className="h-full overflow-auto">
                     <Feedback
-                      className="w-2/3"
                       todos={todos}
                       todoList={
                         <TodoList
@@ -611,19 +597,17 @@ export default function Home() {
                           data={data}
                           todoLoading={todoLoading}
                           todos={todos}
-                          addTodo={addTodos}
                           modiTodo={modiTodo}
                           delTodo={delTodo}
                         />
                       }
                     />
+                    </div>
                   )}
                 </div>
-              </div>
-            )}
           </div>
+        )}
         </div>
-      </div>
     </div>
   );
 }
