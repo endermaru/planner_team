@@ -25,11 +25,12 @@ import {
 } from "firebase/firestore";
 
 //일정 db - 필드 이름(타입) : userId(str) / userName(str) / content(str) / timeStart(timestamp) / timeEnd(timestamp) / progress(int)
-const todoDB = db.collection("todoDB");
-//메시지 로그 db - 필드 이름(타입) : who(str) / log(str) / time(timestamp)
-const messageDB = db.collection("messageDB");
+const todoDB = collection(db,"todoDB");
 
-const feedbackDB = db.collection("feedbackDB");
+//메시지 로그 db - 필드 이름(타입) : who(str) / log(str) / time(timestamp)
+const messageDB = collection(db,"messageDB");
+
+const feedbackDB = collection(db, "feedbackDB");
 
 export default function Home() {
   //주소를 이동시킬 라우터
