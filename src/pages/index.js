@@ -29,6 +29,8 @@ const todoDB = collection(db, "todoDB");
 //메시지 로그 db - 필드 이름(타입) : who(str) / log(str) / time(timestamp)
 const messageDB = collection(db, "messageDB");
 
+const feedbackDB = collection(db, "feedbackDB");
+
 export default function Home() {
   //주소를 이동시킬 라우터
   const router = useRouter();
@@ -428,6 +430,44 @@ export default function Home() {
 
   //탭 바꾸기
   const [tab, setTab] = useState(1);
+
+
+  const [feedback, setfeedback] = useState([]);
+
+  const getFeedback = async () => {
+    if (!data?.user?.name) {
+      return;
+    };
+
+    const q = query(
+      feedbackDB,
+      where("userName", "==", data?.user?.name),
+      orderBy("date", "asc")
+    );
+
+    const result = await getDocs(q);
+    const feed = [];
+    
+    result.docs.forEach((doc)=> {
+      feed.push({id:doc.id, ...doc.data()});
+    });
+
+    setfeedback(feed);
+  };
+
+  const addFeedback = async (date, progress, category, score, reflection, finish) => {
+    const docRef = await addDoc(feedbackDB, {
+      date : date,
+      progress : progress,
+      category : category,
+      score : score,
+      reflection : reflection,
+      finish : finish,
+      userId: data?.user?.id,
+      userName: data?.user.name,
+    });
+    setfeedback([...feedback, {id:docRef.id, date:date, progress:progress, category:category, score:score, reflection:reflection, finish:finish}])
+  };
 
   useEffect(() => {
     getTodos();
