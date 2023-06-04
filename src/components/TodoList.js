@@ -3,6 +3,8 @@ import firebase from "firebase/app";
 import "firebase/firestore";
 
 const TodoList = ({ data, todoLoading, todos, delTodo, modiTodo, openModi }) => {
+  const [sortBy, setSortBy] = useState(""); // 정렬 방식을 추적하기 위한 상태 추가
+
 
   // modiTodo 함수 정의
   const handleModiTodo = (modid, _content, _category, _timeStart, _timeEnd, _progress) => {
@@ -73,6 +75,35 @@ const TodoList = ({ data, todoLoading, todos, delTodo, modiTodo, openModi }) => 
     return `${m}월 ${d}일 ${hf} ${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
   }
 
+// (지윤) TodoList 목록을 진행도순으로 정렬하는 함수
+const sortByProgress = (todos) => {
+  return todos.slice().sort((a, b) => b.progress - a.progress);
+};
+
+
+// (지윤) TodoList 정렬 방식 변경 이벤트 핸들러
+const handleSortByProgress = () => {
+  if (sortBy === "progress") {
+    setSortBy(""); // 이미 진행도순으로 정렬된 상태이면 초기화
+  } else {
+    setSortBy("progress"); // 정렬 방식을 진행도순으로 설정
+  }
+};
+
+
+
+// (지윤) Todos 배열을 정렬된 상태로 가져옵니다.
+  const getSortedTodos = () => {
+    switch (sortBy) {
+      case "progress":
+        return sortByProgress(todos);
+      default:
+        return todos;
+    }
+  };
+
+  const sortedTodos = getSortedTodos(); // 정렬된 Todos 배열 
+
   // (지윤) TodoList 목록 정렬을 위한 css 설정
   const tableCategory = "py-2 font-semibold  text-left  pl-2";
   const tableCell = " text-sm text-left border-b-[1px] border-gray-dark";
@@ -81,11 +112,17 @@ const TodoList = ({ data, todoLoading, todos, delTodo, modiTodo, openModi }) => 
   const activeCell = "font-bold text-gray-darkest";
 
 
+
   return (
     <div className="max-w-full w-full overflow-y-scroll p-5 no-scrollbar">
       <div className="flex h-10 border-b-[1px] pl-12 items-center">
         <div className={`${activeCell} pr-4`}>최신순</div>
-        <div className={`${grayCell} pr-4`}>진행도순</div>
+        <div
+          className={`${sortBy === "progress" ? activeCell : grayCell} pr-4`}
+          onClick={handleSortByProgress}
+        >
+          진행도순
+        </div>
         <div className={`${grayCell} pl-52 pr-4`}>일별</div>
         <div className={`${grayCell} pr-4`}>주별</div>
         <div className={`${activeCell} pr-4`}>월별</div>
@@ -109,7 +146,7 @@ const TodoList = ({ data, todoLoading, todos, delTodo, modiTodo, openModi }) => 
               </tr>
             </thead>
             <tbody>
-              {todos.map((item, index) => (
+              {sortedTodos.map((item, index) => (
                 <tr key={index}>
                   
                   <td className={tableCell}>
