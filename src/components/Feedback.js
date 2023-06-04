@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 
-const Feedback = ({ todos, todoList }) => {
+const Feedback = ({ todos, todoList, addFeedback }) => {
   const titleStyle = "text-xl font-semibold mt-5 mb-2";
   const inputStyle = "min-h-[44px] border border-2 w-4/5 relative";
-  const [score, setscore] = useState()
+  const [progress, setprogress] = useState();
+  const [score, setscore] = useState();
+  const [reflection, setReflection] = useState("");
+  const [finish, setfinish] = useState("");
+  const date = Date.now().toString()
+  
   return (
     <div className="flex flex-col w-full p-5 overflow-y-scroll no-scrollbar">
       <p className={titleStyle}>1. 진행도 표시하기</p>
@@ -41,11 +46,14 @@ const Feedback = ({ todos, todoList }) => {
       <p className={titleStyle}>
         4. 오늘 하루 칭찬할 점과 아쉬운 점, 개선할 점 작성하기
       </p>
-      <input className={inputStyle} type="text" />
+      <input className={inputStyle} type="text" onChange={reflection} />
       <p className={titleStyle}>5. 조언 중 참고할 점 작성하기</p>
-      <input className={inputStyle} type="text" />
+      <input className={inputStyle} type="text" onChange={finish} />
       <button className="mt-4 w-1/5 p-1 bg-orange text-white border border-orange rounded hover:bg-gray-light hover:text-orange"
-        onClick = { () =>setscore(0)}>
+        onClick = { () => {
+          addFeedback(date, progress, category, score, reflection, finish);
+           
+          setscore(0)}}>
       저장하기
       </button>
 
