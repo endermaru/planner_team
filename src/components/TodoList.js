@@ -1,6 +1,37 @@
 import React, { useState, useEffect } from "react";
+import firebase from "firebase/app";
+import "firebase/firestore";
 
 const TodoList = ({ data, todoLoading, todos, delTodo, openModi }) => {
+
+  const [progressColor, setProgressColor] = useState("black");
+
+  const updateProgress = async (itemId, progress) => {
+    try {
+      const db = firebase.firestore();
+      const todoRef = db.collection("todoDB").doc(itemId);
+      await todoRef.update({ progress: progress });
+      console.log("Progress updated successfully");
+    } catch (error) {
+      console.error("Error updating progress:", error);
+    }
+  };
+  
+
+    const handleButtonClick = async (itemId, currentProgress) => {
+      let newProgress = 0;
+
+      if (currentProgress === 0) {
+        newProgress = 1;
+      } else if (currentProgress === 1) {
+        newProgress = 2;
+      } else if (currentProgress === 2) {
+        newProgress = 3;
+      } 
+
+      await updateProgress(itemId, newProgress);
+      await setProgressColor(getProgressColor(newProgress));
+      };
 
   //날짜 변환기
   const dateToString=(date)=>{
@@ -25,6 +56,35 @@ const TodoList = ({ data, todoLoading, todos, delTodo, openModi }) => {
   const grayCell = " text-gray";
   const activeCell = "font-bold text-gray-darkest";
 
+  const styles = {
+    progressButton: {
+      width: '16px',
+      height: '16px',
+      borderRadius: '50%',
+      border: 'none',
+      outline: 'none',
+      cursor: 'pointer',
+    },
+  };
+  
+
+
+  const getProgressColor = (newProgress) => {
+    switch (newProgress) {
+      case 0: 
+        return "black"
+      case 1:
+        return "#B9B9B8";
+      case 2:
+        return "#FF645C";
+      case 3:
+        return "#7575EA";
+      default:
+        return "black";
+    }
+  };
+
+
   return (
     <div className="max-w-full w-full overflow-y-scroll p-5 no-scrollbar">
       <div className="flex h-10 border-b-[1px] pl-12 items-center">
@@ -42,6 +102,7 @@ const TodoList = ({ data, todoLoading, todos, delTodo, openModi }) => {
           <table className="table-auto w-full border-collapse">
             <thead>
               <tr>
+              <th className={`${tableCategory} w-2/12`}>진행도</th>
                 <th className={`${tableCategory} w-2/12`}>분류</th>
                 <th className={`${tableCategory} w-4/12`}>할 일</th>
                 <th className={`${tableCategory} w-2/12`}>시간</th>
@@ -54,6 +115,15 @@ const TodoList = ({ data, todoLoading, todos, delTodo, openModi }) => {
             <tbody>
               {todos.map((item, index) => (
                 <tr key={index}>
+                  <td className={tableCell}>
+                  <button
+                    style={{
+                      ...styles.progressButton,
+                      backgroundColor: getProgressColor(item.progress || 0),
+                    }}
+                    onClick={() => handleButtonClick(item.id, item.progress)}
+                  ></button>
+                  </td>
                   <td className={tableCell}>{item.category}</td>
                   <td className={tableCell}>{item.content}</td>
                   <td className={tableCell}>
