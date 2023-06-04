@@ -47,7 +47,7 @@ const Feedback = ({ todos, todoList, addFeedback }) => {
         4. 오늘 하루 칭찬할 점과 아쉬운 점, 개선할 점 작성하기
       </p>
       <input className={inputStyle} type="text" onChange={reflection} />
-      <p className={titleStyle}>5. 조언 중 참고할 점 작성하기 {Date}</p>
+      <p className={titleStyle}>5. 조언 중 참고할 점 작성하기</p>
       <input className={inputStyle} type="text" onChange={finish} />
       <button className="mt-4 w-1/5 p-1 bg-orange text-white border border-orange rounded hover:bg-gray-light hover:text-orange"
         onClick = { () => {
