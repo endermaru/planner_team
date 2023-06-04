@@ -28,7 +28,6 @@ import {
 const todoDB = collection(db, "todoDB");
 //메시지 로그 db - 필드 이름(타입) : who(str) / log(str) / time(timestamp)
 const messageDB = collection(db, "messageDB");
-
 const feedbackDB = collection(db, "feedbackDB");
 
 export default function Home() {
@@ -164,6 +163,44 @@ export default function Home() {
     // setid_moditodo(_todos[0]?.id)
     console.log(_todos);
     // setIsOpen(!isOpen);
+  };
+
+  //피드백
+  const [feedback, setfeedback] = useState([]);
+
+  const getFeedback = async () => {
+    if (!data?.user?.name) {
+      return;
+    };
+
+    const q = query(
+      feedbackDB,
+      where("userName", "==", data?.user?.name),
+      orderBy("date", "asc")
+    );
+
+    const result = await getDocs(q);
+    const feed = [];
+
+    result.docs.forEach((doc)=> {
+      feed.push({id:doc.id, ...doc.data()});
+    });
+
+    setfeedback(feed);
+  };
+
+  const addFeedback = async (date, progress, category, score, reflection, finish) => {
+    const docRef = await addDoc(feedbackDB, {
+      date : date,
+      progress : progress,
+      category : category,
+      score : score,
+      reflection : reflection,
+      finish : finish,
+      userId: data?.user?.id,
+      userName: data?.user.name,
+    });
+    setfeedback([...feedback, {id:docRef.id, date:date, progress:progress, category:category, score:score, reflection:reflection, finish:finish}])
   };
 
   //챗봇
@@ -431,46 +468,9 @@ export default function Home() {
   //탭 바꾸기
   const [tab, setTab] = useState(1);
 
-
-  const [feedback, setfeedback] = useState([]);
-
-  const getFeedback = async () => {
-    if (!data?.user?.name) {
-      return;
-    };
-
-    const q = query(
-      feedbackDB,
-      where("userName", "==", data?.user?.name),
-      orderBy("date", "asc")
-    );
-
-    const result = await getDocs(q);
-    const feed = [];
-    
-    result.docs.forEach((doc)=> {
-      feed.push({id:doc.id, ...doc.data()});
-    });
-
-    setfeedback(feed);
-  };
-
-  const addFeedback = async (date, progress, category, score, reflection, finish) => {
-    const docRef = await addDoc(feedbackDB, {
-      date : date,
-      progress : progress,
-      category : category,
-      score : score,
-      reflection : reflection,
-      finish : finish,
-      userId: data?.user?.id,
-      userName: data?.user.name,
-    });
-    setfeedback([...feedback, {id:docRef.id, date:date, progress:progress, category:category, score:score, reflection:reflection, finish:finish}])
-  };
-
   useEffect(() => {
     getTodos();
+    getFeedback();
     handleReset();
     console.log("completed");
   }, [data?.user?.name]); //세션이 불러와지면 실행
@@ -631,6 +631,7 @@ export default function Home() {
                     <div className="h-full overflow-auto">
                     <Feedback
                       todos={todos}
+                      addFeedback={addFeedback}
                       todoList={
                         <TodoList
                           className="w-2/3"
