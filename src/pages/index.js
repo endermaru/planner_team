@@ -584,6 +584,7 @@ export default function Home() {
                       todoLoading={todoLoading}
                       todos={todos}
                       delTodo={delTodo}
+                      modiTodo={modiTodo}
                       openModi={openModimodal}
                     />
                   )}

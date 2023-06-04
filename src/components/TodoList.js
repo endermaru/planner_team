@@ -2,36 +2,60 @@ import React, { useState, useEffect } from "react";
 import firebase from "firebase/app";
 import "firebase/firestore";
 
-const TodoList = ({ data, todoLoading, todos, delTodo, openModi }) => {
+const TodoList = ({ data, todoLoading, todos, delTodo, modiTodo, openModi }) => {
 
-  const [progressColor, setProgressColor] = useState("black");
+  // modiTodo 함수 정의
+  const handleModiTodo = (modid, _content, _category, _timeStart, _timeEnd, _progress) => {
+    // progress 값을 0, 1, 2, 3에서 순환하도록 계산
+    const updatedProgress = (_progress + 1) % 4;
+    modiTodo(modid, _content, _category, _timeStart, _timeEnd, updatedProgress);
+  };
 
-  const updateProgress = async (itemId, progress) => {
-    try {
-      const db = firebase.firestore();
-      const todoRef = db.collection("todoDB").doc(itemId);
-      await todoRef.update({ progress: progress });
-      console.log("Progress updated successfully");
-    } catch (error) {
-      console.error("Error updating progress:", error);
+  // 버튼 스타일 생성 함수
+  const getButtonStyle = (progress) => {
+    switch (progress) {
+      case 0:
+        return {
+          backgroundColor: "white",
+          border: "1px solid black",
+          width: "30px",
+          height: "30px",
+          borderRadius: "50%",
+        };
+      case 1:
+        return {
+          backgroundColor: "#B9B9B8",
+          border: "1px solid black",
+          width: "30px",
+          height: "30px",
+          borderRadius: "50%",
+        };
+      case 2:
+        return {
+          backgroundColor: "#FFA08D",
+          border: "1px solid black",
+          width: "30px",
+          height: "30px",
+          borderRadius: "50%",
+        };
+      case 3:
+        return {
+          backgroundColor: "#7575EA",
+          border: "1px solid black",
+          width: "30px",
+          height: "30px",
+          borderRadius: "50%",
+        };
+      default:
+        return {
+          backgroundColor: "white",
+          border: "1px solid black",
+          width: "30px",
+          height: "30px",
+          borderRadius: "50%",
+        };
     }
   };
-  
-
-    const handleButtonClick = async (itemId, currentProgress) => {
-      let newProgress = 0;
-
-      if (currentProgress === 0) {
-        newProgress = 1;
-      } else if (currentProgress === 1) {
-        newProgress = 2;
-      } else if (currentProgress === 2) {
-        newProgress = 3;
-      } 
-
-      await updateProgress(itemId, newProgress);
-      await setProgressColor(getProgressColor(newProgress));
-      };
 
   //날짜 변환기
   const dateToString=(date)=>{
@@ -55,34 +79,6 @@ const TodoList = ({ data, todoLoading, todos, delTodo, openModi }) => {
 
   const grayCell = " text-gray";
   const activeCell = "font-bold text-gray-darkest";
-
-  const styles = {
-    progressButton: {
-      width: '16px',
-      height: '16px',
-      borderRadius: '50%',
-      border: 'none',
-      outline: 'none',
-      cursor: 'pointer',
-    },
-  };
-  
-
-
-  const getProgressColor = (newProgress) => {
-    switch (newProgress) {
-      case 0: 
-        return "black"
-      case 1:
-        return "#B9B9B8";
-      case 2:
-        return "#FF645C";
-      case 3:
-        return "#7575EA";
-      default:
-        return "black";
-    }
-  };
 
 
   return (
@@ -115,14 +111,11 @@ const TodoList = ({ data, todoLoading, todos, delTodo, openModi }) => {
             <tbody>
               {todos.map((item, index) => (
                 <tr key={index}>
+                  
                   <td className={tableCell}>
-                  <button
-                    style={{
-                      ...styles.progressButton,
-                      backgroundColor: getProgressColor(item.progress || 0),
-                    }}
-                    onClick={() => handleButtonClick(item.id, item.progress)}
-                  ></button>
+                    <button style={getButtonStyle(item.progress)} 
+                      onClick={() => handleModiTodo(item.id, item.content, item.category, item.timeStart, item.timeEnd, item.progress)}
+                      >버튼</button>
                   </td>
                   <td className={tableCell}>{item.category}</td>
                   <td className={tableCell}>{item.content}</td>
