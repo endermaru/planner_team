@@ -637,8 +637,11 @@ export default function Home() {
                     <div className="h-full overflow-auto">
                     <Feedback
                       todos={todos}
+                      todoDB={todoDB}
                       todoLoading={todoLoading}
                       addFeedback={addFeedback}
+                      setTodos={setTodos}
+                      // modiPro={modiPro}
                       todoList={
                         <TodoList
                           className="w-2/3"

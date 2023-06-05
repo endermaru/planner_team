@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { doc, updateDoc } from "firebase/firestore"; 
 
-const Feedback = ({ todos, todoList, addFeedback,todoLoading }) => {
+const Feedback = ({ todoDB, todos, todoList, addFeedback, todoLoading, setTodos }) => {
   const titleStyle = "text-xl font-semibold mt-5 mb-2";
   const inputStyle = "min-h-[44px] border border-2 w-4/5 relative";
   const [progress, setprogress] = useState();
@@ -14,18 +15,22 @@ const Feedback = ({ todos, todoList, addFeedback,todoLoading }) => {
     day: 'numeric',
   });
 
-  const handleClick = (todoid) => {
-    // const [pro, setPro] = useState(todoid.progress)  
-    // if (pro < 5) {
-    //   setPro(pro + 1)
-    // }
-    // else setPro(0)
-
-    
+  const modiPro = (todoid) => {
+    const newTodos = todos.map((todo) => {
+      if (todo.id === todoid) {
+        let pro = todo.progress + 1;
+        if (pro >= 6) {
+          pro = 0;
+        }
+        const todoDoc = doc(todoDB, todoid);
+        updateDoc(todoDoc, { progress: pro });
+        return { ...todo, progress: pro };
+      } else {
+        return todo;
+      }
+    });
+    setTodos(newTodos);
   };
-  
-
-
   // //날짜 변환기
   const dateToString=(date)=>{
     const dateObj=new Date(date);
@@ -39,12 +44,12 @@ const Feedback = ({ todos, todoList, addFeedback,todoLoading }) => {
     var hf="오전";
     if (h>=12) hf="오후"
     // console.log(y,m,d,hf,String(h).padStart(2, "0"),String(mi).padStart(2, "0"));
-    return `${m}월 ${d}일 ${hf} ${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
+    return `${m}월 ${d}일 ${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
   }
 
   // // (지윤) TodoList 목록 정렬을 위한 css 설정
-  const tableCategory = "py-2 font-semibold  text-left  pl-2";
-  const tableCell = " text-sm text-left border-b-[1px] border-gray-dark";
+  const tableCategory = "py-2 font-semibold  text-left  pl-2 text-center";
+  const tableCell = " text-sm text-left border-b-[1px] border-gray-dark text-center";
 
   return (
     <div className="flex flex-col w-full p-5 overflow-y-scroll no-scrollbar">
@@ -56,41 +61,29 @@ const Feedback = ({ todos, todoList, addFeedback,todoLoading }) => {
               <tr>
               
                 <th className={`${tableCategory} w-2/12`}>분류</th>
-                <th className={`${tableCategory} w-4/12`}>할 일</th>
-                <th className={`${tableCategory} w-2/12`}>시간</th>
-                <th className={`${tableCategory} w-1/12`}></th>
-                <th className={`${tableCategory} w-2/12`}></th>
+                <th className={`${tableCategory} w-3/12`}>할 일</th>
+                <th className={`${tableCategory} w-2/12`}>시작시간</th>
+                <th className={`${tableCategory} w-1/24`}>-</th>
+                <th className={`${tableCategory} w-2/12`}>종료시간</th>
                 <th className={`${tableCategory} w-2/12`}>진행도</th>
               </tr>
             </thead>
             <tbody>
               {todos.map((item, index) => (
                 <tr key={index}>
-                  <td className={tableCell}>
-                  
-                  </td>
                   <td className={tableCell}>{item.category}</td>
                   <td className={tableCell}>{item.content}</td>
-                  <td className={tableCell}>
-                    {dateToString(item.timeStart)}
-                  </td>{" "}
+                  <td className={tableCell}>{dateToString(item.timeStart)}</td>
                   <td className={tableCell}>-</td>
-                  <td className={tableCell}>
-                    {dateToString(item.timeEnd)}
-                  </td>
-                  <td className={tableCell}>{item.progress}</td>
-                  {/* <button
-                    style={{
-                      ...styles.progressButton,
-                      backgroundColor: getProgressColor(item.progress || 0),
-                    }}
-                    onClick={() => handleButtonClick(item.id, item.progress)}
-                  ></button> */}
-                  <button
-                    class={`bg-green-500 h-4 w-${item.progress}/5 `}
-                    onClick={handleClick(item.id)}
+                  <td className={tableCell}>{dateToString(item.timeEnd)}</td>                  
+                  <td
+                    className={`${tableCell} bg-orange`}
+                    onClick={() => modiPro(item.id)}
                   >
-                  </button>
+                  {Array(item.progress).fill("●").join("")}
+                  {Array(5 - item.progress).fill("○").join("")}
+                  </td>
+
                 </tr>
               ))}
             </tbody>
