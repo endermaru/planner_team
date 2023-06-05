@@ -22,7 +22,7 @@ export const Chat = ({ messages, loading, onSendMessage }) => {
       {" "}
       {/*컴포넌트 묶기*/}
       <main className="flex flex-col justify-end w-full h-full bg-neutral">
-        <div className="max-h-[95%] flex-grow overflow-auto items-end py-2 px-2">
+        <div className="max-h-[95%] flex-grow overflow-auto items-end py-2 px-2 no-scrollbar">
           {/*messages를 돌며 각 원소의 message와 index로 chatbubble 생성 */}
           {messages.map((message, index) => (
             <div key={index} className="my-1 mx-2 ">
