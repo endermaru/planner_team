@@ -6,7 +6,6 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration); //api 객체 생성
 
-const systemPrompt="Hello, world";
 
 //fetch로 호출됨->req.body에 messages,systempPrompt 등의 속성을 받아와 사용 가능
 export default async (req,res) => {

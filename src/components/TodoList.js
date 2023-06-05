@@ -66,13 +66,16 @@ const TodoList = ({ data, todoLoading, todos, delTodo, modiTodo, openModi }) => 
     const y=dateObj.getFullYear();
     const m=dateObj.getMonth()+1;
     const d=dateObj.getDate();
-    const h=dateObj.getHours();
+    var h=dateObj.getHours();
     const mi=dateObj.getMinutes();
 
-    var hf="오전";
-    if (h>=12) hf="오후"
+    var hf="AM";
+    if (h>=12){
+      hf="PM"
+      h-=12;
+    }
     // console.log(y,m,d,hf,String(h).padStart(2, "0"),String(mi).padStart(2, "0"));
-    return `${m}월 ${d}일 ${hf} ${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
+    return `${m}월 ${d}일\n${hf} ${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
   }
 
 // (지윤) TodoList 목록을 진행도순으로 정렬하는 함수
@@ -105,12 +108,17 @@ const handleSortByProgress = () => {
   const sortedTodos = getSortedTodos(); // 정렬된 Todos 배열 
 
   // (지윤) TodoList 목록 정렬을 위한 css 설정
-  const tableCategory = "py-2 font-semibold  text-left  pl-2";
-  const tableCell = " text-sm text-left border-b-[1px] border-gray-dark";
+  const tableCategory = "py-2 font-semibold";
+  const tableCell = " text-sm border-b-[1px] border-gray-dark";
 
   const grayCell = " text-gray";
   const activeCell = "font-bold text-gray-darkest";
 
+  const modibutton = "text-xs font-semibold border rounded-lg p-2 bg-blue-light text-gray-lightest\
+                      hover:text-gray-lightest hover:bg-blue-dark"
+
+  const delbutton = "text-xs font-semibold border rounded-lg p-2 bg-orange-light text-gray-lightest\
+                      hover:text-gray-lightest hover:bg-orange-dark"
 
 
   return (
@@ -132,43 +140,43 @@ const handleSortByProgress = () => {
 
         {/*아래 부분은 테이블 태그를 이용해 만든 todoList UI입니다. 목차의 길이 조절만으로 전체 표 길이 조절이 가능해서 추가해둡니다.*/}
         {!todoLoading && ( //todos를 불러올때까지 기다림
-          <table className="table-auto w-full border-collapse">
+          <table className="table-fixed w-full border-collapse">
             <thead>
               <tr>
-              <th className={`${tableCategory} w-2/12`}>진행도</th>
-                <th className={`${tableCategory} w-2/12`}>분류</th>
-                <th className={`${tableCategory} w-4/12`}>할 일</th>
-                <th className={`${tableCategory} w-2/12`}>시간</th>
+                <th className={`${tableCategory} w-10 whitespace-nowrap text-left`}>진행도</th>
+                <th className={`${tableCategory} w-13`}>분류</th>
+                <th className={`${tableCategory} w-4/12 text-left`}>할 일</th>
+                <th className={`${tableCategory} text-left`}>시간</th>
+                <th className={`${tableCategory} w-5`}></th>
+                <th className={`${tableCategory}`}></th>
                 <th className={`${tableCategory} w-1/12`}></th>
-                <th className={`${tableCategory} w-2/12`}></th>
-                <th className={`${tableCategory} w-1/24`}></th>
-                <th className={`${tableCategory} w-1/24`}></th>
+                <th className={`${tableCategory} w-1/12`}></th>
               </tr>
             </thead>
             <tbody>
               {sortedTodos.map((item, index) => (
                 <tr key={index}>
                   
-                  <td className={tableCell}>
+                  <td className={`${tableCell} text-center`}>
+                    {/*임의로 버튼 텍스트 대신 숫자로 대체했습니다. 대신 숫자로 표현된 진행도 열을 삭제했습니다.*/}
                     <button style={getButtonStyle(item.progress)} 
                       onClick={() => handleModiTodo(item.id, item.content, item.category, item.timeStart, item.timeEnd, item.progress)}
-                      >버튼</button>
+                      >{item.progress}</button>
                   </td>
-                  <td className={tableCell}>{item.category}</td>
-                  <td className={tableCell}>{item.content}</td>
-                  <td className={tableCell}>
+                  <td className={`${tableCell} text-center`}>{item.category}</td>
+                  <td className={`${tableCell} text-left`}>{item.content}</td>
+                  <td className={`${tableCell} whitespace-pre`}>
                     {dateToString(item.timeStart)}
                   </td>{" "}
-                  <td className={tableCell}>-</td>
-                  <td className={tableCell}>
+                  <td className={`${tableCell} text-left`}>-</td>
+                  <td className={`${tableCell} whitespace-pre`}>
                     {dateToString(item.timeEnd)}
                   </td>
-                  <td className={tableCell}>{item.progress}</td>
                   <td className={tableCell}>
-                    <button onClick={() => openModi(item.id)}>✏️</button>
+                    <button className={`${modibutton}`} onClick={() => openModi(item.id)}>수정</button>
                   </td>
                   <td className={tableCell}>
-                    <button onClick={() => delTodo(item.id)}>🗑️</button>
+                    <button className={`${delbutton}`} onClick={() => delTodo(item.id)}>삭제</button>
                   </td>
                 </tr>
               ))}

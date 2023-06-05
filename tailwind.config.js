@@ -26,6 +26,9 @@ module.exports = {
         dark: "#5B5B5B",
         darkest: "#2A2A2A",
       },
+      yellow:{
+        DEFAULT : "#FFD400"
+      }
     },
     extend: {
       fontFamily: {
@@ -40,7 +43,7 @@ module.exports = {
       gridTemplateColumns: {
         // Simple 16 column grid
         '16': 'repeat(16, minmax(0, 1fr))',
-      }
+      },
     },
   },
   plugins: [],

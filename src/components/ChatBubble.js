@@ -1,11 +1,12 @@
 export const ChatBubble = ({ message }) => {
+  const content=message.content
   return (
     <div
       className={`flex flex-col justify-end mx-1 ${
         message.role === "assistant" ? "items-start" : "items-end"
       }`}
     >
-      <p className="text-gray mx-2">
+      <p className="text-gray-darkest mx-2 font-bold">
         {message.role === "assistant" ? "GPT" : "User"}
       </p>
       <div
@@ -15,9 +16,8 @@ export const ChatBubble = ({ message }) => {
             : "bg-gray-dark text-gray-lightest rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl "
         } text-sm px-3 py-2 max-w-[67%] whitespace-pre-wrap`}
         style={{ overflowWrap: "anywhere" }}
-      >
-        {message.content}
-      </div>
+        dangerouslySetInnerHTML={{__html:content}}
+      />
     </div>
   );
 };

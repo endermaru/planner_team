@@ -26,7 +26,8 @@
     "react-icons": "^4.8.0",
     "react-modal": "^3.16.1",
     "tabler": "^1.0.0-alpha.8",
-    "tailwindcss": "3.3.2"
+    "tailwindcss": "3.3.2",
+    "tailwindcss-fraction-widths": "^1.0.2"
   },
   "devDependencies": {
     "@iconify/react": "^4.1.0"
