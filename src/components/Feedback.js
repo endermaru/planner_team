@@ -1,18 +1,101 @@
 import React, { useState, useEffect } from "react";
 
-const Feedback = ({ todos, todoList, addFeedback }) => {
+const Feedback = ({ todos, todoList, addFeedback,todoLoading }) => {
   const titleStyle = "text-xl font-semibold mt-5 mb-2";
   const inputStyle = "min-h-[44px] border border-2 w-4/5 relative";
   const [progress, setprogress] = useState();
+  const [category, setcategory] = useState();
   const [score, setscore] = useState();
   const [reflection, setReflection] = useState("");
   const [finish, setfinish] = useState("");
-  const date = Date.now().toString()
+  const date = new Date().toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const handleClick = (todoid) => {
+    // const [pro, setPro] = useState(todoid.progress)  
+    // if (pro < 5) {
+    //   setPro(pro + 1)
+    // }
+    // else setPro(0)
+
+    
+  };
   
+
+
+  // //날짜 변환기
+  const dateToString=(date)=>{
+    const dateObj=new Date(date);
+    // console.log(dateObj);
+    const y=dateObj.getFullYear();
+    const m=dateObj.getMonth()+1;
+    const d=dateObj.getDate();
+    const h=dateObj.getHours();
+    const mi=dateObj.getMinutes();
+
+    var hf="오전";
+    if (h>=12) hf="오후"
+    // console.log(y,m,d,hf,String(h).padStart(2, "0"),String(mi).padStart(2, "0"));
+    return `${m}월 ${d}일 ${hf} ${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
+  }
+
+  // // (지윤) TodoList 목록 정렬을 위한 css 설정
+  const tableCategory = "py-2 font-semibold  text-left  pl-2";
+  const tableCell = " text-sm text-left border-b-[1px] border-gray-dark";
+
   return (
     <div className="flex flex-col w-full p-5 overflow-y-scroll no-scrollbar">
+      <p className={titleStyle}>{date} 일정 마무리하기</p>
       <p className={titleStyle}>1. 진행도 표시하기</p>
-      {todoList}
+      {!todoLoading && ( //todos를 불러올때까지 기다림
+          <table className="table-auto w-full border-collapse">
+            <thead>
+              <tr>
+              
+                <th className={`${tableCategory} w-2/12`}>분류</th>
+                <th className={`${tableCategory} w-4/12`}>할 일</th>
+                <th className={`${tableCategory} w-2/12`}>시간</th>
+                <th className={`${tableCategory} w-1/12`}></th>
+                <th className={`${tableCategory} w-2/12`}></th>
+                <th className={`${tableCategory} w-2/12`}>진행도</th>
+              </tr>
+            </thead>
+            <tbody>
+              {todos.map((item, index) => (
+                <tr key={index}>
+                  <td className={tableCell}>
+                  
+                  </td>
+                  <td className={tableCell}>{item.category}</td>
+                  <td className={tableCell}>{item.content}</td>
+                  <td className={tableCell}>
+                    {dateToString(item.timeStart)}
+                  </td>{" "}
+                  <td className={tableCell}>-</td>
+                  <td className={tableCell}>
+                    {dateToString(item.timeEnd)}
+                  </td>
+                  <td className={tableCell}>{item.progress}</td>
+                  {/* <button
+                    style={{
+                      ...styles.progressButton,
+                      backgroundColor: getProgressColor(item.progress || 0),
+                    }}
+                    onClick={() => handleButtonClick(item.id, item.progress)}
+                  ></button> */}
+                  <button
+                    class={`bg-green-500 h-4 w-${item.progress}/5 `}
+                    onClick={handleClick(item.id)}
+                  >
+                  </button>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       <p className={titleStyle}>2. 어제와 비교한 오늘 확인하기</p>
 
       {/*index에서 만들어진 todoList 컴포넌트를 그대로 인자로 가져왔습니다
