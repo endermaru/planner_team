@@ -10,7 +10,6 @@ const Feedback = ({ todoDB, todos, todoList, addFeedback, todoLoading, setTodos 
   const [reflection, setReflection] = useState("");
   const [finish, setfinish] = useState("");
   const date = new Date().toLocaleDateString('ko-KR', {
-    year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
@@ -31,6 +30,36 @@ const Feedback = ({ todoDB, todos, todoList, addFeedback, todoLoading, setTodos 
     });
     setTodos(newTodos);
   };
+
+  const todayTodos = todos.filter(todo => {
+    const todoDate = new Date(todo.timeEnd);
+    const formattedDate = todoDate.toLocaleDateString('ko-KR', {
+      month: 'long',
+      day: 'numeric',
+    });
+    return formattedDate ===new Date().toLocaleDateString('ko-KR', {
+      month: 'long',
+      day: 'numeric',
+    });
+  });
+
+
+
+  const yesTodo = todos.filter(todo => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate()-1);
+    const todoDate = new Date(todo.timeEnd);
+    const formattedDate = todoDate.toLocaleDateString('ko-KR', {
+      month: 'long',
+      day: 'numeric',
+    });
+    return formattedDate ===yesterday.toLocaleDateString('ko-KR', {
+      month: 'long',
+      day: 'numeric',
+    });
+  });
+  // console.log(yesTodo)
+
   // //날짜 변환기
   const dateToString=(date)=>{
     const dateObj=new Date(date);
@@ -69,23 +98,22 @@ const Feedback = ({ todoDB, todos, todoList, addFeedback, todoLoading, setTodos 
               </tr>
             </thead>
             <tbody>
-              {todos.map((item, index) => (
-                <tr key={index}>
-                  <td className={tableCell}>{item.category}</td>
-                  <td className={tableCell}>{item.content}</td>
-                  <td className={tableCell}>{dateToString(item.timeStart)}</td>
-                  <td className={tableCell}>-</td>
-                  <td className={tableCell}>{dateToString(item.timeEnd)}</td>                  
-                  <td
-                    className={`${tableCell} bg-orange`}
-                    onClick={() => modiPro(item.id)}
-                  >
-                  {Array(item.progress).fill("●").join("")}
-                  {Array(5 - item.progress).fill("○").join("")}
-                  </td>
-
-                </tr>
-              ))}
+            {todayTodos.map((item, index) => (
+                  <tr key={index}>
+                    <td className={tableCell}>{item.category}</td>
+                    <td className={tableCell}>{item.content}</td>
+                    <td className={tableCell}>{dateToString(item.timeStart)}</td>
+                    <td className={tableCell}>-</td>
+                    <td className={tableCell}>{dateToString(item.timeEnd)}</td>
+                    <td
+                      className={`${tableCell} bg-orange`}
+                      onClick={() => modiPro(item.id)}
+                    >
+                      {Array(item.progress).fill('●').join('')}
+                      {Array(5 - item.progress).fill('○').join('')}
+                    </td>
+                  </tr>
+            ))}
             </tbody>
           </table>
         )}
