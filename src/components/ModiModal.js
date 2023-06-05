@@ -29,6 +29,7 @@ const ModiModal=({isOpen,closeModal,modifunc,handleAdd,todos,id_moditodo})=>{
       setCategory(_modi?.category);
       setTimeStart(dateToString(_modi?.timeStart));
       setTimeEnd(dateToString(_modi?.timeEnd));
+      setProgress(_modi?.progress);
     }
     return _modi;
   }
@@ -77,6 +78,52 @@ const ModiModal=({isOpen,closeModal,modifunc,handleAdd,todos,id_moditodo})=>{
 
   const buttonStyle='justify-items-end w-28 ml-3 p-1 rounded text-gray-darkest font-semibold\
                     border border-1 border-gray-light bg-gray hover:bg-gray-dark hover:text-gray-lightest hover:border-gray-dark focus:ring-1 focus:ring-gray'
+
+  // 버튼 스타일 생성 함수
+  const getButtonStyle = (progress) => {
+    switch (progress) {
+      case 0:
+        return {
+          backgroundColor: "white",
+          border: "1px solid black",
+          width: "30px",
+          height: "30px",
+          borderRadius: "50%",
+        };
+      case 1:
+        return {
+          backgroundColor: "#B9B9B8",
+          border: "1px solid black",
+          width: "30px",
+          height: "30px",
+          borderRadius: "50%",
+        };
+      case 2:
+        return {
+          backgroundColor: "#FFA08D",
+          border: "1px solid black",
+          width: "30px",
+          height: "30px",
+          borderRadius: "50%",
+        };
+      case 3:
+        return {
+          backgroundColor: "#7575EA",
+          border: "1px solid black",
+          width: "30px",
+          height: "30px",
+          borderRadius: "50%",
+        };
+      default:
+        return {
+          backgroundColor: "white",
+          border: "1px solid black",
+          width: "30px",
+          height: "30px",
+          borderRadius: "50%",
+        };
+    }
+  };
 
   const customStyles={
     overlay:{
@@ -153,12 +200,12 @@ const ModiModal=({isOpen,closeModal,modifunc,handleAdd,todos,id_moditodo})=>{
             onClick={(dateToStart)}>{`시작 날짜와 맞추기`}
           </button>
           <p className='align-middle text-end font-semibold p-1'>진행도 : </p>
-          <input
-            type="integer"
-            className="col-span-2 align-middle p-1 border border-gray-300 rounded shadow-md"
-            value={progress}
-            onChange={(e)=>{setProgress(e.target.value)}}
-          />
+          <button style={getButtonStyle(progress)} 
+                      onClick={() => {
+                        setProgress((progress+1)%4);}
+                      }
+                      >{progress}
+          </button>
         </div>
         <div className='flex flex-row mb-5 mx-10 place-items-center justify-end'>
           <button className={`${buttonStyle}`} onClick={closeModal}>취소</button>

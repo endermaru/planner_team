@@ -128,6 +128,8 @@ export const ChatInput = ({ onSendMessage }) => {
         ex) "웹프로그래밍 회의 일정 변경해줘." -> "timeStart":"0","content":"웹프로그래밍 회의"
         ex) "수업 내일로 바꿀래." -> "timeStart":"0","content":"수업"
         ex) "회의를 줌으로 바꿀래" -> "timeStart":"0", "content":"회의"
+
+        4. If you can't find any purpose, answer like helpful assistant in korean.
         `,
       },
     ];

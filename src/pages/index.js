@@ -451,7 +451,10 @@ export default function Home() {
       ...logs_arr,
       {
         role: "assistant",
-        content: "무엇을 도와드릴까요?",
+        content: `안녕하세요! 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
+◼ 일정 추가를 원하시면 <b>"[일시], [일정 이름] 추가해줘."</b>를 입력해주세요.\n
+◼ 일정 변경을 원하시면 <b>"[일정 이름]" 변경해줘."</b>를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
+◼ 일정 삭제를 원하시면 <b>"[일정 이름] 삭제해줘"</b>를 입력해주세요.`
       },
     ]);
   };
@@ -466,7 +469,10 @@ export default function Home() {
     setMessages([
       {
         role: "assistant",
-        content: "무엇을 도와드릴까요?",
+        content: ` 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
+1. 일정 추가를 원하시면 "[일시], [일정 이름] 추가해줘."를 입력해주세요.\n
+2. 일정 변경을 원하시면 "[일정 이름]" 변경해줘."를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
+3. 일정 삭제를 원하시면 "[일정 이름] 삭제해줘"를 입력해주세요.`
       },
     ]);
   };
@@ -503,7 +509,7 @@ export default function Home() {
   const circleLight = "flex mx-auto h-3 w-3 bg-gray rounded-full";
 
   return (
-    <div className="mx-auto max-w-5xl h-screen pt-6 pb-24 no-scrollbar">
+    <div className="mx-auto max-w-5xl h-screen pt-6 pb-10 no-scrollbar">
       <div id="root" className="flex flex-col w-full h-max-screen h-full relative isolate overflow-hidden bg-gray-lightest shadow-xl rounded-3xl">
         {/*수정 시 나오는 모달창*/}
         <ModiModal
