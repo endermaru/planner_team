@@ -45,6 +45,12 @@ export default function Home() {
   //일정 배열 생성
   const [todos, setTodos] = useState([]);
   const [todoLoading, settodoLoading] = useState(true);
+  const sortTodos = (todos) => {
+    return todos.sort(
+      (a, b) =>
+        new Date(a.timeStart) - new Date(b.timeStart)
+    )
+  };
 
   //db 가져오기
   const getTodos = async () => {
@@ -66,6 +72,7 @@ export default function Home() {
       });
     });
     setTodos(newTodos);
+    sortTodos(newTodos);
     settodoLoading(false);
   };
   //db 추가하기(Id,이름,내용,시작날짜,종료날짜,진행도)
@@ -93,11 +100,9 @@ export default function Home() {
         timeEnd: _timeEnd,
         progress: 0,
       },
-    ].sort(
-      (a, b) =>
-        new Date(a.timeStart).getTime() - new Date(b.timeStart).getTime()
-    );
+    ];
     setTodos(newTodos);
+    sortTodos(newTodos);
   };
 
   //db 수정
@@ -127,6 +132,7 @@ export default function Home() {
       }
     });
     setTodos(newTodos);
+    sortTodos(newTodos);
   };
 
   //수정 모달창
@@ -632,6 +638,7 @@ export default function Home() {
                     <div className="h-full overflow-auto">
                     <Feedback
                       todos={todos}
+                      todoLoading={todoLoading}
                       addFeedback={addFeedback}
                       todoList={
                         <TodoList
