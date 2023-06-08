@@ -1,5 +1,6 @@
-export const ChatBubble = ({ message }) => {
+export const ChatBubble = ({ message, user }) => {
   const content=message.content
+  const role = message.role === "assistant" ? "GPT" : user;
   return (
     <div
       className={`flex flex-col justify-end mx-1 ${
@@ -7,7 +8,7 @@ export const ChatBubble = ({ message }) => {
       }`}
     >
       <p className="text-gray-darkest mx-2 font-bold">
-        {message.role === "assistant" ? "GPT" : "User"}
+        {role}
       </p>
       <div
         className={`flex flex-col ${

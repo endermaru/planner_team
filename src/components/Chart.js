@@ -1,30 +1,57 @@
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
+import { Doughnut} from "react-chartjs-2";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-function FeedbackChart() {
+function FeedbackChart({cate}) {
   const data = {
+    labels: Object.keys(cate),
     datasets: [
       {
-        labels: ["complete", "incomplete"],
-        data: [3, 6],
-        backgroundColor: ["#FF645C", "#D8D8D8"],
-        borderColor: ["#FF645C", "#D8D8D8"],
+        data: Object.values(cate),
+        backgroundColor: Object.keys(cate).map(
+          (category) =>
+            ({
+              학업: "#FF645C",
+              대외활동: "#7575EA",
+              자격증: "#FFD400",
+              인턴:"#92E385"
+            }[category] || "#B9B9B8")
+        ),
       },
     ],
   };
 
-  const options = {};
+  const options = {
+    plugins: {
+      legend: {
+        display: false, // 범주 제거
+      },
+      
+    }
+    
+
+  };
+
+
+  const calAver = (data) => {
+    const average = data.reduce((acc, val) => acc + val, 0) / data.length;
+    const variance = data.reduce((acc, val) => acc + Math.pow(val - average, 2), 0) / data.length;
+    const Deviation = Math.sqrt(variance);
+    return (1/(Deviation+1)*100).toFixed(0);
+  }
+
+  const cateratio = calAver(Object.values(cate))
 
   return (
-    <div className="Chart w-60 h-60">
-      <div className="text-center text-xl">오늘의 진행도</div>
-      <div className="">
-        <Doughnut data={data} options={options}></Doughnut>
-      </div>
+    <div className="h-36 justify-center items-center text-center">
+        <Doughnut data={data} options={options}/>
+        <p className="mb-1 mt-3 font-bold "style={{ whiteSpace: 'pre-line' }}>
+                {`분포 점수 : ${cateratio}점`} 
+            </p>
     </div>
   );
 }
 
 export default FeedbackChart;
+
