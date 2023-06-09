@@ -208,9 +208,6 @@ const Calendar = ({ todos, printTodos }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [closeHover, setCloseHover] = useState(false);
 
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [closeHover, setCloseHover] = useState(false);
-
   const isPrevHovering = () => {
     setPrevHover(true);
   };
