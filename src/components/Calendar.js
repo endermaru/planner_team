@@ -107,6 +107,17 @@ const RenderCells = ({
   while (day <= endDate) {
     for (let i = 0; i < 7; i++) {
       formattedDate = format(day, "d");
+      // Step 1: Filter todos and create an array of dates with todos
+      const datesWithTodos = todos.filter((todo) => {
+        const todoTimeStart = startOfDay(new Date(todo.timeStart));
+        const todoTimeEnd = endOfDay(new Date(todo.timeEnd));
+        return isWithinInterval(day, {
+          start: todoTimeStart,
+          end: todoTimeEnd,
+          inclusive: true,
+        });
+      });
+      const hasTodos = datesWithTodos.length > 0;
       const cloneDay = day;
       days.push(
         <div className="w-1/6 h-5/6 flex flex-col justify-start items-center">
@@ -126,11 +137,14 @@ const RenderCells = ({
             onClick={() => onDateClick(cloneDay)}
           >
             <span
-              className={
-                format(currentMonth, "M") !== format(day, "M")
-                  ? "text not-valid"
-                  : ""
-              }
+              className={`
+                ${
+                  format(currentMonth, "M") !== format(day, "M")
+                    ? "text not-valid"
+                    : ""
+                }
+                  ${hasTodos ? "underline underline-offset-8" : ""}
+              `}
             >
               {formattedDate}
             </span>
