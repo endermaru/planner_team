@@ -46,10 +46,7 @@ export default function Home() {
   const [todos, setTodos] = useState([]);
   const [todoLoading, settodoLoading] = useState(true);
   const sortTodos = (todos) => {
-    return todos.sort(
-      (a, b) =>
-        new Date(a.timeStart) - new Date(b.timeStart)
-    )
+    return todos.sort((a, b) => new Date(a.timeStart) - new Date(b.timeStart));
   };
 
   //db 가져오기
@@ -76,7 +73,7 @@ export default function Home() {
     settodoLoading(false);
   };
   //db 추가하기(Id,이름,내용,시작날짜,종료날짜,진행도)
-  const addTodos = async ({ _content,_category, _timeStart, _timeEnd }) => {
+  const addTodos = async ({ _content, _category, _timeStart, _timeEnd }) => {
     const docRef = await addDoc(todoDB, {
       userId: data?.user?.id,
       userName: data?.user?.name,
@@ -95,7 +92,7 @@ export default function Home() {
         userId: data?.user?.id,
         userName: data?.user?.name,
         content: _content,
-        category:_category,
+        category: _category,
         timeStart: _timeStart,
         timeEnd: _timeEnd,
         progress: 0,
@@ -106,7 +103,14 @@ export default function Home() {
   };
 
   //db 수정
-  const modiTodo = (modid, _content,_category, _timeStart, _timeEnd, _progress) => {
+  const modiTodo = (
+    modid,
+    _content,
+    _category,
+    _timeStart,
+    _timeEnd,
+    _progress
+  ) => {
     const newTodos = todos.map((todo) => {
       if (todo.id == modid) {
         const todoDoc = doc(todoDB, modid);
@@ -114,7 +118,7 @@ export default function Home() {
         _timeEnd = Timestamp.fromDate(new Date(_timeEnd)).toDate();
         updateDoc(todoDoc, {
           content: _content,
-          category:_category,
+          category: _category,
           timeStart: _timeStart,
           timeEnd: _timeEnd,
           progress: _progress,
@@ -122,7 +126,7 @@ export default function Home() {
         return {
           ...todo,
           content: _content,
-          category:_category,
+          category: _category,
           timeStart: _timeStart,
           timeEnd: _timeEnd,
           progress: _progress,
@@ -177,7 +181,7 @@ export default function Home() {
   const getFeedback = async () => {
     if (!data?.user?.name) {
       return;
-    };
+    }
 
     const q = query(
       feedbackDB,
@@ -188,25 +192,32 @@ export default function Home() {
     const result = await getDocs(q);
     const feed = [];
 
-    result.docs.forEach((doc)=> {
-      feed.push({id:doc.id, ...doc.data()});
+    result.docs.forEach((doc) => {
+      feed.push({ id: doc.id, ...doc.data() });
     });
 
     setfeedback(feed);
   };
 
-  const addFeedback = async (date, progress, category, score, reflection, finish) => {
+  const addFeedback = async (date, score, reflection, finish) => {
     const docRef = await addDoc(feedbackDB, {
-      date : date,
-      progress : progress,
-      category : category,
-      score : score,
-      reflection : reflection,
-      finish : finish,
+      date: date,
+      score: score,
+      reflection: reflection,
+      finish: finish,
       userId: data?.user?.id,
       userName: data?.user.name,
     });
-    setfeedback([...feedback, {id:docRef.id, date:date, progress:progress, category:category, score:score, reflection:reflection, finish:finish}])
+    setfeedback([
+      ...feedback,
+      {
+        id: docRef.id,
+        date: date,
+        score: score,
+        reflection: reflection,
+        finish: finish,
+      },
+    ]);
   };
 
   //챗봇
@@ -286,27 +297,33 @@ export default function Home() {
     if (timeStart != "0") {
       const dateObj = new Date(timeStart);
 
-      const y=dateObj.getFullYear();
-      const m=dateObj.getMonth()+1;
-      const d=dateObj.getDate();
-      const h=dateObj.getHours();
-      const mi=dateObj.getMinutes();
-      
-      const _timeStart = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}T${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
-      console.log(_timeStart.slice(0,10));
+      const y = dateObj.getFullYear();
+      const m = dateObj.getMonth() + 1;
+      const d = dateObj.getDate();
+      const h = dateObj.getHours();
+      const mi = dateObj.getMinutes();
+
+      const _timeStart = `${y}-${String(m).padStart(2, "0")}-${String(
+        d
+      ).padStart(2, "0")}T${String(h).padStart(2, "0")}:${String(mi).padStart(
+        2,
+        "0"
+      )}`;
+      console.log(_timeStart.slice(0, 10));
 
       for (const item of todos) {
         //각 todo에 대한 문자열 생성
-        const y2=item.timeStart.getFullYear();
-        const m2=item.timeStart.getMonth()+1;
-        const d2=item.timeStart.getDate();
-        const h2=item.timeStart.getHours();
-        const mi2=item.timeStart.getMinutes();
-        const todoTime = `${y2}-${String(m2).padStart(2, "0")}-${String(d2).padStart(2, "0")}T${String(h2).padStart(2, "0")}:${String(mi2).padStart(2, "0")}`;
-        if (
-          item.content.includes(content) &&
-          _timeStart === todoTime
-        ) {
+        const y2 = item.timeStart.getFullYear();
+        const m2 = item.timeStart.getMonth() + 1;
+        const d2 = item.timeStart.getDate();
+        const h2 = item.timeStart.getHours();
+        const mi2 = item.timeStart.getMinutes();
+        const todoTime = `${y2}-${String(m2).padStart(2, "0")}-${String(
+          d2
+        ).padStart(2, "0")}T${String(h2).padStart(2, "0")}:${String(
+          mi2
+        ).padStart(2, "0")}`;
+        if (item.content.includes(content) && _timeStart === todoTime) {
           exact_todo.push(item);
         } else if (
           item.content.includes(content) &&
@@ -454,7 +471,7 @@ export default function Home() {
         content: `안녕하세요! 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
 ◼ 일정 추가를 원하시면 <b>"[일시], [일정 이름] 추가해줘."</b>를 입력해주세요.\n
 ◼ 일정 변경을 원하시면 <b>"[일정 이름]" 변경해줘."</b>를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
-◼ 일정 삭제를 원하시면 <b>"[일정 이름] 삭제해줘"</b>를 입력해주세요.`
+◼ 일정 삭제를 원하시면 <b>"[일정 이름] 삭제해줘"</b>를 입력해주세요.`,
       },
     ]);
   };
@@ -471,8 +488,8 @@ export default function Home() {
         role: "assistant",
         content: ` 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
 1. 일정 추가를 원하시면 "[일시], [일정 이름] 추가해줘."를 입력해주세요.\n
-2. 일정 변경을 원하시면 "[일정 이름]" 변경해줘."를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
-3. 일정 삭제를 원하시면 "[일정 이름] 삭제해줘"를 입력해주세요.`
+2. 일정 변경을 원하시면 "[일정 이름] 변경해줘."를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
+3. 일정 삭제를 원하시면 "[일정 이름] 삭제해줘"를 입력해주세요.`,
       },
     ]);
   };
@@ -510,162 +527,185 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-5xl h-screen pt-6 pb-10 no-scrollbar">
-      <div id="root" className="flex flex-col w-full h-max-screen h-full relative isolate overflow-hidden bg-gray-lightest shadow-xl rounded-3xl">
+      <div
+        id="root"
+        className="flex flex-col w-full h-max-screen h-full relative isolate overflow-hidden bg-gray-lightest shadow-xl rounded-3xl"
+      >
         {/*수정 시 나오는 모달창*/}
         <ModiModal
-        isOpen={isOpen}
-        closeModal={closeModal}
-        modifunc={modiTodo}
-        handleAdd={handleAdd}
-        todos={todos}
-        id_moditodo={id_moditodo}
+          isOpen={isOpen}
+          closeModal={closeModal}
+          modifunc={modiTodo}
+          handleAdd={handleAdd}
+          todos={todos}
+          id_moditodo={id_moditodo}
+          className="z-20"
         />
         {/*제목 div*/}
         {!todoLoading && (
-        <div className="h-13 min-h-13 w-full flex bg-orange items-center p-3 pt-6 pr-5 border-b-[1px] border-gray-dark">
-          <div className="flex items-center flex-grow">
-            <div className="text-gray-lightest tracking-tight font-bold text-2xl pl-2">{`PLANNER : ${data?.user?.name}'s page`}</div>
-            {/*테스트용 버튼*/}
+          <div className="h-13 min-h-13 w-full flex bg-orange items-center p-3 pt-6 pr-5 border-b-[1px] border-gray-dark">
+            <div className="flex items-center flex-grow">
+              <div className="text-gray-lightest tracking-tight font-bold text-2xl pl-2">
+                PLANNER GPT
+              </div>
+              {/*테스트용 버튼*/}
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <div className="h-4 text-sm text-gray-lightest justify-self-bottom pl-2">
+                {`${data?.user?.name}`} 님
+              </div>
+              <button className={topbuttonStyle} onClick={signOut}>
+                로그아웃
+              </button>
+              <button className={topbuttonStyle} onClick={deletelog}>
+                챗 로그 삭제
+              </button>
+              <button
+                className={topbuttonStyle}
+                onClick={() => {
+                  printTodos(todos);
+                }}
+              >
+                일정 출력
+              </button>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <button className={topbuttonStyle} onClick={signOut}>
-              로그아웃
-            </button>
-            <button className={topbuttonStyle} onClick={deletelog}>
-              챗 로그 삭제
-            </button>
-            <button
-              className={topbuttonStyle}
-              onClick={() => {
-                printTodos(todos);
-              }}
-            >
-              array 출력
-            </button>
-          </div>
-        </div>
         )}
 
         {/*각 컴포넌트-getTodos가 배열을 가져올 때까지 렌더링되지 않습니다.*/}
         {!todoLoading && (
-            <div className="w-full h-screen flex flex-row overflow-auto">
-              {/*챗봇 컴포넌트*/}
-              <div className="w-[350px] flex-none h-full">
-                <Chat
-                  messages={messages}
-                  loading={loading}
-                  onSendMessage={handleSend}
+          <div className="w-full h-screen flex flex-row overflow-auto no-scrollbar">
+            {/*챗봇 컴포넌트*/}
+            <div>
+              <Chat
+                messages={messages}
+                loading={loading}
+                onSendMessage={handleSend}
+                user={`${data?.user?.name}`}
+              />
+            </div>
+
+            {/*탭버튼*/}
+            <div className="w-12 border-x-[1px] border-x-gray-darkest">
+              <button
+                className={tab == 1 ? activeStyle : grayStyle}
+                onClick={() => setTab(1)}
+              >
+                {tab == 1 ? (
+                  <div>
+                    <div className={circleDark} />
+                    <p className="mt-8 text-base font-bold rotate-90">
+                      Calendar
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className={circleLight} />
+                    <p className="mt-8 text-base font-normal rotate-90">
+                      Calendar
+                    </p>
+                  </div>
+                )}
+                {}
+              </button>
+              <button
+                className={tab == 2 ? activeStyle : grayStyle}
+                onClick={() => setTab(2)}
+              >
+                {tab == 2 ? (
+                  <div>
+                    <div className={circleDark} />
+                    <p className="mt-7 text-base font-bold rotate-90">
+                      Todolist
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className={circleLight} />
+                    <p className="mt-7 text-base font-normal rotate-90">
+                      Todolist
+                    </p>
+                  </div>
+                )}
+              </button>
+              <button
+                className={tab == 3 ? activeStyle : grayStyle}
+                onClick={() => {
+                  setTab(3);
+                  setMessages([
+                    ...messages,
+                    {
+                      role: "assistant",
+                      content: `오늘 하루를 마무리하는 성찰 페이지입니다.\n
+1. 먼저 오늘 하루 일정을 되짚어보면서 각각의 일정에 대한 진행도를 표시해주세요.\n
+2. 어제와 오늘을 비교해보면서 오늘 하루에 대한 총점수를 매겨주세요.\n
+3. 오늘 하루 칭찬할 점, 아쉬운 점, 개선할 점을 적어주세요. \n
+4. ◼Ctrl+Enter◼ 를 눌러 GPT에게 조언을 얻으세요.\n
+5. 조언을 바탕으로 참고할 점을 작성하며 마무리하세요.\n
+★저장한 이후에는 수정이 불가하니 주의해주세요★
+              `,
+                    },
+                  ]);
+                }}
+              >
+                {tab == 3 ? (
+                  <div>
+                    <div className={circleDark} />
+                    <p className="mt-8 text-base font-bold rotate-90">
+                      Reflection
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className={circleLight} />
+                    <p className="mt-8 text-base font-normal rotate-90">
+                      Reflection
+                    </p>
+                  </div>
+                )}
+              </button>
+            </div>
+
+            <div className="flex overflow-auto w-full no-scrollbar">
+              {tab == 1 && (
+                <Calendar
+                  data={data}
+                  todoLoading={todoLoading}
+                  todos={todos}
+                  delTodo={delTodo}
+                  modiTodo={modiTodo}
+                  openModi={openModimodal}
                 />
-              </div>
-
-              {/*탭버튼*/}
-              <div className="w-12 border-x-[1px] border-x-gray-darkest">
-                  <button
-                    className={tab == 1 ? activeStyle : grayStyle}
-                    onClick={() => setTab(1)}
-                  >
-                    {tab == 1 ? (
-                      <div>
-                        <div className={circleDark} />
-                        <p className="mt-7 text-base font-bold rotate-90">
-                          Calendar
-                        </p>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className={circleLight} />
-                        <p className="mt-7 text-base font-normal rotate-90">
-                          Calendar
-                        </p>
-                      </div>
-                    )}
-                    {}
-                  </button>
-                  <button
-                    className={tab == 2 ? activeStyle : grayStyle}
-                    onClick={() => setTab(2)}
-                  >
-                    {tab == 2 ? (
-                      <div>
-                        <div className={circleDark} />
-                        <p className="mt-6 text-base font-bold rotate-90">
-                          Todolist
-                        </p>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className={circleLight} />
-                        <p className="mt-6 text-base font-normal rotate-90">
-                          Todolist
-                        </p>
-                      </div>
-                    )}
-                  </button>
-                  <button
-                    className={tab == 3 ? activeStyle : grayStyle}
-                    onClick={() => setTab(3)}
-                  >
-                    {tab == 3 ? (
-                      <div>
-                        <div className={circleDark} />
-                        <p className="mt-7 text-base font-bold rotate-90">
-                          Feedback
-                        </p>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className={circleLight} />
-                        <p className="mt-7 text-base font-normal rotate-90">
-                          Feedback
-                        </p>
-                      </div>
-                    )}
-                  </button>
-              </div>
-
-              <div className="flex overflow-auto w-full">
-                  {tab == 1 && (
-                    <Calendar
-                      todos={todos}
-                      printTodos={printTodos}
-                    />
-                  )}
-                  {tab == 2 && (
-                    <TodoList
-                      data={data}
-                      todoLoading={todoLoading}
-                      todos={todos}
-                      delTodo={delTodo}
-                      modiTodo={modiTodo}
-                      openModi={openModimodal}
-                    />
-                  )}
-                  {tab == 3 && (
-                    <div className="h-full overflow-auto">
-                    <Feedback
-                      todos={todos}
-                      todoDB={todoDB}
-                      todoLoading={todoLoading}
-                      addFeedback={addFeedback}
-                      setTodos={setTodos}
-                      // modiPro={modiPro}
-                      todoList={
-                        <TodoList
-                          className="w-2/3"
-                          data={data}
-                          todoLoading={todoLoading}
-                          todos={todos}
-                          modiTodo={modiTodo}
-                          delTodo={delTodo}
-                        />
-                      }
-                    />
-                    </div>
-                  )}
+              )}
+              {tab == 2 && (
+                <TodoList
+                  data={data}
+                  todoLoading={todoLoading}
+                  todos={todos}
+                  delTodo={delTodo}
+                  modiTodo={modiTodo}
+                  openModi={openModimodal}
+                />
+              )}
+              {tab == 3 && (
+                <div className="w-full h-full overflow-auto no-scrollbar">
+                  <Feedback
+                    todos={todos}
+                    todoDB={todoDB}
+                    todoLoading={todoLoading}
+                    addFeedback={addFeedback}
+                    feedback={feedback}
+                    setTodos={setTodos}
+                    modiTodo={modiTodo}
+                    onSendMessage={handleSend}
+                  />
                 </div>
+              )}
+            </div>
           </div>
         )}
-        </div>
+      </div>
     </div>
   );
 }
