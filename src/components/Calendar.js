@@ -172,8 +172,14 @@ const RenderCells = ({
       width: "30vw",
       height: "45vh",
       transform: "translate(-50%,-50%)",
-      backgroundColor: "white",
+      backgroundColor: "gray-lightest",
+      boxShadow: "10px 20px 10px -10px rgba(0, 0, 0, 0.2)",
       padding: 0,
+      border: 0,
+      borderRadius: "10px",
+    },
+    overlay: {
+      backgroundColor: "rgba(128,128,128, 0.3)",
     },
   };
 
