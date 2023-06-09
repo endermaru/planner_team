@@ -73,7 +73,8 @@ export default function Home() {
     settodoLoading(false);
   };
   //db 추가하기(Id,이름,내용,시작날짜,종료날짜,진행도)
-  const addTodos = async ({ _content, _category, _timeStart, _timeEnd }) => {
+  const addTodos = async ({ _content, _category, _timeStart, _timeEnd , _progress}) => {
+    console.log(_content,_category);
     const docRef = await addDoc(todoDB, {
       userId: data?.user?.id,
       userName: data?.user?.name,
@@ -81,7 +82,7 @@ export default function Home() {
       category: _category,
       timeEnd: Timestamp.fromDate(new Date(_timeEnd)),
       timeStart: Timestamp.fromDate(new Date(_timeStart)),
-      progress: 0,
+      progress: _progress,
     });
     _timeStart = Timestamp.fromDate(new Date(_timeStart)).toDate();
     _timeEnd = Timestamp.fromDate(new Date(_timeEnd)).toDate();
@@ -243,6 +244,7 @@ export default function Home() {
           _category: jStr.category,
           _timeStart: jStr.timeStart,
           _timeEnd: jStr.timeEnd,
+          _progress: 0,
         });
         handleAdd("assistant", "일정이 추가되었습니다!");
       } else if (jStr.method === "delete") {
@@ -680,6 +682,7 @@ export default function Home() {
                   data={data}
                   todoLoading={todoLoading}
                   todos={todos}
+                  addTodos={addTodos}
                   delTodo={delTodo}
                   modiTodo={modiTodo}
                   openModi={openModimodal}
@@ -691,6 +694,7 @@ export default function Home() {
                   data={data}
                   todoLoading={todoLoading}
                   todos={todos}
+                  addTodos={addTodos}
                   delTodo={delTodo}
                   modiTodo={modiTodo}
                   openModi={openModimodal}

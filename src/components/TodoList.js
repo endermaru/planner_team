@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import firebase from "firebase/app";
 import "firebase/firestore";
 import ModiModal from "./ModiModal";
+import AddModal from "./AddModal";
 
 export const TodoTable=({sortedTodos,modiTodo,delTodo,handleAdd})=>{
   //날짜 변환기
@@ -199,6 +200,7 @@ const TodoList = ({
   data,
   todoLoading,
   todos,
+  addTodos,
   delTodo,
   modiTodo,
   openModi,
@@ -233,14 +235,55 @@ const TodoList = ({
 
   const sortedTodos = getSortedTodos(); // 정렬된 Todos 배열
 
-
-
   const grayCell = " text-gray";
   const activeCell = "font-bold text-gray-darkest";
 
+  //추가 모달창
+  const [addIsOpen, setAddIsOpen] = useState(false);
+  const OpenAddModal = () => {
+    setAddIsOpen(true);
+  };
+  const closeAddModal = () => {
+    setAddIsOpen(false);
+  };
+  //날짜 변환기
+  const dateToString = (date) => {
+    const dateObj = new Date(date);
+    // console.log(dateObj);
+    const y = dateObj.getFullYear();
+    const m = dateObj.getMonth() + 1;
+    const d = dateObj.getDate();
+    var h = dateObj.getHours();
+    const mi = dateObj.getMinutes();
+
+    var hf = "AM";
+    if (h >= 12) {
+      hf = "PM";
+      h -= 12;
+    }
+    // console.log(y,m,d,hf,String(h).padStart(2, "0"),String(mi).padStart(2, "0"));
+    return `${m}월 ${d}일\n${hf} ${String(h).padStart(2, "0")}:${String(
+      mi
+    ).padStart(2, "0")}`;
+  };
+  const [nowDate,setNow]=useState('');
+  useEffect(()=>{
+    const now_date=new Date();
+    setNow(now_date);
+  },[addIsOpen])
+  
+
   return (
     <div className="max-w-full w-full overflow-y-scroll p-5 no-scrollbar">
-      <div className="flex h-10 border-b-[1px] pl-[70px] items-center">
+      <div className="flex h-13 border-b-[1px] pl-[70px] items-center">
+        {/*추가 시 나오는 모달창*/}
+        <AddModal
+          isOpen={addIsOpen}
+          closeModal={closeAddModal}
+          addfunc={addTodos}
+          handleAdd={handleAdd}
+          defaultDay={nowDate}
+        />
         <div className={`${activeCell} pr-4`}>최신순</div>
         <div
           className={`${sortBy === "progress" ? activeCell : grayCell} pr-4`}
@@ -251,6 +294,13 @@ const TodoList = ({
         <div className={`${grayCell} pl-36 pr-4`}>일별</div>
         <div className={`${grayCell} pr-4`}>주별</div>
         <div className={`${activeCell} pr-4`}>월별</div>
+        <button
+          className="justify-self-end text-base text-gray-lightest font-semibold border rounded-full p-2 bg-gray \
+          hover:text-gray-lightest hover:bg-orange"
+          onClick={OpenAddModal}
+        >
+            일정 추가하기
+        </button>
       </div>
       <div className="flex flex-col ">
         {/*(지윤) 아래 부분은 todoList 탭에서 보여야 하는 내용들입니다. */}
