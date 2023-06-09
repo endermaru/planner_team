@@ -162,6 +162,7 @@ const ModiModal = ({
       style={customStyles}
       shouldCloseOnOverlayClick={false}
       contentLabel="Modal for modification"
+      className="z-30"
     >
       <div className="bg-gray-lightest w-full h-full flex flex-col">
         <div className="w-full bg-red-500">

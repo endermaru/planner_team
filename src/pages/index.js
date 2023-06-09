@@ -123,6 +123,7 @@ export default function Home() {
           timeEnd: _timeEnd,
           progress: _progress,
         });
+        
         return {
           ...todo,
           content: _content,
@@ -135,6 +136,7 @@ export default function Home() {
         return todo;
       }
     });
+    
     setTodos(newTodos);
     sortTodos(newTodos);
   };
@@ -161,12 +163,14 @@ export default function Home() {
   //db삭제 - todos 배열 안에서 특정 속성으로 원하는 item을 찾는 함수 필요
   const delTodo = (id) => {
     const todoDoc = doc(todoDB, id);
+    const del_To=todos.find(todo=>todo.id===id).content;
     deleteDoc(todoDoc);
     setTodos(
       todos.filter((todo) => {
         return todo.id !== id;
       })
     );
+    handleAdd("assistant", `"${del_To}"일정이 삭제되었습니다.`);
   };
   //todos 배열 출력(확인용)
   const printTodos = (_todos) => {
@@ -226,6 +230,7 @@ export default function Home() {
 
   //정규표현식 함수
   const re_f = async (sent) => {
+    console.log(sent);
     const sentence = sent.replace(/\n/g, "");
     const pattern = /\{.*?\}/;
     const match = sentence.match(pattern);
@@ -255,7 +260,6 @@ export default function Home() {
           );
         } else {
           delTodo(resultFind);
-          handleAdd("assistant", "일정이 삭제되었습니다.");
         }
       } else if (jStr.method === "modification") {
         const resultFind = findSchedule(jStr);
@@ -539,7 +543,7 @@ export default function Home() {
           handleAdd={handleAdd}
           todos={todos}
           id_moditodo={id_moditodo}
-          className="z-20"
+          className="z-30"
         />
         {/*제목 div*/}
         {!todoLoading && (
@@ -679,6 +683,7 @@ export default function Home() {
                   delTodo={delTodo}
                   modiTodo={modiTodo}
                   openModi={openModimodal}
+                  handleAdd={handleAdd}
                 />
               )}
               {tab == 2 && (
@@ -689,6 +694,7 @@ export default function Home() {
                   delTodo={delTodo}
                   modiTodo={modiTodo}
                   openModi={openModimodal}
+                  handleAdd={handleAdd}
                 />
               )}
               {tab == 3 && (
@@ -709,6 +715,16 @@ export default function Home() {
           </div>
         )}
       </div>
+      {/*수정 시 나오는 모달창*/}
+      <ModiModal
+          isOpen={isOpen}
+          closeModal={closeModal}
+          modifunc={modiTodo}
+          handleAdd={handleAdd}
+          todos={todos}
+          id_moditodo={id_moditodo}
+          className="z-30"
+        />
     </div>
   );
 }

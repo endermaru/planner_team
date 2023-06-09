@@ -8,6 +8,7 @@ import { isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import Modal from "react-modal";
 
 import TodoList from "./TodoList";
+import {TodoTable} from './TodoList';
 
 const RenderHeader = ({
   currentMonth,
@@ -92,6 +93,7 @@ const RenderCells = ({
   delTodo,
   modiTodo,
   openModi,
+  handleAdd,
 }) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -198,10 +200,11 @@ const RenderCells = ({
       {rows}
       <Modal
         isOpen={modalIsOpen}
-        className="z-10 w-3/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl"
+        className="z-10 w-3/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl z-10"
         contentLabel="Modal for calendar"
         style={customStyles}
         onRequestClose={() => setModalIsOpen(false)}
+        shouldCloseOnOverlayClick={false}
       >
         <div className="flex w-full flex-row justify-between items-end px-5 pb-3 pt-5 bg-blue text-xl text-gray-lightest rounded-t-xl">
           <div>날짜별 일정 ({format(selectedDate, "MM/dd")})</div>
@@ -215,18 +218,17 @@ const RenderCells = ({
           />
         </div>
         <div
-          className="flex w-full p-0 flex-col justify-start items-start"
-          onClick={closeModal}
+          className="flex w-full p-1 flex-col justify-start items-start"
+          // onClick={closeModal}
         >
-          <TodoList
-            todos={filteredTodos}
+          {!todoLoading && 
+          <TodoTable
+            sortedTodos={filteredTodos}
             className="text-xs p-0 m-0"
-            data={data}
-            todoLoading={todoLoading}
-            delTodo={delTodo}
             modiTodo={modiTodo}
-            openModi={openModi}
-          />
+            delTodo={delTodo}
+            handleAdd={handleAdd}
+          />}
         </div>
       </Modal>
     </div>
@@ -240,6 +242,7 @@ const Calendar = ({
   delTodo,
   modiTodo,
   openModi,
+  handleAdd,
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -326,6 +329,7 @@ const Calendar = ({
         delTodo={delTodo}
         modiTodo={modiTodo}
         openModi={openModi}
+        handleAdd={handleAdd}
       />
     </div>
   );
