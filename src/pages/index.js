@@ -201,16 +201,12 @@ export default function Home() {
 
   const addFeedback = async (
     date,
-    progress,
-    category,
     score,
     reflection,
     finish
   ) => {
     const docRef = await addDoc(feedbackDB, {
       date: date,
-      progress: progress,
-      category: category,
       score: score,
       reflection: reflection,
       finish: finish,
@@ -222,8 +218,6 @@ export default function Home() {
       {
         id: docRef.id,
         date: date,
-        progress: progress,
-        category: category,
         score: score,
         reflection: reflection,
         finish: finish,
@@ -499,7 +493,7 @@ export default function Home() {
         role: "assistant",
         content: ` 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
 1. 일정 추가를 원하시면 "[일시], [일정 이름] 추가해줘."를 입력해주세요.\n
-2. 일정 변경을 원하시면 "[일정 이름]" 변경해줘."를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
+2. 일정 변경을 원하시면 "[일정 이름] 변경해줘."를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
 3. 일정 삭제를 원하시면 "[일정 이름] 삭제해줘"를 입력해주세요.`,
       },
     ]);
@@ -592,6 +586,7 @@ export default function Home() {
                 messages={messages}
                 loading={loading}
                 onSendMessage={handleSend}
+                user = {`${data?.user?.name}`}
               />
             </div>
 
@@ -640,20 +635,36 @@ export default function Home() {
               </button>
               <button
                 className={tab == 3 ? activeStyle : grayStyle}
-                onClick={() => setTab(3)}
+                onClick={() => {
+                  setTab(3);
+                  setMessages([
+                    ...messages,
+                    {
+                      role: "assistant",
+                      content: `오늘 하루를 마무리하는 성찰 페이지입니다.\n
+1. 먼저 오늘 하루 일정을 되짚어보면서 각각의 일정에 대한 진행도를 표시해주세요.\n
+2. 어제와 오늘을 비교해보면서 오늘 하루에 대한 총점수를 매겨주세요.\n
+3. 오늘 하루 칭찬할 점, 아쉬운 점, 개선할 점을 적어주세요. \n
+4. ◼Ctrl+Enter◼ 를 눌러 GPT에게 조언을 얻으세요.\n
+5. 조언을 바탕으로 참고할 점을 작성하며 마무리하세요.\n
+★저장한 이후에는 수정이 불가하니 주의해주세요★
+              `,
+                    },
+                  ]);
+                }}
               >
                 {tab == 3 ? (
                   <div>
                     <div className={circleDark} />
                     <p className="mt-8 text-base font-bold rotate-90">
-                      Feedback
+                      Reflection
                     </p>
                   </div>
                 ) : (
                   <div>
                     <div className={circleLight} />
                     <p className="mt-8 text-base font-normal rotate-90">
-                      Feedback
+                      Reflection
                     </p>
                   </div>
                 )}
@@ -679,18 +690,10 @@ export default function Home() {
                     todoDB={todoDB}
                     todoLoading={todoLoading}
                     addFeedback={addFeedback}
+                    feedback={feedback}
                     setTodos={setTodos}
-                    // modiPro={modiPro}
-                    todoList={
-                      <TodoList
-                        className="w-2/3"
-                        data={data}
-                        todoLoading={todoLoading}
-                        todos={todos}
-                        modiTodo={modiTodo}
-                        delTodo={delTodo}
-                      />
-                    }
+                    modiTodo={modiTodo}
+                    onSendMessage={handleSend}
                   />
                 </div>
               )}

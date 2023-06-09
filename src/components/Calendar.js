@@ -18,7 +18,7 @@ const RenderHeader = ({
   notNextHovering,
 }) => {
   return (
-    <div className="w-full flex flex-row justify-between items-baseline p-4 pl-8 pr-6 pt-8">
+    <div className="w-full flex flex-row justify-between items-baseline p-4">
       <div className="col w-4/5 h-full flex flex-col justify-center items-start mr-1 col-start">
         <span className="text-l">
           <span className="text-4xl month mx-4 font-semibold">
@@ -59,7 +59,7 @@ const RenderDays = () => {
   for (let i = 0; i < 7; i++) {
     days.push(
       <div
-        className="col w-1/6 h-full flex flex-col pb-2 justify-end items-center px-1 bg-neutral text-gray-darkest font-bold border-b-[1px] border-gray-darkest"
+        className="col w-1/6 h-full flex flex-col justify-end items-start px-1 bg-gray-dark text-gray-lightest border-gray-lightest border"
         key={i}
       >
         {date[i]}
@@ -68,7 +68,7 @@ const RenderDays = () => {
   }
 
   return (
-    <div className="days w-full h-fit p-1 px-4 row flex flex-row justify-between items-center">
+    <div className="days w-full h-fit p-1 row flex flex-row justify-between items-center">
       {days}
     </div>
   );
@@ -101,7 +101,7 @@ const RenderCells = ({
       formattedDate = format(day, "d");
       const cloneDay = day;
       days.push(
-        <div className="w-1/6 h-5/6 flex flex-col justify-start items-center">
+        <div className="w-1/6 h-max flex flex-col justify-start items-center px-1 my-2">
           <div
             className={`col w-16 h-16 flex flex-col justify-center items-center rounded-full cell ${
               !isSameMonth(day, monthStart)
@@ -116,7 +116,6 @@ const RenderCells = ({
             }`}
             key={day}
             onClick={() => onDateClick(cloneDay)}
-            //onClick={() => onDateClick(day)}
           >
             <span
               className={
@@ -134,7 +133,7 @@ const RenderCells = ({
     }
     rows.push(
       <div
-        className="row w-full h-full flex flex-row justify-between items-center py-2"
+        className="row w-full h-full flex flex-row justify-between items-center"
         key={day}
       >
         {days}
@@ -173,11 +172,11 @@ const RenderCells = ({
   };
 
   return (
-    <div className="body w-full h-6/7 flex flex-col justify-center items-center mb-3 mt-1 px-4">
+    <div className="body w-full h-4/5 flex flex-col justify-center items-center mb-3">
       {rows}
       <Modal
         isOpen={modalIsOpen}
-        className="w-2/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl absolute object-center"
+        className="w-2/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl"
         contentLabel="Modal for calendar"
         style={customStyles}
         onRequestClose={() => setModalIsOpen(false)}
@@ -209,6 +208,9 @@ const Calendar = ({ todos, printTodos }) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [closeHover, setCloseHover] = useState(false);
 
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [closeHover, setCloseHover] = useState(false);
+
   const isPrevHovering = () => {
     setPrevHover(true);
   };
@@ -228,12 +230,12 @@ const Calendar = ({ todos, printTodos }) => {
   const nextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
   };
+
   const onDateClick = (day) => {
     setSelectedDate(day);
     setModalIsOpen(true);
     setCloseHover(false);
     console.log(day);
-    //console.log("closeHover in click:", closeHover);
   };
 
   const isCloseHovering = () => {
