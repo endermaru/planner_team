@@ -3,8 +3,11 @@ import { Icon } from "@iconify/react";
 import { format, addMonths, subMonths } from "date-fns";
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek } from "date-fns";
 import { isSameMonth, isSameDay, addDays, parse } from "date-fns";
+import { isWithinInterval, startOfDay, endOfDay } from "date-fns";
 
 import Modal from "react-modal";
+
+import TodoList from "./TodoList";
 
 const RenderHeader = ({
   currentMonth,
@@ -82,9 +85,8 @@ const RenderCells = ({
   closeHover,
   isCloseHovering,
   notCloseHovering,
-  todos,
-  printTodos,
   closeModal,
+  todos,
 }) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -156,28 +158,22 @@ const RenderCells = ({
     },
   };
 
-  const findTodo = (_todos, day) => {
-    const _modi = _todos.find((todo) => todo.id === id);
-    if (_modi) {
-      setContent(_modi?.content);
-      var _timeStart = new Date(_modi?.timeStart);
-      _timeStart.setUTCHours(_timeStart.getUTCHours() + 9);
-      _timeStart = _timeStart.toISOString().slice(0, -2);
-      setTimeStart(_timeStart);
-      var _timeEnd = new Date(_modi?.timeEnd);
-      _timeEnd.setUTCHours(_timeEnd.getUTCHours() + 9);
-      _timeEnd = _timeEnd.toISOString().slice(0, -2);
-      //setTimeEnd(_timeEnd);
-    }
-    return _modi;
-  };
+  const filteredTodos = todos.filter((todo) => {
+    const todoTimeStart = startOfDay(new Date(todo.timeStart));
+    const todoTimeEnd = endOfDay(new Date(todo.timeEnd));
+    return isWithinInterval(selectedDate, {
+      start: todoTimeStart,
+      end: todoTimeEnd,
+      inclusive: true,
+    });
+  });
 
   return (
     <div className="body w-full h-4/5 flex flex-col justify-center items-center mb-3">
       {rows}
       <Modal
         isOpen={modalIsOpen}
-        className="w-2/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl"
+        className="w-3/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl"
         contentLabel="Modal for calendar"
         style={customStyles}
         onRequestClose={() => setModalIsOpen(false)}
@@ -193,8 +189,8 @@ const RenderCells = ({
             icon={`carbon:close-${closeHover ? "filled" : "outline"}`}
           />
         </div>
-        <div className="flex w-full pt-5 pb-10 px-10 flex-col justify-start items-start">
-          {/* print todos here */}
+        <div className="flex w-full p-0 flex-col justify-start items-start">
+          <TodoList todos={filteredTodos} className="text-xs p-0 m-0" />
         </div>
       </Modal>
     </div>
@@ -281,6 +277,7 @@ const Calendar = ({ todos, printTodos }) => {
         isCloseHovering={isCloseHovering}
         notCloseHovering={notCloseHovering}
         closeModal={closeModal}
+        todos={todos}
       />
     </div>
   );
