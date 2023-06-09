@@ -539,6 +539,7 @@ export default function Home() {
           handleAdd={handleAdd}
           todos={todos}
           id_moditodo={id_moditodo}
+          className="z-20"
         />
         {/*제목 div*/}
         {!todoLoading && (
