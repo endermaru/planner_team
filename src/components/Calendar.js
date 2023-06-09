@@ -87,6 +87,11 @@ const RenderCells = ({
   notCloseHovering,
   closeModal,
   todos,
+  data,
+  todoLoading,
+  delTodo,
+  modiTodo,
+  openModi,
 }) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -190,14 +195,29 @@ const RenderCells = ({
           />
         </div>
         <div className="flex w-full p-0 flex-col justify-start items-start">
-          <TodoList todos={filteredTodos} className="text-xs p-0 m-0" />
+          <TodoList
+            todos={filteredTodos}
+            className="text-xs p-0 m-0"
+            data={data}
+            todoLoading={todoLoading}
+            delTodo={delTodo}
+            modiTodo={modiTodo}
+            //openModi={openModimodal}
+          />
         </div>
       </Modal>
     </div>
   );
 };
 
-const Calendar = ({ todos, printTodos }) => {
+const Calendar = ({
+  data,
+  todoLoading,
+  todos,
+  delTodo,
+  modiTodo,
+  openModi,
+}) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [prevHover, setPrevHover] = useState(false);
@@ -278,6 +298,11 @@ const Calendar = ({ todos, printTodos }) => {
         notCloseHovering={notCloseHovering}
         closeModal={closeModal}
         todos={todos}
+        data={data}
+        todoLoading={todoLoading}
+        delTodo={delTodo}
+        modiTodo={modiTodo}
+        //openModi={openModimodal}
       />
     </div>
   );
