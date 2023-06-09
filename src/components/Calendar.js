@@ -208,7 +208,10 @@ const RenderCells = ({
             icon={`carbon:close-${closeHover ? "filled" : "outline"}`}
           />
         </div>
-        <div className="flex w-full p-0 flex-col justify-start items-start">
+        <div
+          className="flex w-full p-0 flex-col justify-start items-start"
+          onClick={closeModal}
+        >
           <TodoList
             todos={filteredTodos}
             className="text-xs p-0 m-0"
