@@ -84,6 +84,7 @@ const RenderCells = ({
   notCloseHovering,
   todos,
   printTodos,
+  closeModal,
 }) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -188,7 +189,7 @@ const RenderCells = ({
             className="w-8 h-8"
             onMouseOver={isCloseHovering}
             onMouseOut={notCloseHovering}
-            onClick={() => setModalIsOpen(false)}
+            onClick={closeModal}
             icon={`carbon:close-${closeHover ? "filled" : "outline"}`}
           />
         </div>
@@ -235,6 +236,17 @@ const Calendar = ({ todos, printTodos }) => {
     console.log(day);
   };
 
+  const closeModal = () => {
+    console.log("start", modalIsOpen);
+
+    const day = new Date(1995, 11, 17);
+
+    console.log(day, modalIsOpen);
+    setSelectedDate(day);
+    setModalIsOpen(false);
+    console.log(day, modalIsOpen);
+  };
+
   const isCloseHovering = () => {
     setCloseHover(true);
     //console.log("closeHover in mouseover:", closeHover);
@@ -268,6 +280,7 @@ const Calendar = ({ todos, printTodos }) => {
         closeHover={closeHover}
         isCloseHovering={isCloseHovering}
         notCloseHovering={notCloseHovering}
+        closeModal={closeModal}
       />
     </div>
   );
