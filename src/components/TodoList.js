@@ -207,8 +207,43 @@ const TodoList = ({
   handleAdd,
 }) => {
   const [sortBy, setSortBy] = useState(""); // 정렬 방식을 추적하기 위한 상태 추가
+  const [filterBy, setFilterBy] = useState(""); // 필터링 방식을 추적하기 위한 상태 추가
+  const [prevSortBy, setPrevSortBy] = useState(""); // 이전에 선택한 정렬 방식을 추적하기 위한 상태 추가
+  const [prevFilterBy, setPrevFilterBy] = useState(""); // 이전에 선택한 필터링 방식을 추적하기 위한 상태 추가
 
+  const dateToday = new Date();
+  const dateStartOfWeek = new Date(
+    dateToday.setDate(dateToday.getDate() - dateToday.getDay())
+  );
+  const dateStartOfMonth = new Date(dateToday.getFullYear(), dateToday.getMonth(), 1);
+  const dateEndOfMonth = new Date(dateToday.getFullYear(), dateToday.getMonth() + 1, 0);
 
+  // (지윤) TodoList 목록을 시작 날짜가 오늘인 항목들만 필터링하는 함수
+  const filterByDay = (todos) => {
+    const today = new Date().setHours(0, 0, 0, 0);
+    return todos.filter((item) => {
+      const itemDate = new Date(item.timeStart).setHours(0, 0, 0, 0);
+      return itemDate === today;
+    });
+  };
+
+  // (지윤) TodoList 목록을 시작 날짜가 이번주(일요일 시작)인 항목들만 필터링하는 함수
+  const filterByWeek = (todos) => {
+    return todos.filter((item) => {
+      const itemDate = new Date(item.timeStart);
+      return itemDate >= dateStartOfWeek;
+    });
+  };
+
+  // (지윤) TodoList 목록을 시작 날짜가 이번달인 항목들만 필터링하는 함수
+  const filterByMonth = (todos) => {
+    return todos.filter((item) => {
+      const itemDate = new Date(item.timeStart);
+      return itemDate >= dateStartOfMonth && itemDate <= dateEndOfMonth;
+    });
+  };
+
+  
   // (지윤) TodoList 목록을 진행도순으로 정렬하는 함수
   const sortByProgress = (todos) => {
     return todos.slice().sort((a, b) => b.progress - a.progress);
@@ -225,11 +260,22 @@ const TodoList = ({
 
   // (지윤) Todos 배열을 정렬된 상태로 가져옵니다.
   const getSortedTodos = () => {
-    switch (sortBy) {
-      case "progress":
-        return sortByProgress(todos);
-      default:
-        return todos;
+    let filteredTodos = todos;
+    if (sortBy !== "") {
+      switch (sortBy) {
+        case "progress":
+          return sortByProgress(todos);
+          filteredTodos = sortByProgress(filteredTodos);
+          break;
+        case "start":
+          return sortByStartDate(todos);
+          filteredTodos = sortByStartDate(filteredTodos);
+          break;
+        default:
+          return todos;
+  
+          break;
+      }
     }
   };
 
