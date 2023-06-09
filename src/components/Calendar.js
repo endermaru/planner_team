@@ -202,7 +202,7 @@ const RenderCells = ({
             todoLoading={todoLoading}
             delTodo={delTodo}
             modiTodo={modiTodo}
-            //openModi={openModimodal}
+            openModi={openModi}
           />
         </div>
       </Modal>
@@ -302,7 +302,7 @@ const Calendar = ({
         todoLoading={todoLoading}
         delTodo={delTodo}
         modiTodo={modiTodo}
-        //openModi={openModimodal}
+        openModi={openModi}
       />
     </div>
   );
