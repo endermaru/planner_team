@@ -103,16 +103,11 @@ const RenderCells = ({
       days.push(
         <div className="w-1/6 h-max flex flex-col justify-start items-center px-1 my-2">
           <div
-            className={`col w-16 h-16 flex flex-col justify-center items-center px-1 rounded-full cell ${
-              /*isSameMonth(day, monthStart)
-                ? "bg-gray-light hover:bg-blue hover:text-gray-lightest"
-                : isSameDay(day, selectedDate)
-                ? "selected bg-orange text-gray-lightest hover:bg-blue"
-                : ""*/
+            className={`col w-16 h-16 flex flex-col justify-center items-center rounded-full cell ${
               !isSameMonth(day, monthStart)
-                ? "disabled "
+                ? "disabled text-gray"
                 : isSameDay(day, nowDate)
-                ? "selected bg-orange text-gray-lightest hover:bg-blue"
+                ? "selected bg-orange text-gray-lightest font-bold border-[1px] border-gray-darkest hover:bg-blue"
                 : format(currentMonth, "M") !== format(day, "M")
                 ? "not-valid"
                 : isSameDay(day, selectedDate)
@@ -120,7 +115,7 @@ const RenderCells = ({
                 : "valid bg-gray-light hover:bg-blue hover:text-gray-lightest"
             }`}
             key={day}
-            onClick={() => onDateClick(day)}
+            onClick={() => onDateClick(cloneDay)}
           >
             <span
               className={
@@ -146,6 +141,7 @@ const RenderCells = ({
     );
     days = [];
   }
+
   const customStyles = {
     content: {
       position: "absolute",
@@ -178,7 +174,6 @@ const RenderCells = ({
   return (
     <div className="body w-full h-4/5 flex flex-col justify-center items-center mb-3">
       {rows}
-
       <Modal
         isOpen={modalIsOpen}
         className="w-2/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl"
@@ -187,16 +182,14 @@ const RenderCells = ({
         onRequestClose={() => setModalIsOpen(false)}
       >
         <div className="flex w-full flex-row justify-between items-end px-5 pb-3 pt-5 bg-blue text-xl text-gray-lightest rounded-t-xl">
-          <div>날짜별 일정 ${format(selectedDate, "dd")}</div>
+          <div>날짜별 일정 ({format(selectedDate, "MM/dd")})</div>
           <Icon
-            icon={`${
-              closeHover ? "carbon:close-filled" : "carbon:close-outline"
-            }`}
             color="white"
             className="w-8 h-8"
             onMouseOver={isCloseHovering}
             onMouseOut={notCloseHovering}
             onClick={() => setModalIsOpen(false)}
+            icon={`carbon:close-${closeHover ? "filled" : "outline"}`}
           />
         </div>
         <div className="flex w-full pt-5 pb-10 px-10 flex-col justify-start items-start">
@@ -212,6 +205,8 @@ const Calendar = ({ todos, printTodos }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [prevHover, setPrevHover] = useState(false);
   const [nextHover, setNextHover] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [closeHover, setCloseHover] = useState(false);
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [closeHover, setCloseHover] = useState(false);
@@ -239,13 +234,17 @@ const Calendar = ({ todos, printTodos }) => {
   const onDateClick = (day) => {
     setSelectedDate(day);
     setModalIsOpen(true);
+    setCloseHover(false);
+    console.log(day);
   };
 
   const isCloseHovering = () => {
     setCloseHover(true);
+    //console.log("closeHover in mouseover:", closeHover);
   };
   const notCloseHovering = () => {
     setCloseHover(false);
+    //console.log("closeHover in mouseout:", closeHover);
   };
 
   return (
