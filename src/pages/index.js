@@ -199,12 +199,7 @@ export default function Home() {
     setfeedback(feed);
   };
 
-  const addFeedback = async (
-    date,
-    score,
-    reflection,
-    finish
-  ) => {
+  const addFeedback = async (date, score, reflection, finish) => {
     const docRef = await addDoc(feedbackDB, {
       date: date,
       score: score,
@@ -544,6 +539,7 @@ export default function Home() {
           handleAdd={handleAdd}
           todos={todos}
           id_moditodo={id_moditodo}
+          className="z-20"
         />
         {/*제목 div*/}
         {!todoLoading && (
@@ -586,7 +582,7 @@ export default function Home() {
                 messages={messages}
                 loading={loading}
                 onSendMessage={handleSend}
-                user = {`${data?.user?.name}`}
+                user={`${data?.user?.name}`}
               />
             </div>
 
@@ -672,7 +668,16 @@ export default function Home() {
             </div>
 
             <div className="flex overflow-auto w-full no-scrollbar">
-              {tab == 1 && <Calendar todos={todos} printTodos={printTodos} />}
+              {tab == 1 && (
+                <Calendar
+                  data={data}
+                  todoLoading={todoLoading}
+                  todos={todos}
+                  delTodo={delTodo}
+                  modiTodo={modiTodo}
+                  openModi={openModimodal}
+                />
+              )}
               {tab == 2 && (
                 <TodoList
                   data={data}

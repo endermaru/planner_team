@@ -21,7 +21,7 @@ const RenderHeader = ({
   notNextHovering,
 }) => {
   return (
-    <div className="w-full flex flex-row justify-between items-baseline p-4">
+    <div className="w-full flex flex-row justify-between items-baseline p-4 pl-8 pr-6 pt-8">
       <div className="col w-4/5 h-full flex flex-col justify-center items-start mr-1 col-start">
         <span className="text-l">
           <span className="text-4xl month mx-4 font-semibold">
@@ -62,7 +62,7 @@ const RenderDays = () => {
   for (let i = 0; i < 7; i++) {
     days.push(
       <div
-        className="col w-1/6 h-full flex flex-col justify-end items-start px-1 bg-gray-dark text-gray-lightest border-gray-lightest border"
+        className="col w-1/6 h-full flex flex-col pb-2 justify-end items-center px-1 bg-neutral text-gray-darkest font-bold border-gray-darkest border-b-[1px]"
         key={i}
       >
         {date[i]}
@@ -71,7 +71,7 @@ const RenderDays = () => {
   }
 
   return (
-    <div className="days w-full h-fit p-1 row flex flex-row justify-between items-center">
+    <div className="days w-full h-fit p-1 px-4 row flex flex-row justify-between items-center">
       {days}
     </div>
   );
@@ -87,6 +87,11 @@ const RenderCells = ({
   notCloseHovering,
   closeModal,
   todos,
+  data,
+  todoLoading,
+  delTodo,
+  modiTodo,
+  openModi,
 }) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -102,11 +107,22 @@ const RenderCells = ({
   while (day <= endDate) {
     for (let i = 0; i < 7; i++) {
       formattedDate = format(day, "d");
+      // Step 1: Filter todos and create an array of dates with todos
+      const datesWithTodos = todos.filter((todo) => {
+        const todoTimeStart = startOfDay(new Date(todo.timeStart));
+        const todoTimeEnd = endOfDay(new Date(todo.timeEnd));
+        return isWithinInterval(day, {
+          start: todoTimeStart,
+          end: todoTimeEnd,
+          inclusive: true,
+        });
+      });
+      const hasTodos = datesWithTodos.length > 0;
       const cloneDay = day;
       days.push(
-        <div className="w-1/6 h-max flex flex-col justify-start items-center px-1 my-2">
+        <div className="w-1/6 h-5/6 flex flex-col justify-start items-center">
           <div
-            className={`col w-16 h-16 flex flex-col justify-center items-center rounded-full cell ${
+            className={`col w-16 h-16 flex flex-col justify-center items-center px-1 rounded-full cell ${
               !isSameMonth(day, monthStart)
                 ? "disabled text-gray"
                 : isSameDay(day, nowDate)
@@ -121,11 +137,14 @@ const RenderCells = ({
             onClick={() => onDateClick(cloneDay)}
           >
             <span
-              className={
-                format(currentMonth, "M") !== format(day, "M")
-                  ? "text not-valid"
-                  : ""
-              }
+              className={`
+                ${
+                  format(currentMonth, "M") !== format(day, "M")
+                    ? "text not-valid"
+                    : ""
+                }
+                  ${hasTodos ? "underline underline-offset-8" : ""}
+              `}
             >
               {formattedDate}
             </span>
@@ -136,7 +155,7 @@ const RenderCells = ({
     }
     rows.push(
       <div
-        className="row w-full h-full flex flex-row justify-between items-center"
+        className="row w-full h-full flex flex-row justify-between items-center py-2"
         key={day}
       >
         {days}
@@ -153,8 +172,14 @@ const RenderCells = ({
       width: "30vw",
       height: "45vh",
       transform: "translate(-50%,-50%)",
-      backgroundColor: "white",
+      backgroundColor: "gray-lightest",
+      boxShadow: "10px 20px 10px -10px rgba(0, 0, 0, 0.2)",
       padding: 0,
+      border: 0,
+      borderRadius: "10px",
+    },
+    overlay: {
+      backgroundColor: "rgba(128,128,128, 0.3)",
     },
   };
 
@@ -169,11 +194,11 @@ const RenderCells = ({
   });
 
   return (
-    <div className="body w-full h-4/5 flex flex-col justify-center items-center mb-3">
+    <div className="body w-full h-5/7 flex flex-col justify-center items-center mb-3 mt-1 px-4">
       {rows}
       <Modal
         isOpen={modalIsOpen}
-        className="w-3/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl"
+        className="z-10 w-3/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl"
         contentLabel="Modal for calendar"
         style={customStyles}
         onRequestClose={() => setModalIsOpen(false)}
@@ -189,15 +214,33 @@ const RenderCells = ({
             icon={`carbon:close-${closeHover ? "filled" : "outline"}`}
           />
         </div>
-        <div className="flex w-full p-0 flex-col justify-start items-start">
-          <TodoList todos={filteredTodos} className="text-xs p-0 m-0" />
+        <div
+          className="flex w-full p-0 flex-col justify-start items-start"
+          onClick={closeModal}
+        >
+          <TodoList
+            todos={filteredTodos}
+            className="text-xs p-0 m-0"
+            data={data}
+            todoLoading={todoLoading}
+            delTodo={delTodo}
+            modiTodo={modiTodo}
+            openModi={openModi}
+          />
         </div>
       </Modal>
     </div>
   );
 };
 
-const Calendar = ({ todos, printTodos }) => {
+const Calendar = ({
+  data,
+  todoLoading,
+  todos,
+  delTodo,
+  modiTodo,
+  openModi,
+}) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [prevHover, setPrevHover] = useState(false);
@@ -278,6 +321,11 @@ const Calendar = ({ todos, printTodos }) => {
         notCloseHovering={notCloseHovering}
         closeModal={closeModal}
         todos={todos}
+        data={data}
+        todoLoading={todoLoading}
+        delTodo={delTodo}
+        modiTodo={modiTodo}
+        openModi={openModi}
       />
     </div>
   );
