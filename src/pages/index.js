@@ -73,7 +73,8 @@ export default function Home() {
     settodoLoading(false);
   };
   //db 추가하기(Id,이름,내용,시작날짜,종료날짜,진행도)
-  const addTodos = async ({ _content, _category, _timeStart, _timeEnd }) => {
+  const addTodos = async ({ _content, _category, _timeStart, _timeEnd , _progress}) => {
+    console.log(_content,_category);
     const docRef = await addDoc(todoDB, {
       userId: data?.user?.id,
       userName: data?.user?.name,
@@ -81,7 +82,7 @@ export default function Home() {
       category: _category,
       timeEnd: Timestamp.fromDate(new Date(_timeEnd)),
       timeStart: Timestamp.fromDate(new Date(_timeStart)),
-      progress: 0,
+      progress: _progress,
     });
     _timeStart = Timestamp.fromDate(new Date(_timeStart)).toDate();
     _timeEnd = Timestamp.fromDate(new Date(_timeEnd)).toDate();
@@ -123,6 +124,7 @@ export default function Home() {
           timeEnd: _timeEnd,
           progress: _progress,
         });
+        
         return {
           ...todo,
           content: _content,
@@ -135,6 +137,7 @@ export default function Home() {
         return todo;
       }
     });
+    
     setTodos(newTodos);
     sortTodos(newTodos);
   };
@@ -161,12 +164,14 @@ export default function Home() {
   //db삭제 - todos 배열 안에서 특정 속성으로 원하는 item을 찾는 함수 필요
   const delTodo = (id) => {
     const todoDoc = doc(todoDB, id);
+    const del_To=todos.find(todo=>todo.id===id).content;
     deleteDoc(todoDoc);
     setTodos(
       todos.filter((todo) => {
         return todo.id !== id;
       })
     );
+    handleAdd("assistant", `"${del_To}"일정이 삭제되었습니다.`);
   };
   //todos 배열 출력(확인용)
   const printTodos = (_todos) => {
@@ -226,6 +231,7 @@ export default function Home() {
 
   //정규표현식 함수
   const re_f = async (sent) => {
+    console.log(sent);
     const sentence = sent.replace(/\n/g, "");
     const pattern = /\{.*?\}/;
     const match = sentence.match(pattern);
@@ -238,6 +244,7 @@ export default function Home() {
           _category: jStr.category,
           _timeStart: jStr.timeStart,
           _timeEnd: jStr.timeEnd,
+          _progress: 0,
         });
         handleAdd("assistant", "일정이 추가되었습니다!");
       } else if (jStr.method === "delete") {
@@ -254,8 +261,7 @@ export default function Home() {
             "조건에 맞는 일정이 2개 이상 존재합니다. 날짜와 시간을 정확히 작성해주세요."
           );
         } else {
-          delTodo(resultFind.id);
-          handleAdd("assistant", "일정이 삭제되었습니다.");
+          delTodo(resultFind);
         }
       } else if (jStr.method === "modification") {
         const resultFind = findSchedule(jStr);
@@ -486,7 +492,7 @@ export default function Home() {
     setMessages([
       {
         role: "assistant",
-        content: ` 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
+        content: `안녕하세요! 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
 1. 일정 추가를 원하시면 "[일시], [일정 이름] 추가해줘."를 입력해주세요.\n
 2. 일정 변경을 원하시면 "[일정 이름] 변경해줘."를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
 3. 일정 삭제를 원하시면 "[일정 이름] 삭제해줘"를 입력해주세요.`,
@@ -539,7 +545,7 @@ export default function Home() {
           handleAdd={handleAdd}
           todos={todos}
           id_moditodo={id_moditodo}
-          className="z-20"
+          className="z-30"
         />
         {/*제목 div*/}
         {!todoLoading && (
@@ -633,20 +639,23 @@ export default function Home() {
                 className={tab == 3 ? activeStyle : grayStyle}
                 onClick={() => {
                   setTab(3);
-                  setMessages([
-                    ...messages,
-                    {
-                      role: "assistant",
-                      content: `오늘 하루를 마무리하는 성찰 페이지입니다.\n
-1. 먼저 오늘 하루 일정을 되짚어보면서 각각의 일정에 대한 진행도를 표시해주세요.\n
-2. 어제와 오늘을 비교해보면서 오늘 하루에 대한 총점수를 매겨주세요.\n
-3. 오늘 하루 칭찬할 점, 아쉬운 점, 개선할 점을 적어주세요. \n
-4. ◼Ctrl+Enter◼ 를 눌러 GPT에게 조언을 얻으세요.\n
-5. 조언을 바탕으로 참고할 점을 작성하며 마무리하세요.\n
-★저장한 이후에는 수정이 불가하니 주의해주세요★
-              `,
-                    },
-                  ]);
+                  var first5=messages[messages.length - 1]["content"].slice(0,5);
+                  if (first5!=="오늘 하루"){
+                    setMessages([
+                      ...messages,
+                      {
+                        role: "assistant",
+                        content: `오늘 하루를 마무리하는 성찰 페이지입니다.\n
+  1. 먼저 오늘 하루 일정을 되짚어보면서 각각의 일정에 대한 진행도를 표시해주세요.\n
+  2. 어제와 오늘을 비교해보면서 오늘 하루에 대한 총점수를 매겨주세요.\n
+  3. 오늘 하루 칭찬할 점, 아쉬운 점, 개선할 점을 적어주세요. \n
+  4. ◼Ctrl+Enter◼ 를 눌러 GPT에게 조언을 얻으세요.\n
+  5. 조언을 바탕으로 참고할 점을 작성하며 마무리하세요.\n
+  ★저장한 이후에는 수정이 불가하니 주의해주세요★
+                `,
+                      },
+                    ]);
+                  }
                 }}
               >
                 {tab == 3 ? (
@@ -673,9 +682,11 @@ export default function Home() {
                   data={data}
                   todoLoading={todoLoading}
                   todos={todos}
+                  addTodos={addTodos}
                   delTodo={delTodo}
                   modiTodo={modiTodo}
                   openModi={openModimodal}
+                  handleAdd={handleAdd}
                 />
               )}
               {tab == 2 && (
@@ -683,9 +694,11 @@ export default function Home() {
                   data={data}
                   todoLoading={todoLoading}
                   todos={todos}
+                  addTodos={addTodos}
                   delTodo={delTodo}
                   modiTodo={modiTodo}
                   openModi={openModimodal}
+                  handleAdd={handleAdd}
                 />
               )}
               {tab == 3 && (
@@ -706,6 +719,16 @@ export default function Home() {
           </div>
         )}
       </div>
+      {/*수정 시 나오는 모달창*/}
+      <ModiModal
+          isOpen={isOpen}
+          closeModal={closeModal}
+          modifunc={modiTodo}
+          handleAdd={handleAdd}
+          todos={todos}
+          id_moditodo={id_moditodo}
+          className="z-30"
+        />
     </div>
   );
 }

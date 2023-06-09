@@ -14,7 +14,13 @@ export const Chat = ({ messages, loading, onSendMessage, user }) => {
     scrollToBottom();
   }, []);
   useEffect(() => {
-    scrollToBottom();
+    const timer = setTimeout(() => {
+      scrollToBottom();
+    }, 50);
+  
+    return () => {
+      clearTimeout(timer);
+    };
   }, [messages]);
 
   return (
