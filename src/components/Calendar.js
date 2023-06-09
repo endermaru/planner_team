@@ -6,6 +6,8 @@ import { isSameMonth, isSameDay, addDays, parse } from "date-fns";
 
 import Modal from "react-modal";
 
+import TodoList from "./TodoList";
+
 const RenderHeader = ({
   currentMonth,
   prevMonth,
@@ -156,21 +158,16 @@ const RenderCells = ({
     },
   };
 
-  const findTodo = (_todos, day) => {
-    const _modi = _todos.find((todo) => todo.id === id);
-    if (_modi) {
-      setContent(_modi?.content);
-      var _timeStart = new Date(_modi?.timeStart);
-      _timeStart.setUTCHours(_timeStart.getUTCHours() + 9);
-      _timeStart = _timeStart.toISOString().slice(0, -2);
-      setTimeStart(_timeStart);
-      var _timeEnd = new Date(_modi?.timeEnd);
-      _timeEnd.setUTCHours(_timeEnd.getUTCHours() + 9);
-      _timeEnd = _timeEnd.toISOString().slice(0, -2);
-      //setTimeEnd(_timeEnd);
-    }
-    return _modi;
-  };
+  const filteredTodos = Array.isArray(todos)
+    ? todos.filter((todo) => {
+        console.log("filter", todo.timeStart);
+        const todoDate = parse(todo.timeStart);
+        return (
+          isSameDay(selectedDate, todoDate) ||
+          (selectedDate > todoDate && selectedDate < parse(todo.timeEnd))
+        );
+      })
+    : [];
 
   return (
     <div className="body w-full h-4/5 flex flex-col justify-center items-center mb-3">
@@ -194,7 +191,7 @@ const RenderCells = ({
           />
         </div>
         <div className="flex w-full pt-5 pb-10 px-10 flex-col justify-start items-start">
-          {/* print todos here */}
+          <TodoList todos={filteredTodos} />
         </div>
       </Modal>
     </div>
