@@ -75,6 +75,20 @@ const TodoList = ({ data, todoLoading, todos, delTodo, modiTodo, openModi }) => 
     return `${m}월 ${d}일 ${hf} ${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
   }
 
+// (지윤) TodoList 목록을 시작 날짜가 이른 순으로 정렬하는 함수
+const sortByStartDate = (todos) => {
+  return todos.slice().sort((a,b) => a.timeStart - b.timeStart);
+};
+
+// (지윤) TodoList 정렬 방식 변경 이벤트 핸들러
+const handleSortByStartDate = () => {
+  if (sortBy === "start") {
+    setSortBy(""); // 이미 시작 날짜 순으로 정렬된 상태이면 초기화
+  } else {
+    setSortBy("start") // 정렬 방식을 시작 날짜 순으로 설정
+  }
+};
+
 // (지윤) TodoList 목록을 진행도순으로 정렬하는 함수
 const sortByProgress = (todos) => {
   return todos.slice().sort((a, b) => b.progress - a.progress);
@@ -97,10 +111,17 @@ const handleSortByProgress = () => {
     switch (sortBy) {
       case "progress":
         return sortByProgress(todos);
+      case "start":
+        return sortByStartDate(todos);
       default:
         return todos;
+      
     }
   };
+
+  useEffect(() => {
+    handleSortByStartDate(); // 컴포넌트가 마운트되면 '최신순' 버튼을 클릭하도록 함. 
+  }, []);
 
   const sortedTodos = getSortedTodos(); // 정렬된 Todos 배열 
 
@@ -115,8 +136,10 @@ const handleSortByProgress = () => {
 
   return (
     <div className="max-w-full w-full overflow-y-scroll p-5 no-scrollbar">
-      <div className="flex h-10 border-b-[1px] pl-12 items-center">
-        <div className={`${activeCell} pr-4`}>최신순</div>
+      <div className="flex h-10 border-b-[1px] pl-1 items-center">
+        <div className={`${sortBy === "start" ? activeCell : grayCell} pr-4`}
+          onClick={handleSortByStartDate}
+        >최신순</div>
         <div
           className={`${sortBy === "progress" ? activeCell : grayCell} pr-4`}
           onClick={handleSortByProgress}
