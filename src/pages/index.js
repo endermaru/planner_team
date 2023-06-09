@@ -254,7 +254,7 @@ export default function Home() {
             "조건에 맞는 일정이 2개 이상 존재합니다. 날짜와 시간을 정확히 작성해주세요."
           );
         } else {
-          delTodo(resultFind.id);
+          delTodo(resultFind);
           handleAdd("assistant", "일정이 삭제되었습니다.");
         }
       } else if (jStr.method === "modification") {
@@ -486,7 +486,7 @@ export default function Home() {
     setMessages([
       {
         role: "assistant",
-        content: ` 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
+        content: `안녕하세요! 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
 1. 일정 추가를 원하시면 "[일시], [일정 이름] 추가해줘."를 입력해주세요.\n
 2. 일정 변경을 원하시면 "[일정 이름] 변경해줘."를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
 3. 일정 삭제를 원하시면 "[일정 이름] 삭제해줘"를 입력해주세요.`,
@@ -633,20 +633,23 @@ export default function Home() {
                 className={tab == 3 ? activeStyle : grayStyle}
                 onClick={() => {
                   setTab(3);
-                  setMessages([
-                    ...messages,
-                    {
-                      role: "assistant",
-                      content: `오늘 하루를 마무리하는 성찰 페이지입니다.\n
-1. 먼저 오늘 하루 일정을 되짚어보면서 각각의 일정에 대한 진행도를 표시해주세요.\n
-2. 어제와 오늘을 비교해보면서 오늘 하루에 대한 총점수를 매겨주세요.\n
-3. 오늘 하루 칭찬할 점, 아쉬운 점, 개선할 점을 적어주세요. \n
-4. ◼Ctrl+Enter◼ 를 눌러 GPT에게 조언을 얻으세요.\n
-5. 조언을 바탕으로 참고할 점을 작성하며 마무리하세요.\n
-★저장한 이후에는 수정이 불가하니 주의해주세요★
-              `,
-                    },
-                  ]);
+                  var first5=messages[messages.length - 1]["content"].slice(0,5);
+                  if (first5!=="오늘 하루"){
+                    setMessages([
+                      ...messages,
+                      {
+                        role: "assistant",
+                        content: `오늘 하루를 마무리하는 성찰 페이지입니다.\n
+  1. 먼저 오늘 하루 일정을 되짚어보면서 각각의 일정에 대한 진행도를 표시해주세요.\n
+  2. 어제와 오늘을 비교해보면서 오늘 하루에 대한 총점수를 매겨주세요.\n
+  3. 오늘 하루 칭찬할 점, 아쉬운 점, 개선할 점을 적어주세요. \n
+  4. ◼Ctrl+Enter◼ 를 눌러 GPT에게 조언을 얻으세요.\n
+  5. 조언을 바탕으로 참고할 점을 작성하며 마무리하세요.\n
+  ★저장한 이후에는 수정이 불가하니 주의해주세요★
+                `,
+                      },
+                    ]);
+                  }
                 }}
               >
                 {tab == 3 ? (
