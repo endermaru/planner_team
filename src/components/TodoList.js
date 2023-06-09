@@ -4,6 +4,16 @@ import "firebase/firestore";
 
 const TodoList = ({ data, todoLoading, todos, delTodo, modiTodo, openModi }) => {
   const [sortBy, setSortBy] = useState(""); // 정렬 방식을 추적하기 위한 상태 추가
+  const [filterBy, setFilterBy] = useState(""); // 필터링 방식을 추적하기 위한 상태 추가
+  const [prevSortBy, setPrevSortBy] = useState(""); // 이전에 선택한 정렬 방식을 추적하기 위한 상태 추가
+  const [prevFilterBy, setPrevFilterBy] = useState(""); // 이전에 선택한 필터링 방식을 추적하기 위한 상태 추가
+
+  const dateToday = new Date();
+  const dateStartOfWeek = new Date(
+    dateToday.setDate(dateToday.getDate() - dateToday.getDay())
+  );
+  const dateStartOfMonth = new Date(dateToday.getFullYear(), dateToday.getMonth(), 1);
+  const dateEndOfMonth = new Date(dateToday.getFullYear(), dateToday.getMonth() + 1, 0);
 
 
   // modiTodo 함수 정의
@@ -75,6 +85,32 @@ const TodoList = ({ data, todoLoading, todos, delTodo, modiTodo, openModi }) => 
     return `${m}월 ${d}일 ${hf} ${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
   }
 
+  // (지윤) TodoList 목록을 시작 날짜가 오늘인 항목들만 필터링하는 함수
+  const filterByDay = (todos) => {
+    const today = new Date().setHours(0, 0, 0, 0);
+    return todos.filter((item) => {
+      const itemDate = new Date(item.timeStart).setHours(0, 0, 0, 0);
+      return itemDate === today;
+    });
+  };
+
+  // (지윤) TodoList 목록을 시작 날짜가 이번주(일요일 시작)인 항목들만 필터링하는 함수
+  const filterByWeek = (todos) => {
+    return todos.filter((item) => {
+      const itemDate = new Date(item.timeStart);
+      return itemDate >= dateStartOfWeek;
+    });
+  };
+
+  // (지윤) TodoList 목록을 시작 날짜가 이번달인 항목들만 필터링하는 함수
+  const filterByMonth = (todos) => {
+    return todos.filter((item) => {
+      const itemDate = new Date(item.timeStart);
+      return itemDate >= dateStartOfMonth && itemDate <= dateEndOfMonth;
+    });
+  };
+
+
 // (지윤) TodoList 목록을 시작 날짜가 이른 순으로 정렬하는 함수
 const sortByStartDate = (todos) => {
   return todos.slice().sort((a,b) => a.timeStart - b.timeStart);
@@ -108,20 +144,59 @@ const handleSortByProgress = () => {
 
 // (지윤) Todos 배열을 정렬된 상태로 가져옵니다.
   const getSortedTodos = () => {
+    let filteredTodos = todos;
+
+    // 정렬 방식이 변경되지 않았을 때에는 이전 상태에 따라 정렬된 Todos 배열 반환
+  if (sortBy !== "") {
     switch (sortBy) {
       case "progress":
-        return sortByProgress(todos);
+        filteredTodos = sortByProgress(filteredTodos);
+        break;
       case "start":
-        return sortByStartDate(todos);
+        filteredTodos = sortByStartDate(filteredTodos);
+        break;
       default:
-        return todos;
-      
+        break;
+    }
+  }
+
+    // 필터링 옵션에 따라 목록을 필터링
+    if (filterBy === "day") {
+      filteredTodos = filterByDay(filteredTodos);
+    } else if (filterBy === "week") {
+      filteredTodos = filterByWeek(filteredTodos);
+    } else if (filterBy === "month") {
+      filteredTodos = filterByMonth(filteredTodos);
+    }
+
+    return filteredTodos;
+    };
+
+
+  //(지윤) 필터링 방식 변경 이벤트 핸들러
+  const handleFilterBy = (filter) =>{
+    if (filterBy === filter) {
+      setFilterBy(""); // 이미 선택된 필터링 방식이면 초기화
+    } else {
+      setFilterBy(filter); // 선택된 필터링 방식으로 변경
     }
   };
 
   useEffect(() => {
     handleSortByStartDate(); // 컴포넌트가 마운트되면 '최신순' 버튼을 클릭하도록 함. 
+    handleFilterBy("Month"); // 컴포넌트가 마운트되면 '월별' 버튼을 클릭하도록 함.
   }, []);
+
+  // (지윤) 정렬 및 필터링 방식이 변경될 때 이전 상태를 추적
+  useEffect(() => {
+    if (sortBy !== prevSortBy) {
+      setPrevSortBy(sortBy); // 이전 정렬 방식을 업데이트
+    }
+    if (filterBy !== prevFilterBy) {
+      setPrevFilterBy(filterBy); // 이전 필터링 방식을 업데이트
+    }
+  }, [sortBy, filterBy, prevSortBy, prevFilterBy]);
+  
 
   const sortedTodos = getSortedTodos(); // 정렬된 Todos 배열 
 
@@ -146,9 +221,24 @@ const handleSortByProgress = () => {
         >
           진행도순
         </div>
-        <div className={`${grayCell} pl-52 pr-4`}>일별</div>
-        <div className={`${grayCell} pr-4`}>주별</div>
-        <div className={`${activeCell} pr-4`}>월별</div>
+        <div
+          className={`${filterBy === "day" ? activeCell : grayCell} pl-52 pr-4`}
+          onClick={() => handleFilterBy("day")}
+        >
+          일별
+        </div>
+        <div
+          className={`${filterBy === "week" ? activeCell : grayCell} pr-4`}
+          onClick={() => handleFilterBy("week")}
+        >
+          주별
+        </div>
+        <div
+          className={`${filterBy === "month" ? activeCell : grayCell} pr-4`}
+          onClick={() => handleFilterBy("month")}
+        >
+          월별
+        </div>
       </div>
       <div className="flex flex-col ">
         {/*(지윤) 아래 부분은 todoList 탭에서 보여야 하는 내용들입니다. */}
