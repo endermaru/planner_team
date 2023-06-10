@@ -386,33 +386,35 @@ const handleSortByProgress = () => {
           handleAdd={handleAdd}
           defaultDay={nowDate}
         />
-        <div className={`${sortBy === "start" ? activeCell : grayCell} pr-4`}
+        <button
+         className={`${sortBy === "start" ? activeCell : grayCell} pr-4`}
           onClick={handleSortByStartDate}
-        >최신순</div>
-        <div
+        >최신순
+        </button>
+        <button
           className={`${sortBy === "progress" ? activeCell : grayCell} pr-4`}
           onClick={handleSortByProgress}
         >
           진행도순
-        </div>
-        <div
+        </button>
+        <button
           className={`${filterBy === "day" ? activeCell : grayCell} pl-52 pr-4`}
           onClick={() => handleFilterBy("day")}
         >
           일별
-        </div>
-        <div
+        </button>
+        <button
           className={`${filterBy === "week" ? activeCell : grayCell} pr-4`}
           onClick={() => handleFilterBy("week")}
         >
           주별
-        </div>
-        <div
+        </button>
+        <button
           className={`${filterBy === "month" ? activeCell : grayCell} pr-4`}
           onClick={() => handleFilterBy("month")}
         >
           월별
-        </div>
+        </button>
         <button
           className="justify-self-end text-base text-gray-lightest font-semibold border rounded-full p-2 bg-gray \
           hover:text-gray-lightest hover:bg-gray-dark"
