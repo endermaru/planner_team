@@ -8,7 +8,7 @@ import { isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import Modal from "react-modal";
 
 import TodoList from "./TodoList";
-import {TodoTable} from './TodoList';
+import { TodoTable } from "./TodoList";
 import AddModal from "./AddModal";
 
 const RenderHeader = ({
@@ -23,7 +23,7 @@ const RenderHeader = ({
   notNextHovering,
 }) => {
   return (
-    <div className="w-full flex flex-row justify-between items-baseline p-4 pl-8 pr-6 pt-8">
+    <div className="w-full flex flex-row justify-between items-baseline p-4 pl-7 pr-6 pt-8">
       <div className="col w-4/5 h-full flex flex-col justify-center items-start mr-1 col-start">
         <span className="text-l">
           <span className="text-4xl month mx-4 font-semibold">
@@ -64,7 +64,7 @@ const RenderDays = () => {
   for (let i = 0; i < 7; i++) {
     days.push(
       <div
-        className="col w-1/6 h-full flex flex-col pb-2 justify-end items-center px-1 bg-neutral text-gray-darkest font-bold border-gray-darkest border-b-[1px]"
+        className="col w-1/6 h-full flex flex-col pb-[10px] justify-end items-center px-1 bg-neutral text-gray-darkest font-bold border-gray-darkest border-b-[1px]"
         key={i}
       >
         {date[i]}
@@ -112,15 +112,15 @@ const RenderCells = ({
   const getButtonStyle = (progress) => {
     switch (progress) {
       case 0:
-        return "gray-lightest"
+        return "gray-lightest";
       case 1:
-        return "gray"
+        return "gray";
       case 2:
-        return "orange-light"
+        return "orange-light";
       case 3:
-        return "blue-light"
+        return "orange";
       default:
-        return "white"
+        return "gray-ightest";
     }
   };
 
@@ -139,9 +139,9 @@ const RenderCells = ({
       });
       const hasTodos = datesWithTodos.length > 0;
       //진행도에 따른 배열 생성
-      var arr=[];
-      if (hasTodos){
-        for (let i=0;i<datesWithTodos.length;i++){
+      var arr = [];
+      if (hasTodos) {
+        for (let i = 0; i < datesWithTodos.length; i++) {
           arr.push(datesWithTodos[i].progress);
         }
       }
@@ -149,16 +149,16 @@ const RenderCells = ({
       days.push(
         <div className="w-1/6 h-5/6 flex flex-col justify-start items-center">
           <div
-            className={`col w-16 h-16 flex flex-col justify-center grid grid-rows-5 items-center px-1 rounded-full cell ${
+            className={`col w-16 h-16 flex flex-col justify-center text-center grid grid-rows-5 items-center px-1 rounded-full cell ${
               !isSameMonth(day, monthStart)
-                ? "disabled text-gray"
+                ? "disabled text-gray border-[1px] border-gray-lgiht"
                 : isSameDay(day, nowDate)
-                ? "selected bg-orange text-gray-lightest font-bold border-[1px] border-gray-darkest hover:bg-blue"
+                ? "selected bg-orange text-gray-lightest font-bold border-[1px] border-orange-dark hover:bg-blue  hover:border-[1px] hover:border-blue-dark"
                 : format(currentMonth, "M") !== format(day, "M")
-                ? "not-valid"
+                ? "not-valid "
                 : isSameDay(day, selectedDate)
                 ? "bg-blue text-gray-lightest"
-                : "valid bg-gray-light hover:bg-blue hover:text-gray-lightest"
+                : "valid bg-gray-light border-[1px] border-gray hover:bg-blue hover:border-[1px] hover:border-blue-dark hover:text-gray-lightest"
             }`}
             key={day}
             onClick={() => onDateClick(cloneDay)}
@@ -176,8 +176,8 @@ const RenderCells = ({
               {formattedDate}
             </span>
             {/*진행도 배열에 따른 원 모양*/}
-            <div className="flex flex-row">
-              {arr.map((el)=>(
+            <div className="flex flex-row justify-self-center">
+              {arr.map((el) => (
                 <p className={`text-2xl text-${getButtonStyle(el)}`}>•</p>
               ))}
             </div>
@@ -202,14 +202,14 @@ const RenderCells = ({
       position: "absolute",
       top: "50%",
       left: "50%",
-      width: "30vw",
-      height: "45vh",
+      width: "600px",
+      height: "400px",
       transform: "translate(-50%,-50%)",
       backgroundColor: "gray-lightest",
       boxShadow: "10px 20px 10px -10px rgba(0, 0, 0, 0.2)",
       padding: 0,
       border: 0,
-      borderRadius: "10px",
+      borderRadius: "20px",
     },
     overlay: {
       backgroundColor: "rgba(128,128,128, 0.3)",
@@ -226,7 +226,6 @@ const RenderCells = ({
     });
   });
 
-  
   //추가 모달창
   const [addIsOpen, setAddIsOpen] = useState(false);
   const OpenAddModal = () => {
@@ -241,21 +240,26 @@ const RenderCells = ({
       {rows}
       <Modal
         isOpen={modalIsOpen}
-        className="z-10 w-3/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl z-10"
+        className="z-10 flex flex-col  justify-start items-center bg-gray-lightest border-3 border-gray"
         contentLabel="Modal for calendar"
         style={customStyles}
         onRequestClose={() => setModalIsOpen(false)}
         shouldCloseOnOverlayClick={false}
       >
-        <div className="flex w-full flex-row items-center p-3 grid grid-cols-10 bg-blue text-xl text-gray-lightest rounded-t-xl">
-          <div className="col-span-6 text-xl font-semibold">날짜별 일정 ({format(selectedDate, "MM/dd")})</div>
-          <button 
-            className="col-span-3 h-8 text-xs text-gray-lightest border-2 border-gray-lightest font-semibold rounded-full p-1 bg-blue\
+        <div className="w-full flex-row items-center p-3 px-6 grid grid-cols-10 bg-blue text-xl text-gray-lightest rounded-t-[20px]">
+          <div className="col-span-6 text-xl font-semibold">
+            {format(selectedDate, "MM월 dd일")} 일정
+          </div>
+          <button
+            className="col-start-8 col-span-2 h-8 text-xs text-gray-lightest border-2 border-gray-lightest font-semibold rounded-full p-1 bg-blue\
           hover:text-blue hover:bg-gray-lightest"
-           onClick={OpenAddModal}>일정 추가하기</button>
+            onClick={OpenAddModal}
+          >
+            일정 추가하기
+          </button>
           <Icon
             color="white"
-            className="col-span-1 ml-3 w-8 h-8 items-end"
+            className="col-span-1 ml-3 w-8 h-8 items-center justify-self-end"
             onMouseOver={isCloseHovering}
             onMouseOut={notCloseHovering}
             onClick={closeModal}
@@ -263,17 +267,18 @@ const RenderCells = ({
           />
         </div>
         <div
-          className="flex w-full p-1 flex-col justify-start items-start"
+          className="flex w-full px-6 flex-col justify-start items-start"
           // onClick={closeModal}
         >
-          {!todoLoading && 
-          <TodoTable
-            sortedTodos={filteredTodos}
-            className="text-xs p-0 m-0"
-            modiTodo={modiTodo}
-            delTodo={delTodo}
-            handleAdd={handleAdd}
-          />}
+          {!todoLoading && (
+            <TodoTable
+              sortedTodos={filteredTodos}
+              className="text-xs p-0 m-0"
+              modiTodo={modiTodo}
+              delTodo={delTodo}
+              handleAdd={handleAdd}
+            />
+          )}
         </div>
       </Modal>
       <AddModal

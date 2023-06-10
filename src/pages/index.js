@@ -73,8 +73,14 @@ export default function Home() {
     settodoLoading(false);
   };
   //db 추가하기(Id,이름,내용,시작날짜,종료날짜,진행도)
-  const addTodos = async ({ _content, _category, _timeStart, _timeEnd , _progress}) => {
-    console.log(_content,_category);
+  const addTodos = async ({
+    _content,
+    _category,
+    _timeStart,
+    _timeEnd,
+    _progress,
+  }) => {
+    console.log(_content, _category);
     const docRef = await addDoc(todoDB, {
       userId: data?.user?.id,
       userName: data?.user?.name,
@@ -124,7 +130,7 @@ export default function Home() {
           timeEnd: _timeEnd,
           progress: _progress,
         });
-        
+
         return {
           ...todo,
           content: _content,
@@ -137,7 +143,7 @@ export default function Home() {
         return todo;
       }
     });
-    
+
     setTodos(newTodos);
     sortTodos(newTodos);
   };
@@ -164,7 +170,7 @@ export default function Home() {
   //db삭제 - todos 배열 안에서 특정 속성으로 원하는 item을 찾는 함수 필요
   const delTodo = (id) => {
     const todoDoc = doc(todoDB, id);
-    const del_To=todos.find(todo=>todo.id===id).content;
+    const del_To = todos.find((todo) => todo.id === id).content;
     deleteDoc(todoDoc);
     setTodos(
       todos.filter((todo) => {
@@ -639,8 +645,11 @@ export default function Home() {
                 className={tab == 3 ? activeStyle : grayStyle}
                 onClick={() => {
                   setTab(3);
-                  var first5=messages[messages.length - 1]["content"].slice(0,5);
-                  if (first5!=="오늘 하루"){
+                  var first5 = messages[messages.length - 1]["content"].slice(
+                    0,
+                    5
+                  );
+                  if (first5 !== "오늘 하루") {
                     setMessages([
                       ...messages,
                       {
@@ -721,14 +730,14 @@ export default function Home() {
       </div>
       {/*수정 시 나오는 모달창*/}
       <ModiModal
-          isOpen={isOpen}
-          closeModal={closeModal}
-          modifunc={modiTodo}
-          handleAdd={handleAdd}
-          todos={todos}
-          id_moditodo={id_moditodo}
-          className="z-30"
-        />
+        isOpen={isOpen}
+        closeModal={closeModal}
+        modifunc={modiTodo}
+        handleAdd={handleAdd}
+        todos={todos}
+        id_moditodo={id_moditodo}
+        className="z-30"
+      />
     </div>
   );
 }

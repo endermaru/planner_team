@@ -2,13 +2,7 @@ import React from "react";
 import Modal from "react-modal";
 import react, { useEffect, useState } from "react";
 
-const AddModal = ({
-  isOpen,
-  closeModal,
-  addfunc,
-  handleAdd,
-  defaultDay,
-}) => {
+const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
   const [timeStart, setTimeStart] = useState("");
@@ -53,16 +47,16 @@ const AddModal = ({
   const dateToStart = () => {
     const stStr = dateToString(timeStart);
     const edStr = dateToString(timeEnd);
-    if (edStr[0]!=='N'){
-        setTimeEnd(stStr.slice(0, 10) + edStr.slice(10));
+    if (edStr[0] !== "N") {
+      setTimeEnd(stStr.slice(0, 10) + edStr.slice(10));
     } else {
-        setTimeEnd(stStr);
+      setTimeEnd(stStr);
     }
   };
 
   const allDay = () => {
     const stStr = timeStart;
-    console.log("stSTr",stStr);
+    console.log("stSTr", stStr);
     setTimeStart(stStr.slice(0, 10) + "T00:00");
     setTimeEnd(stStr.slice(0, 10) + "T23:59");
   };
@@ -72,10 +66,10 @@ const AddModal = ({
   }, [timeStart]);
 
   useEffect(() => {
-    if (isOpen){
-        console.log(dateToString(defaultDay));
-        setTimeStart(dateToString(defaultDay));
-        setTimeEnd(dateToString(defaultDay));
+    if (isOpen) {
+      console.log(dateToString(defaultDay));
+      setTimeStart(dateToString(defaultDay));
+      setTimeEnd(dateToString(defaultDay));
     } else {
       setContent("");
       setCategory("");
@@ -85,19 +79,27 @@ const AddModal = ({
     }
   }, [isOpen]);
 
-  const confirm_todo=async()=>{
-    if (content!=="" && category!=="" && timeStart !=="" && timeEnd!==""){
-      console.log(content,"!!!");
-      await addfunc({_content:content, _category:category, _timeStart:timeStart, _timeEnd:timeEnd, _progress:progress});
+  const confirm_todo = async () => {
+    if (
+      content !== "" &&
+      category !== "" &&
+      timeStart !== "" &&
+      timeEnd !== ""
+    ) {
+      console.log(content, "!!!");
+      await addfunc({
+        _content: content,
+        _category: category,
+        _timeStart: timeStart,
+        _timeEnd: timeEnd,
+        _progress: progress,
+      });
       closeModal();
-      handleAdd(
-          "assistant",
-          `"${content}" 일정이 추가되었습니다.`
-      );
+      handleAdd("assistant", `"${content}" 일정이 추가되었습니다.`);
     } else {
-        alert("필드값을 모두 입력하세요!");
+      alert("필드값을 모두 입력하세요!");
     }
-  }
+  };
 
   const buttonStyle =
     "justify-items-end w-14 h-10 ml-3 p-1 rounded-full text-sm text-gray-darkest font-semibold\
@@ -208,10 +210,10 @@ const AddModal = ({
             className="col-span-2 align-middle p-1 border-b-[1px] border-grat-darkest bg-gray-lightest"
             value={timeStart}
             onChange={(e) => {
-                console.log("e",e);
-                if (e!==''){
-                    setTimeStart(e.target.value);
-                }
+              console.log("e", e);
+              if (e !== "") {
+                setTimeStart(e.target.value);
+              }
             }}
           />
           <p className="align-middle text-end font-semibold p-1">
@@ -222,9 +224,9 @@ const AddModal = ({
             className="col-span-2 align-middle p-1 border-b-[1px] border-grat-darkest bg-gray-lightest"
             value={timeEnd}
             onChange={(e) => {
-                if (e!==''){
-                    setTimeEnd(e.target.value);
-                }
+              if (e !== "") {
+                setTimeEnd(e.target.value);
+              }
             }}
           />
           <div></div>
@@ -258,10 +260,7 @@ const AddModal = ({
           <button className={`${buttonStyle}`} onClick={closeModal}>
             취소
           </button>
-          <button
-            className={`${buttonStyle}`}
-            onClick={confirm_todo}
-          >
+          <button className={`${buttonStyle}`} onClick={confirm_todo}>
             확인
           </button>
         </div>
