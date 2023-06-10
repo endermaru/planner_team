@@ -687,6 +687,7 @@ export default function Home() {
                   modiTodo={modiTodo}
                   openModi={openModimodal}
                   handleAdd={handleAdd}
+                  feedback={feedback}
                 />
               )}
               {tab == 2 && (
