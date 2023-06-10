@@ -22,11 +22,12 @@ ChartJS.register(
 
 
 function ProChart({ prosum }) {
+  
     const data = {
         labels: ["어제의 평균 진행도", "오늘의 평균 진행도"],
       datasets: [
         {
-          data: prosum,
+          data: prosum.includes(NaN)?[NaN,NaN]:prosum,
           pointBorderColor: prosum[0] > prosum[1] ? "#FF645C" : prosum[0] == prosum[1] ? "gray" : "blue",
           borderColor: prosum[0] > prosum[1] ? "#FFA08D" : prosum[0] == prosum[1] ? "#B9B9B8" : "#9EB6EF",
           borderWidth: 7,
@@ -70,9 +71,10 @@ function ProChart({ prosum }) {
         <div className=" mr-2">
                 <Line data={data} options={options}/>
                 <p className="mb-1 font-bold text-center"style={{ whiteSpace: 'pre-line' }}>
-                {prosum[1]-prosum[0] > 0 ?`어제보다 ${((prosum[1]-prosum[0])/prosum[0]*100).toFixed(0)}% 증가`
+                {prosum.includes(NaN)?`일정이 없습니다`:
+                prosum[1]-prosum[0] > 0 ?`어제보다 ${((prosum[1]-prosum[0])/prosum[0]*100).toFixed(0)}% 증가`
                 : prosum[1]-prosum[0] < 0 ?`어제보다 ${((prosum[0]-prosum[1])/prosum[1]*100).toFixed(0)}% 감소`
-                :"어제와 동일"} 
+                :prosum} 
                 </p>
         </div>
     );
