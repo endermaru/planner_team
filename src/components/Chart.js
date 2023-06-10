@@ -4,6 +4,9 @@ import { Doughnut} from "react-chartjs-2";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function FeedbackChart({cate}) {
+  if (Object.keys(cate).length===0){
+    cate = {"일정이 존재하지 않습니다":1};
+  }
   const data = {
     labels: Object.keys(cate),
     datasets: [
@@ -47,7 +50,7 @@ function FeedbackChart({cate}) {
     <div className="h-36 justify-center items-center text-center">
         <Doughnut data={data} options={options}/>
         <p className="mb-1 mt-3 font-bold "style={{ whiteSpace: 'pre-line' }}>
-                {`분포 점수 : ${cateratio}점`} 
+                {Object.keys(cate) != "일정이 존재하지 않습니다" ? `분포 점수 : ${cateratio}점` : `일정이 없습니다`} 
             </p>
     </div>
   );
