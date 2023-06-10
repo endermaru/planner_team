@@ -573,14 +573,6 @@ export default function Home() {
               <button className={topbuttonStyle} onClick={deletelog}>
                 챗 로그 삭제
               </button>
-              <button
-                className={topbuttonStyle}
-                onClick={() => {
-                  printTodos(todos);
-                }}
-              >
-                일정 출력
-              </button>
             </div>
           </div>
         )}
