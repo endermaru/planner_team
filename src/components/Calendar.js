@@ -11,6 +11,14 @@ import TodoList from "./TodoList";
 import { TodoTable } from "./TodoList";
 import AddModal from "./AddModal";
 
+import { IBM_Plex_Sans_KR } from 'next/font/google';
+const ibmplex = IBM_Plex_Sans_KR({
+  // preload: true, 기본값
+  subsets: ["latin"], // 또는 preload: false
+  weight: ["300", "400", "500", "700"], // 가변 폰트가 아닌 경우, 사용할 fontWeight 배열
+});
+
+
 const RenderHeader = ({
   currentMonth,
   prevMonth,
@@ -259,7 +267,7 @@ const RenderCells = ({
         onRequestClose={() => setModalIsOpen(false)}
         shouldCloseOnOverlayClick={false}
       >
-        <div className="w-full flex-row items-center p-3 px-6 grid grid-cols-10 bg-blue text-xl text-gray-lightest rounded-t-[20px]">
+        <div className={`${ibmplex.className} w-full flex-row items-center p-3 px-6 grid grid-cols-10 bg-blue text-xl text-gray-lightest rounded-t-[20px]`}>
           <div className="col-span-6 text-xl font-semibold">
             {format(selectedDate, "MM월 dd일")} 일정
           </div>

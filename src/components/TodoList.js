@@ -4,6 +4,13 @@ import "firebase/firestore";
 import ModiModal from "./ModiModal";
 import AddModal from "./AddModal";
 
+import { IBM_Plex_Sans_KR } from 'next/font/google';
+const ibmplex = IBM_Plex_Sans_KR({
+  // preload: true, 기본값
+  subsets: ["latin"], // 또는 preload: false
+  weight: ["300", "400", "500", "700"], // 가변 폰트가 아닌 경우, 사용할 fontWeight 배열
+});
+
 export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd, isDate }) => {
   //날짜 변환기
   const dateToString = (date) => {
@@ -124,7 +131,7 @@ export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd, isDate })
   };
 
   return (
-    <table className="table-fixed w-full">
+    <table className={`table-fixed w-full ${ibmplex.className}`}>
       {/*수정 시 나오는 모달창*/}
       <ModiModal
         isOpen={isOpen}
@@ -384,7 +391,7 @@ const TodoList = ({
   }, [addIsOpen]);
 
   return (
-    <div className="max-w-full w-full overflow-y-scroll p-5 no-scrollbar">
+    <div className={`max-w-full w-full overflow-y-scroll p-5 no-scrollbar`}>
       <div className="flex w-full h-13 border-b-[1px] justify-between items-center">
         {/*추가 시 나오는 모달창*/}
         <AddModal

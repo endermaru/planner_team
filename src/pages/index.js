@@ -5,6 +5,13 @@ import Feedback from "../components/Feedback";
 import { Chat } from "@/components/Chat";
 import ModiModal from "@/components/ModiModal";
 
+import { IBM_Plex_Sans_KR } from 'next/font/google';
+const ibmplex = IBM_Plex_Sans_KR({
+  // preload: true, 기본값
+  subsets: ["latin"], // 또는 preload: false
+  weight: ["300", "400", "500", "700"], // 가변 폰트가 아닌 경우, 사용할 fontWeight 배열
+});
+
 import Modal from "react-modal";
 import React, { useState, useEffect, useRef } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -23,6 +30,7 @@ import {
   where,
   Timestamp,
 } from "firebase/firestore";
+
 
 //일정 db - 필드 이름(타입) : userId(str) / userName(str) / content(str) / timeStart(timestamp) / timeEnd(timestamp) / progress(int)
 const todoDB = collection(db, "todoDB");
@@ -542,7 +550,7 @@ export default function Home() {
   const circleLight = "flex mx-auto h-3 w-3 bg-gray rounded-full";
 
   return (
-    <div className="mx-auto max-w-5xl h-screen pt-6 pb-10 no-scrollbar">
+    <div className={`${ibmplex.className} mx-auto max-w-5xl h-screen pt-6 pb-10 no-scrollbar`}>
       <div
         id="root"
         className="flex flex-col w-full h-max-screen h-full relative isolate overflow-hidden bg-gray-lightest shadow-xl rounded-3xl"

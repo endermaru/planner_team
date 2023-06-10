@@ -1,6 +1,13 @@
 import { IconSend } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 
+import { IBM_Plex_Sans_KR } from 'next/font/google';
+const ibmplex = IBM_Plex_Sans_KR({
+  // preload: true, 기본값
+  subsets: ["latin"], // 또는 preload: false
+  weight: ["300", "400", "500", "700"], // 가변 폰트가 아닌 경우, 사용할 fontWeight 배열
+});
+
 export const ChatInput = ({ onSendMessage }) => {
   const [content, setContent] = useState();
 
@@ -158,7 +165,7 @@ export const ChatInput = ({ onSendMessage }) => {
   }, [content]);
 
   return (
-    <div className="p-0">
+    <div className={`p-0 ${ibmplex.className}`}>
       <textarea
         ref={textareaRef}
         className="h-[44px] bg-gray-lightest pl-4 pr-12 pb-2 pt-3
