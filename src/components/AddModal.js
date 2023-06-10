@@ -106,20 +106,21 @@ const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
                     border border-[1px] border-gray-darkest bg-neutral hover:bg-gray-dark hover:text-gray-lightest hover:font-bold";
 
   // 버튼 스타일 생성 함수
+  // 버튼 스타일 생성 함수
   const getButtonStyle = (progress) => {
     switch (progress) {
       case 0:
         return {
-          backgroundColor: "white",
-          border: "1px solid black",
+          backgroundColor: "#F3F3F3",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       case 1:
         return {
-          backgroundColor: "#B9B9B8",
-          border: "1px solid black",
+          backgroundColor: "#D8D8D8",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
@@ -127,22 +128,22 @@ const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
       case 2:
         return {
           backgroundColor: "#FFA08D",
-          border: "1px solid black",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       case 3:
         return {
-          backgroundColor: "#7575EA",
-          border: "1px solid black",
+          backgroundColor: "#FF645C",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       default:
         return {
-          backgroundColor: "white",
+          backgroundColor: "#F3F3F3",
           border: "1px solid black",
           width: "30px",
           height: "30px",

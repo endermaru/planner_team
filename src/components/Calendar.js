@@ -290,6 +290,7 @@ const RenderCells = ({
               modiTodo={modiTodo}
               delTodo={delTodo}
               handleAdd={handleAdd}
+              isDate={false}
             />
           )}
           <p className="mt-3 font-bold ">{`하루 마무리 기록`}</p>

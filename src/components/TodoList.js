@@ -4,7 +4,7 @@ import "firebase/firestore";
 import ModiModal from "./ModiModal";
 import AddModal from "./AddModal";
 
-export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd }) => {
+export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd, isDate }) => {
   //날짜 변환기
   const dateToString = (date) => {
     const dateObj = new Date(date);
@@ -18,12 +18,21 @@ export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd }) => {
     var hf = "AM";
     if (h >= 12) {
       hf = "PM";
-      h -= 12;
+      if (h>12){
+        h -= 12;
+      }
     }
-    // console.log(y,m,d,hf,String(h).padStart(2, "0"),String(mi).padStart(2, "0"));
-    return `${m}월 ${d}일\n${hf} ${String(h).padStart(2, "0")}:${String(
-      mi
-    ).padStart(2, "0")}`;
+    if (isDate){
+      // console.log(y,m,d,hf,String(h).padStart(2, "0"),String(mi).padStart(2, "0"));
+      return `${m}월 ${d}일\n${hf} ${String(h).padStart(2, "0")}:${String(
+        mi
+      ).padStart(2, "0")}`;
+    } else {
+      return `${hf} ${String(h).padStart(2, "0")}:${String(
+        mi
+      ).padStart(2, "0")}`;
+    }
+    
   };
 
   // modiTodo 함수 정의
@@ -442,6 +451,7 @@ const TodoList = ({
             delTodo={delTodo}
             openModi={openModi}
             handleAdd={handleAdd}
+            isDate={true}
           />
         )}
       </div>
