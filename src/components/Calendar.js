@@ -62,9 +62,13 @@ const RenderDays = () => {
   const date = ["Sun", "Mon", "Thu", "Wed", "Thrs", "Fri", "Sat"];
 
   for (let i = 0; i < 7; i++) {
+    const sunday = date[i] == "Sun";
+    const saturday = date[i] == "Sat";
     days.push(
       <div
-        className="col w-1/6 h-full flex flex-col pb-[10px] justify-end items-center px-1 bg-neutral text-gray-darkest font-bold border-gray-darkest border-b-[1px]"
+        className={`col w-1/6 h-full flex flex-col pb-[10px] justify-end items-center px-1 bg-neutral ${
+          sunday ? "text-orange" : saturday ? "text-blue" : "text-gray-darkest"
+        }  font-bold border-gray-darkest border-b-[1px]`}
         key={i}
       >
         {date[i]}
@@ -73,7 +77,9 @@ const RenderDays = () => {
   }
 
   return (
-    <div className="days w-full h-fit p-1 px-4 row flex flex-row justify-between items-center">
+    <div
+      className={`days w-full h-fit p-1 px-4 row flex flex-row justify-between items-center `}
+    >
       {days}
     </div>
   );
