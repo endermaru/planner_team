@@ -23,7 +23,7 @@ const RenderHeader = ({
   notNextHovering,
 }) => {
   return (
-    <div className="w-full flex flex-row justify-between items-baseline p-4 pl-7 pr-6 pt-8">
+    <div className="w-full flex flex-row justify-between items-baseline p-4 pl-8 pr-6 pt-8">
       <div className="col w-4/5 h-full flex flex-col justify-center items-start mr-1 col-start">
         <span className="text-l">
           <span className="text-4xl month mx-4 font-semibold">
@@ -156,7 +156,7 @@ const RenderCells = ({
       days.push(
         <div className="w-1/6 h-5/6 flex flex-col justify-start items-center">
           <div
-            className={`col w-16 h-16 flex flex-col justify-center text-center grid grid-rows-5 items-center px-1 rounded-full cell ${
+            className={`col w-16 h-16  justify-center text-center grid grid-rows-5 items-center px-1 rounded-full cell ${
               !isSameMonth(day, monthStart)
                 ? "disabled text-gray border-[1px] border-gray-lgiht"
                 : isSameDay(day, nowDate)
@@ -314,7 +314,7 @@ const RenderCells = ({
         addfunc={addTodos}
         handleAdd={handleAdd}
         defaultDay={selectedDate}
-        className="z-10 w-3/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl z-10"
+        className="z-10 w-3/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl"
       />
     </div>
   );
