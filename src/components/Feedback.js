@@ -205,8 +205,9 @@ const Feedback = ({
     const lastMessage=messages[messages.length-1]["content"]
     if (lastMessage.includes(trigger) && finish===""){
       //해당 트리거 직전까지 자르기
-      const startIndex=lastMessage.indexOf(trigger);
-      setfinish(lastMessage.slice(0,startIndex-2));
+      // const startIndex=lastMessage.indexOf(trigger);
+      // setfinish(lastMessage.slice(0,startIndex-2));
+      setfinish(lastMessage);
     } else {
       console.log("failed!");
     }

@@ -403,8 +403,10 @@ export default function Home() {
 
     if (!response.ok) {
       setLoading(false);
-      console.log("response", response);
-      throw new Error(response.statusText);
+      // console.log("response", response);
+      // throw new Error(response.statusText);
+      alert("API 에러가 발생했습니다. 다시 시도해주세요");
+      // location.reload();
     }
 
     //firebase에 요청 메시지 추가(기본)
@@ -467,7 +469,14 @@ export default function Home() {
     //   date:now,
     // });
   };
-
+  //기본 메시지로그
+  const defaultLog={
+    role: "assistant",
+    content: `안녕하세요! 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
+◼ 일정 추가를 원하시면 <b>"[일시], [일정] 추가해줘."</b>를 입력해주세요.\n
+◼ 일정 변경을 원하시면 <b>"[일정 이름] 변경해줘."</b>를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
+◼ 일정 삭제를 원하시면 <b>"[일정 이름] 삭제해줘"</b>를 입력해주세요.`,
+  }
   //메시지 로그 불러오기
   const handleReset = async () => {
     if (!data?.user?.name) {
@@ -490,13 +499,7 @@ export default function Home() {
     });
     setMessages([
       ...logs_arr,
-      {
-        role: "assistant",
-        content: `안녕하세요! 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
-◼ 일정 추가를 원하시면 <b>"[일시], [일정 이름] 추가해줘."</b>를 입력해주세요.\n
-◼ 일정 변경을 원하시면 <b>"[일정 이름] 변경해줘."</b>를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
-◼ 일정 삭제를 원하시면 <b>"[일정 이름] 삭제해줘"</b>를 입력해주세요.`,
-      },
+      defaultLog,
     ]);
   };
 
@@ -508,13 +511,7 @@ export default function Home() {
       deleteDoc(doc.ref);
     });
     setMessages([
-      {
-        role: "assistant",
-        content: `안녕하세요! 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
-1. 일정 추가를 원하시면 "[일시], [일정 이름] 추가해줘."를 입력해주세요.\n
-2. 일정 변경을 원하시면 "[일정 이름] 변경해줘."를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
-3. 일정 삭제를 원하시면 "[일정 이름] 삭제해줘"를 입력해주세요.`,
-      },
+      defaultLog,
     ]);
   };
 
