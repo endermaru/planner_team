@@ -62,9 +62,13 @@ const RenderDays = () => {
   const date = ["Sun", "Mon", "Thu", "Wed", "Thrs", "Fri", "Sat"];
 
   for (let i = 0; i < 7; i++) {
+    const sunday = date[i] == "Sun";
+    const saturday = date[i] == "Sat";
     days.push(
       <div
-        className="col w-1/6 h-full flex flex-col pb-[10px] justify-end items-center px-1 bg-neutral text-gray-darkest font-bold border-gray-darkest border-b-[1px]"
+        className={`col w-1/6 h-full flex flex-col pb-[10px] justify-end items-center px-1 bg-neutral ${
+          sunday ? "text-orange" : saturday ? "text-blue" : "text-gray-darkest"
+        }  font-bold border-gray-darkest border-b-[1px]`}
         key={i}
       >
         {date[i]}
@@ -73,7 +77,9 @@ const RenderDays = () => {
   }
 
   return (
-    <div className="days w-full h-fit p-1 px-4 row flex flex-row justify-between items-center">
+    <div
+      className={`days w-full h-fit p-1 px-4 row flex flex-row justify-between items-center `}
+    >
       {days}
     </div>
   );
@@ -96,7 +102,7 @@ const RenderCells = ({
   openModi,
   handleAdd,
   addTodos,
-  feedback
+  feedback,
 }) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -271,20 +277,22 @@ const RenderCells = ({
           className="flex w-full px-6 flex-col justify-start items-start"
           // onClick={closeModal}
         >
-          {!todoLoading && 
-          
-          <TodoTable
-            sortedTodos={filteredTodos}
-            className="text-xs p-0 m-0"
-            modiTodo={modiTodo}
-            delTodo={delTodo}
-            handleAdd={handleAdd}
-          />}
-        <p className="mt-3 font-bold ">{`하루 마무리 기록`}</p>
+          {!todoLoading && (
+            <TodoTable
+              sortedTodos={filteredTodos}
+              className="text-xs p-0 m-0"
+              modiTodo={modiTodo}
+              delTodo={delTodo}
+              handleAdd={handleAdd}
+            />
+          )}
+          <p className="mt-3 font-bold ">{`하루 마무리 기록`}</p>
           <p className="mt-3 border border-gray w-full">
             {feedback
-              .filter(feedback => feedback.date === format(selectedDate, "M월 d일"))
-              .map(feedback => (
+              .filter(
+                (feedback) => feedback.date === format(selectedDate, "M월 d일")
+              )
+              .map((feedback) => (
                 <React.Fragment key={feedback.id}>
                   {feedback.reflection}
                   <br />
@@ -292,8 +300,6 @@ const RenderCells = ({
                 </React.Fragment>
               ))}
           </p>
-
-
         </div>
       </Modal>
       <AddModal
@@ -317,7 +323,7 @@ const Calendar = ({
   modiTodo,
   openModi,
   handleAdd,
-  feedback
+  feedback,
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
