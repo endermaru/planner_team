@@ -7,7 +7,6 @@ import { isWithinInterval, startOfDay, endOfDay } from "date-fns";
 
 import Modal from "react-modal";
 
-import TodoList from "./TodoList";
 import { TodoTable } from "./TodoList";
 import AddModal from "./AddModal";
 
@@ -223,6 +222,7 @@ const RenderCells = ({
       padding: 0,
       border: 0,
       borderRadius: "20px",
+      fontFamily: "ibmplex",
     },
     overlay: {
       backgroundColor: "rgba(128,128,128, 0.3)",
@@ -253,13 +253,13 @@ const RenderCells = ({
       {rows}
       <Modal
         isOpen={modalIsOpen}
-        className="z-10 flex flex-col  justify-start items-center bg-gray-lightest border-3 border-gray"
+        className="z-10 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray"
         contentLabel="Modal for calendar"
         style={customStyles}
         onRequestClose={() => setModalIsOpen(false)}
         shouldCloseOnOverlayClick={false}
       >
-        <div className="w-full flex-row items-center p-3 px-6 grid grid-cols-10 bg-blue text-xl text-gray-lightest rounded-t-[20px]">
+        <div className="w-full flex-row items-center p-3 px-6 grid grid-cols-10 bg-blue text-xl font-['IBM Plex'] text-gray-lightest rounded-t-[20px]">
           <div className="col-span-6 text-xl font-semibold">
             {format(selectedDate, "MM월 dd일")} 일정
           </div>
