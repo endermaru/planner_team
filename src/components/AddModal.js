@@ -2,6 +2,13 @@ import React from "react";
 import Modal from "react-modal";
 import react, { useEffect, useState } from "react";
 
+import { IBM_Plex_Sans_KR } from 'next/font/google';
+const ibmplex = IBM_Plex_Sans_KR({
+  // preload: true, 기본값
+  subsets: ["latin"], // 또는 preload: false
+  weight: ["300", "400", "500", "700"], // 가변 폰트가 아닌 경우, 사용할 fontWeight 배열
+});
+
 const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
@@ -106,20 +113,21 @@ const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
                     border border-[1px] border-gray-darkest bg-neutral hover:bg-gray-dark hover:text-gray-lightest hover:font-bold";
 
   // 버튼 스타일 생성 함수
+  // 버튼 스타일 생성 함수
   const getButtonStyle = (progress) => {
     switch (progress) {
       case 0:
         return {
-          backgroundColor: "white",
-          border: "1px solid black",
+          backgroundColor: "#F3F3F3",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       case 1:
         return {
-          backgroundColor: "#B9B9B8",
-          border: "1px solid black",
+          backgroundColor: "#D8D8D8",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
@@ -127,22 +135,22 @@ const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
       case 2:
         return {
           backgroundColor: "#FFA08D",
-          border: "1px solid black",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       case 3:
         return {
-          backgroundColor: "#7575EA",
-          border: "1px solid black",
+          backgroundColor: "#FF645C",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       default:
         return {
-          backgroundColor: "white",
+          backgroundColor: "#F3F3F3",
           border: "1px solid black",
           width: "30px",
           height: "30px",
@@ -167,6 +175,7 @@ const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
       padding: 0,
       border: 0,
       borderRadius: "10px",
+      fontFamily: "ibmplex, sans-serif",
     },
   };
   return (
@@ -177,9 +186,9 @@ const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
       shouldCloseOnOverlayClick={false}
       contentLabel="Modal for modification"
     >
-      <div className="bg-gray-lightest w-full h-full flex flex-col rounded-t-xl">
+      <div className={`bg-gray-lightest w-full h-full flex flex-col rounded-t-xl ${ibmplex.className}`}>
         <div className="w-full bg-red-500">
-          <p className="px-5 py-3 bg-orange text-gray-lightest text-xl font-semibold">
+          <p className="font-ibmplex px-5 py-3 bg-orange text-gray-lightest text-xl font-semibold">
             일정 추가하기
           </p>
         </div>
