@@ -273,17 +273,26 @@ const Feedback = ({
       <p className={`${titleStyle}`}>2. 어제와 비교한 오늘 확인하기</p>
       <div className="flex w-auto">
 
-        <div className="mr-2 w-[36%] border-r-2 border-dashed border-gray ">
-          <p className="mb-2 text-center">진행도 비교 결과</p>
+        <div className="mr-2 pr-2 w-[35%] border-r-2 border-dashed border-gray ">
+          <p className="mb-2 text-center">전체 진행도 비교</p>
           <ProChart prosum={prosum}/>
+          <p className="font-bold text-center"style={{ whiteSpace: 'pre-line' }}>
+                {prosum.includes(NaN)?`일정이 없습니다`:
+                prosum[1]-prosum[0] > 0 ?`어제보다 ${((prosum[1]-prosum[0])/prosum[0]*100).toFixed(0)}% 증가`
+                : prosum[1]-prosum[0] < 0 ?`어제보다 ${((prosum[0]-prosum[1])/prosum[1]*100).toFixed(0)}% 감소`
+                :prosum} 
+          </p>
         </div>       
         
-        <div className="mr-2 w-4/12 pr-2 border-r-2 border-dashed border-gray" style={{ display: 'flex', justifyContent: 'center' }}>
+        {/* <div className="mr-2 w-4/12 pr-2 border-r-2 border-dashed border-gray" style={{ display: 'flex', justifyContent: 'center' }}>
                 <td>
-                  <p className="mb-3 text-center">어제의 분류 분포</p>
-                  <FeedbackChart cate={yescate} />
+                  <p className="mb-3 text-center">분류별 진행도 비교</p>
+                  <ProChart 
+                  cate={yescate} 
+                  cat={tocate}
+                  />
                 </td>
-        </div>
+        </div> */}
      
         <div className=" mr-2 w-4/12" style={{ display: 'flex', justifyContent: 'center' }}>
                 <td>

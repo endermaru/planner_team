@@ -68,15 +68,7 @@ function ProChart({ prosum }) {
       };
   
     return (
-        <div className=" mr-2">
-                <Line data={data} options={options}/>
-                <p className="mb-1 font-bold text-center"style={{ whiteSpace: 'pre-line' }}>
-                {prosum.includes(NaN)?`일정이 없습니다`:
-                prosum[1]-prosum[0] > 0 ?`어제보다 ${((prosum[1]-prosum[0])/prosum[0]*100).toFixed(0)}% 증가`
-                : prosum[1]-prosum[0] < 0 ?`어제보다 ${((prosum[0]-prosum[1])/prosum[1]*100).toFixed(0)}% 감소`
-                :prosum} 
-                </p>
-        </div>
+        <Line data={data} options={options}/>
     );
   }
   
