@@ -183,9 +183,15 @@ const RenderCells = ({
               {formattedDate}
             </span>
             {/*진행도 배열에 따른 원 모양*/}
-            <div className="flex flex-row justify-self-center">
+            <div className="w-12 flex flex-row justify-self-center justify-center flex-wrap content-center">
               {arr.map((el) => (
-                <p className={`text-2xl text-${getButtonStyle(el)}`}>•</p>
+                <p
+                  className={`justify-self-center h-3 mx-px text-[0.1rem] self-start text-${getButtonStyle(
+                    el
+                  )}`}
+                >
+                  ●
+                </p>
               ))}
             </div>
           </div>
@@ -274,7 +280,7 @@ const RenderCells = ({
           />
         </div>
         <div
-          className="flex w-full px-6 flex-col justify-start items-start"
+          className="flex w-full px-6 flex-col justify-start items-start overflow-y-scroll pb-5 no-scrollbar"
           // onClick={closeModal}
         >
           {!todoLoading && (
