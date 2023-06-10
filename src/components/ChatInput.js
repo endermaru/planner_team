@@ -104,7 +104,9 @@ export const ChatInput = ({ onSendMessage }) => {
         content: `일정과 관련된 문장을 분석하는 게임을 하자.
         TODAY:${nowString},
         Analyze purpose of user's sententce : "add" || "delete" || "modification"
-        Write in Markdown, Write only JSON format. Write timeStart and timeEnd only in ISO 8601 format
+        Write in Markdown, Write only JSON format.
+        Write timeStart and timeEnd only in ISO 8601 format.
+
         1. "add" : return {"method":"add","category":"대외활동"||"학업"||"자격증"||"인턴","timeStart":start time,"timeEnd":end time,"content":the name of schedule}
         -Determine which category is appropriate for the schedule. If you can't find proper category, then return another most suitable category you think in korean.
         -If there is only date but no time, start time is 00:00:00 and end time is 23:59:59.
@@ -121,6 +123,7 @@ export const ChatInput = ({ onSendMessage }) => {
         ex) "다음주 화요일 약속 취소해줘" ->"timeStart":"${nextTuesday}"
 
         3. "modification" : return {"method":"modification","timeStart":start time(original),"content":the name of schedule(original)}
+        -The most important thing is to find the name of schedule. You don't have to find the date for modification.
         -If there is no original start time, "timeStart" is "0".
         -If there is modificated time or modificated content, ignore it.
         -If there is modificated time but no original start time, "timeStart" is "0"

@@ -245,14 +245,18 @@ export default function Home() {
       const jStr = JSON.parse(match[0]);
 
       if (jStr.method === "add") {
-        addTodos({
-          _content: jStr.content,
-          _category: jStr.category,
-          _timeStart: jStr.timeStart,
-          _timeEnd: jStr.timeEnd,
-          _progress: 0,
-        });
-        handleAdd("assistant", "일정이 추가되었습니다!");
+        if (jStr.timeStart=="0" || jStr.timeEnd=="0"){
+          handleAdd("assistant", "날짜, 시간을 인식할 수 없습니다. 다시 시도해주세요.");
+        } else {
+          addTodos({
+            _content: jStr.content,
+            _category: jStr.category,
+            _timeStart: jStr.timeStart,
+            _timeEnd: jStr.timeEnd,
+            _progress: 0,
+          });
+          handleAdd("assistant", "일정이 추가되었습니다!");
+        }
       } else if (jStr.method === "delete") {
         const resultFind = findSchedule(jStr);
         console.log("result", resultFind);
