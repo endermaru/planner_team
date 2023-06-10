@@ -726,6 +726,7 @@ export default function Home() {
                     setTodos={setTodos}
                     modiTodo={modiTodo}
                     onSendMessage={handleSend}
+                    messages={messages}
                   />
                 </div>
               )}
