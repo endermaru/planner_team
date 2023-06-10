@@ -2,15 +2,13 @@ import React from "react";
 import Modal from "react-modal";
 import react, { useEffect, useState } from "react";
 
-const ModiModal = ({
+const AddModal = ({
   isOpen,
   closeModal,
-  modifunc,
+  addfunc,
   handleAdd,
-  todos,
-  id_moditodo,
+  defaultDay,
 }) => {
-  const [modi, setModi] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
   const [timeStart, setTimeStart] = useState("");
@@ -30,18 +28,6 @@ const ModiModal = ({
       2,
       "0"
     )}T${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
-  };
-
-  const findTodo = (_todos, id) => {
-    const _modi = _todos.find((todo) => todo.id === id);
-    if (_modi) {
-      setContent(_modi?.content);
-      setCategory(_modi?.category);
-      setTimeStart(dateToString(_modi?.timeStart));
-      setTimeEnd(dateToString(_modi?.timeEnd));
-      setProgress(_modi?.progress);
-    }
-    return _modi;
   };
 
   //날짜 수정 시 따라가기
@@ -67,25 +53,51 @@ const ModiModal = ({
   const dateToStart = () => {
     const stStr = dateToString(timeStart);
     const edStr = dateToString(timeEnd);
-    setTimeEnd(stStr.slice(0, 10) + edStr.slice(10));
+    if (edStr[0]!=='N'){
+        setTimeEnd(stStr.slice(0, 10) + edStr.slice(10));
+    } else {
+        setTimeEnd(stStr);
+    }
   };
 
   const allDay = () => {
-    const stStr = dateToString(timeStart);
+    const stStr = timeStart;
+    console.log("stSTr",stStr);
     setTimeStart(stStr.slice(0, 10) + "T00:00");
     setTimeEnd(stStr.slice(0, 10) + "T23:59");
   };
-  useEffect(() => {
-    setModi(findTodo(todos, id_moditodo));
-  }, [isOpen]);
 
   useEffect(() => {
     cmpTodo();
   }, [timeStart]);
 
-  const modi_todo = () => {
-    modifunc(id_moditodo, content, category, timeStart, timeEnd, progress);
-  };
+  useEffect(() => {
+    if (isOpen){
+        console.log(dateToString(defaultDay));
+        setTimeStart(dateToString(defaultDay));
+        setTimeEnd(dateToString(defaultDay));
+    } else {
+      setContent("");
+      setCategory("");
+      setTimeStart("");
+      setTimeEnd("");
+      setProgress(0);
+    }
+  }, [isOpen]);
+
+  const confirm_todo=async()=>{
+    if (content!=="" && category!=="" && timeStart !=="" && timeEnd!==""){
+      console.log(content,"!!!");
+      await addfunc({_content:content, _category:category, _timeStart:timeStart, _timeEnd:timeEnd, _progress:progress});
+      closeModal();
+      handleAdd(
+          "assistant",
+          `"${content}" 일정이 추가되었습니다.`
+      );
+    } else {
+        alert("필드값을 모두 입력하세요!");
+    }
+  }
 
   const buttonStyle =
     "justify-items-end w-14 h-10 ml-3 p-1 rounded-full text-sm text-gray-darkest font-semibold\
@@ -165,8 +177,8 @@ const ModiModal = ({
     >
       <div className="bg-gray-lightest w-full h-full flex flex-col rounded-t-xl">
         <div className="w-full bg-red-500">
-          <p className="px-5 py-3 bg-orange text-gray-lightest text-2xl font-semibold">
-            일정 수정하기
+          <p className="px-5 py-3 bg-orange text-gray-lightest text-xl font-semibold">
+            일정 추가하기
           </p>
         </div>
 
@@ -196,7 +208,10 @@ const ModiModal = ({
             className="col-span-2 align-middle p-1 border-b-[1px] border-grat-darkest bg-gray-lightest"
             value={timeStart}
             onChange={(e) => {
-              setTimeStart(e.target.value);
+                console.log("e",e);
+                if (e!==''){
+                    setTimeStart(e.target.value);
+                }
             }}
           />
           <p className="align-middle text-end font-semibold p-1">
@@ -207,7 +222,9 @@ const ModiModal = ({
             className="col-span-2 align-middle p-1 border-b-[1px] border-grat-darkest bg-gray-lightest"
             value={timeEnd}
             onChange={(e) => {
-              setTimeEnd(e.target.value);
+                if (e!==''){
+                    setTimeEnd(e.target.value);
+                }
             }}
           />
           <div></div>
@@ -243,14 +260,7 @@ const ModiModal = ({
           </button>
           <button
             className={`${buttonStyle}`}
-            onClick={() => {
-              modi_todo();
-              closeModal();
-              handleAdd(
-                "assistant",
-                `"${modi.content}" 일정이 수정되었습니다.`
-              );
-            }}
+            onClick={confirm_todo}
           >
             확인
           </button>
@@ -260,4 +270,4 @@ const ModiModal = ({
   );
 };
 
-export default ModiModal;
+export default AddModal;
