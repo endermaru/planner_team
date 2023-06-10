@@ -23,7 +23,7 @@ const RenderHeader = ({
   notNextHovering,
 }) => {
   return (
-    <div className="w-full flex flex-row justify-between items-baseline p-4 pl-7 pr-6 pt-8">
+    <div className="w-full flex flex-row justify-between items-baseline p-4 pl-8 pr-6 pt-8">
       <div className="col w-4/5 h-full flex flex-col justify-center items-start mr-1 col-start">
         <span className="text-l">
           <span className="text-4xl month mx-4 font-semibold">
@@ -96,7 +96,7 @@ const RenderCells = ({
   openModi,
   handleAdd,
   addTodos,
-  feedback
+  feedback,
 }) => {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -150,7 +150,7 @@ const RenderCells = ({
       days.push(
         <div className="w-1/6 h-5/6 flex flex-col justify-start items-center">
           <div
-            className={`col w-16 h-16 flex flex-col justify-center text-center grid grid-rows-5 items-center px-1 rounded-full cell ${
+            className={`col w-16 h-16  justify-center text-center grid grid-rows-5 items-center px-1 rounded-full cell ${
               !isSameMonth(day, monthStart)
                 ? "disabled text-gray border-[1px] border-gray-lgiht"
                 : isSameDay(day, nowDate)
@@ -271,20 +271,22 @@ const RenderCells = ({
           className="flex w-full px-6 flex-col justify-start items-start"
           // onClick={closeModal}
         >
-          {!todoLoading && 
-          
-          <TodoTable
-            sortedTodos={filteredTodos}
-            className="text-xs p-0 m-0"
-            modiTodo={modiTodo}
-            delTodo={delTodo}
-            handleAdd={handleAdd}
-          />}
-        <p className="mt-3 font-bold ">{`하루 마무리 기록`}</p>
+          {!todoLoading && (
+            <TodoTable
+              sortedTodos={filteredTodos}
+              className="text-xs p-0 m-0"
+              modiTodo={modiTodo}
+              delTodo={delTodo}
+              handleAdd={handleAdd}
+            />
+          )}
+          <p className="mt-3 font-bold ">{`하루 마무리 기록`}</p>
           <p className="mt-3 border border-gray w-full">
             {feedback
-              .filter(feedback => feedback.date === format(selectedDate, "M월 d일"))
-              .map(feedback => (
+              .filter(
+                (feedback) => feedback.date === format(selectedDate, "M월 d일")
+              )
+              .map((feedback) => (
                 <React.Fragment key={feedback.id}>
                   {feedback.reflection}
                   <br />
@@ -292,8 +294,6 @@ const RenderCells = ({
                 </React.Fragment>
               ))}
           </p>
-
-
         </div>
       </Modal>
       <AddModal
@@ -302,7 +302,7 @@ const RenderCells = ({
         addfunc={addTodos}
         handleAdd={handleAdd}
         defaultDay={selectedDate}
-        className="z-10 w-3/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl z-10"
+        className="z-10 w-3/5 flex flex-col justify-start items-center bg-gray-lightest border-3 border-gray rounded-xl"
       />
     </div>
   );
@@ -317,7 +317,7 @@ const Calendar = ({
   modiTodo,
   openModi,
   handleAdd,
-  feedback
+  feedback,
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());

@@ -310,7 +310,7 @@ const TodoList = ({
   //(지윤) 필터링 방식 변경 이벤트 핸들러
   const handleFilterBy = (filter) => {
     if (filterBy === filter) {
-      return; // 이미 선택된 필터링 방식이면 초기화
+      setFilterBy(""); // 이미 선택된 필터링 방식이면 초기화
     } else {
       setFilterBy(filter); // 선택된 필터링 방식으로 변경
     }
