@@ -2,13 +2,14 @@ import React from "react";
 import Modal from "react-modal";
 import react, { useEffect, useState } from "react";
 
-const AddModal = ({
-  isOpen,
-  closeModal,
-  addfunc,
-  handleAdd,
-  defaultDay,
-}) => {
+import { IBM_Plex_Sans_KR } from 'next/font/google';
+const ibmplex = IBM_Plex_Sans_KR({
+  // preload: true, 기본값
+  subsets: ["latin"], // 또는 preload: false
+  weight: ["300", "400", "500", "700"], // 가변 폰트가 아닌 경우, 사용할 fontWeight 배열
+});
+
+const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
   const [timeStart, setTimeStart] = useState("");
@@ -53,16 +54,16 @@ const AddModal = ({
   const dateToStart = () => {
     const stStr = dateToString(timeStart);
     const edStr = dateToString(timeEnd);
-    if (edStr[0]!=='N'){
-        setTimeEnd(stStr.slice(0, 10) + edStr.slice(10));
+    if (edStr[0] !== "N") {
+      setTimeEnd(stStr.slice(0, 10) + edStr.slice(10));
     } else {
-        setTimeEnd(stStr);
+      setTimeEnd(stStr);
     }
   };
 
   const allDay = () => {
     const stStr = timeStart;
-    console.log("stSTr",stStr);
+    console.log("stSTr", stStr);
     setTimeStart(stStr.slice(0, 10) + "T00:00");
     setTimeEnd(stStr.slice(0, 10) + "T23:59");
   };
@@ -72,10 +73,10 @@ const AddModal = ({
   }, [timeStart]);
 
   useEffect(() => {
-    if (isOpen){
-        console.log(dateToString(defaultDay));
-        setTimeStart(dateToString(defaultDay));
-        setTimeEnd(dateToString(defaultDay));
+    if (isOpen) {
+      console.log(dateToString(defaultDay));
+      setTimeStart(dateToString(defaultDay));
+      setTimeEnd(dateToString(defaultDay));
     } else {
       setContent("");
       setCategory("");
@@ -85,39 +86,48 @@ const AddModal = ({
     }
   }, [isOpen]);
 
-  const confirm_todo=async()=>{
-    if (content!=="" && category!=="" && timeStart !=="" && timeEnd!==""){
-      console.log(content,"!!!");
-      await addfunc({_content:content, _category:category, _timeStart:timeStart, _timeEnd:timeEnd, _progress:progress});
+  const confirm_todo = async () => {
+    if (
+      content !== "" &&
+      category !== "" &&
+      timeStart !== "" &&
+      timeEnd !== ""
+    ) {
+      console.log(content, "!!!");
+      await addfunc({
+        _content: content,
+        _category: category,
+        _timeStart: timeStart,
+        _timeEnd: timeEnd,
+        _progress: progress,
+      });
       closeModal();
-      handleAdd(
-          "assistant",
-          `"${content}" 일정이 추가되었습니다.`
-      );
+      handleAdd("assistant", `"${content}" 일정이 추가되었습니다.`);
     } else {
-        alert("필드값을 모두 입력하세요!");
+      alert("필드값을 모두 입력하세요!");
     }
-  }
+  };
 
   const buttonStyle =
     "justify-items-end w-14 h-10 ml-3 p-1 rounded-full text-sm text-gray-darkest font-semibold\
                     border border-[1px] border-gray-darkest bg-neutral hover:bg-gray-dark hover:text-gray-lightest hover:font-bold";
 
   // 버튼 스타일 생성 함수
+  // 버튼 스타일 생성 함수
   const getButtonStyle = (progress) => {
     switch (progress) {
       case 0:
         return {
-          backgroundColor: "white",
-          border: "1px solid black",
+          backgroundColor: "#F3F3F3",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       case 1:
         return {
-          backgroundColor: "#B9B9B8",
-          border: "1px solid black",
+          backgroundColor: "#D8D8D8",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
@@ -125,22 +135,22 @@ const AddModal = ({
       case 2:
         return {
           backgroundColor: "#FFA08D",
-          border: "1px solid black",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       case 3:
         return {
-          backgroundColor: "#7575EA",
-          border: "1px solid black",
+          backgroundColor: "#FF645C",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       default:
         return {
-          backgroundColor: "white",
+          backgroundColor: "#F3F3F3",
           border: "1px solid black",
           width: "30px",
           height: "30px",
@@ -165,6 +175,7 @@ const AddModal = ({
       padding: 0,
       border: 0,
       borderRadius: "10px",
+      fontFamily: "ibmplex, sans-serif",
     },
   };
   return (
@@ -175,9 +186,9 @@ const AddModal = ({
       shouldCloseOnOverlayClick={false}
       contentLabel="Modal for modification"
     >
-      <div className="bg-gray-lightest w-full h-full flex flex-col rounded-t-xl">
+      <div className={`bg-gray-lightest w-full h-full flex flex-col rounded-t-xl ${ibmplex.className}`}>
         <div className="w-full bg-red-500">
-          <p className="px-5 py-3 bg-orange text-gray-lightest text-xl font-semibold">
+          <p className="font-ibmplex px-5 py-3 bg-orange text-gray-lightest text-xl font-semibold">
             일정 추가하기
           </p>
         </div>
@@ -208,10 +219,10 @@ const AddModal = ({
             className="col-span-2 align-middle p-1 border-b-[1px] border-grat-darkest bg-gray-lightest"
             value={timeStart}
             onChange={(e) => {
-                console.log("e",e);
-                if (e!==''){
-                    setTimeStart(e.target.value);
-                }
+              console.log("e", e);
+              if (e !== "") {
+                setTimeStart(e.target.value);
+              }
             }}
           />
           <p className="align-middle text-end font-semibold p-1">
@@ -222,9 +233,9 @@ const AddModal = ({
             className="col-span-2 align-middle p-1 border-b-[1px] border-grat-darkest bg-gray-lightest"
             value={timeEnd}
             onChange={(e) => {
-                if (e!==''){
-                    setTimeEnd(e.target.value);
-                }
+              if (e !== "") {
+                setTimeEnd(e.target.value);
+              }
             }}
           />
           <div></div>
@@ -258,10 +269,7 @@ const AddModal = ({
           <button className={`${buttonStyle}`} onClick={closeModal}>
             취소
           </button>
-          <button
-            className={`${buttonStyle}`}
-            onClick={confirm_todo}
-          >
+          <button className={`${buttonStyle}`} onClick={confirm_todo}>
             확인
           </button>
         </div>
