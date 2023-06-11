@@ -127,15 +127,15 @@ const RenderCells = ({
   const getButtonStyle = (progress) => {
     switch (progress) {
       case 0:
-        return "gray-lightest";
+        return "text-gray-lightest";
       case 1:
-        return "gray";
+        return "text-gray";
       case 2:
-        return "orange-light";
+        return "text-orange-light";
       case 3:
-        return "orange";
+        return "text-orange";
       default:
-        return "gray-ightest";
+        return "text-gray-lightest";
     }
   };
 
@@ -194,9 +194,9 @@ const RenderCells = ({
             <div className="w-12 flex flex-row justify-self-center justify-center flex-wrap content-center">
               {arr.map((el) => (
                 <p
-                  className={`justify-self-center h-3 mx-px text-[0.1rem] self-start text-${getButtonStyle(
-                    el
+                  className={`justify-self-center h-3 mx-px text-[0.1rem] self-start ${getButtonStyle(el)}
                   )}`}
+                  style={{ WebkitTextStroke: '1px black', textStroke: '1px black' }}
                 >
                   ●
                 </p>
@@ -256,6 +256,10 @@ const RenderCells = ({
     setAddIsOpen(false);
   };
 
+  //피드백 불러오기
+  const feedToday=feedback.filter((feedback) => feedback.date === format(selectedDate, "M월 d일"))[0];
+  console.log(feedToday);
+
   return (
     <div className="body w-full h-5/7 flex flex-col justify-center items-center mb-3 mt-1 px-4">
       {rows}
@@ -301,20 +305,27 @@ const RenderCells = ({
               isDate={false}
             />
           )}
-          <p className="mt-3 font-bold ">{`하루 마무리 기록`}</p>
-          <p className="mt-3 border border-gray w-full">
-            {feedback
-              .filter(
-                (feedback) => feedback.date === format(selectedDate, "M월 d일")
-              )
-              .map((feedback) => (
-                <React.Fragment key={feedback.id}>
-                  {feedback.reflection}
-                  <br />
-                  {feedback.finish}
-                </React.Fragment>
-              ))}
-          </p>
+          <div className={`${ibmplex.className} mt-3 w-full`}>
+            <p className="mb-3 text-lg font-bold underline decoration-wavy underline-offset-4">{`하루 마무리 기록`}</p>
+            {feedToday?
+            <div className="mx-1">
+              <div className="flex flex-row items-center h-7">
+                <p className="font-semibold mb-1">{`✔ 하루 별점 : `}</p>
+                <p className="text-6xl text-orange mb-2" style={{ verticalAlign: 'top' }}>{Array(feedToday.score).fill('•').join('')}</p>
+                <p className="text-6xl text-gray mb-2">{Array(5-feedToday.score).fill('•').join('')}</p>
+              </div>
+              <div >
+                <p className="font-semibold mt-2 mb-1">{`✔ 칭찬할 점과 아쉬운 점, 개선할 점`}</p>
+                <p>{feedToday['reflection']}</p>
+              </div>
+              <div>
+                <p className="font-semibold mt-2 mb-1">{`✔ 참고할 점`}</p>
+                <p>{feedToday['finish']}</p>
+              </div>
+            </div>
+            :<p>기록이 존재하지 않습니다!</p>}
+          </div>
+          
         </div>
       </Modal>
       <AddModal
