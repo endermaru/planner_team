@@ -204,7 +204,7 @@ const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
             onChange={(e) => setContent(e.target.value)}
           />
 
-          <p className="align-middle text-end font-semibold p-1">카테고리 : </p>
+          <p className="align-middle text-end font-semibold p-1">분류 : </p>
           <input
             type="text"
             className="col-span-2 align-middle p-1 border-b-[1px] border-grat-darkest bg-gray-lightest"
