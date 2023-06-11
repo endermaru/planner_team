@@ -297,7 +297,13 @@ export default function Home() {
           openModimodal(resultFind);
           handleAdd("assistant", "일정 수정페이지로 이동합니다.");
         }
-      } else {
+      } else if (jStr.method==="reflection"){
+        handleAdd(
+          "assistant",
+          jStr.content+"\n★제가 조언해드린 내용을 바탕으로 참고할 점을 작성한 후 마무리하세요!★"
+        )
+
+      }else {
         //정규표현식은 작동했으나 명령 수행 불가
         handleAdd(
           "assistant",
@@ -406,7 +412,7 @@ export default function Home() {
       // console.log("response", response);
       // throw new Error(response.statusText);
       alert("API 에러가 발생했습니다. 다시 시도해주세요");
-      // location.reload();
+      location.reload();
     }
 
     //firebase에 요청 메시지 추가(기본)

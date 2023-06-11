@@ -258,7 +258,7 @@ const RenderCells = ({
 
   //피드백 불러오기
   const feedToday=feedback.filter((feedback) => feedback.date === format(selectedDate, "M월 d일"))[0];
-  console.log(feedToday);
+  // console.log(feedToday);
 
   return (
     <div className="body w-full h-5/7 flex flex-col justify-center items-center mb-3 mt-1 px-4">
