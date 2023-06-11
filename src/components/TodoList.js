@@ -217,7 +217,7 @@ const TodoList = ({
   );
   const dateStartOfMonth = new Date(dateToday.getFullYear(), dateToday.getMonth(), 1);
   const dateEndOfMonth = new Date(dateToday.getFullYear(), dateToday.getMonth() + 1, 0);
-
+  
 
   // (지윤) TodoList 목록을 시작 날짜가 오늘인 항목들만 필터링하는 함수
   const filterByDay = (todos) => {
@@ -228,11 +228,17 @@ const TodoList = ({
     });
   };
 
-  // (지윤) TodoList 목록을 시작 날짜가 이번주(일요일 시작)인 항목들만 필터링하는 함수
+  // (지윤) TodoList 목록을 시작 날짜가 이번주(월요일 시작)인 항목들만 필터링하는 함수
   const filterByWeek = (todos) => {
+    const dateToday =new Date();
+    const dateStartOfWeek = new Date(dateToday);
+    dateStartOfWeek.setDate(dateStartOfWeek.getDate() - dateStartOfWeek.getDay() +1); // 월요일로 설정
+    const dateEndOfWeek = new Date(dateToday);
+    dateEndOfWeek.setDate(dateEndOfWeek.getDate() - dateEndOfWeek.getDay() +7); // 다음 주 일요일로 설정
+
     return todos.filter((item) => {
       const itemDate = new Date(item.timeStart);
-      return itemDate >= dateStartOfWeek;
+      return itemDate >= dateStartOfWeek && itemDate <= dateEndOfWeek;
     });
   };
 
