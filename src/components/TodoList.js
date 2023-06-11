@@ -4,7 +4,14 @@ import "firebase/firestore";
 import ModiModal from "./ModiModal";
 import AddModal from "./AddModal";
 
-export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd }) => {
+import { IBM_Plex_Sans_KR } from 'next/font/google';
+const ibmplex = IBM_Plex_Sans_KR({
+  // preload: true, 기본값
+  subsets: ["latin"], // 또는 preload: false
+  weight: ["300", "400", "500", "700"], // 가변 폰트가 아닌 경우, 사용할 fontWeight 배열
+});
+
+export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd, isDate }) => {
   //날짜 변환기
   const dateToString = (date) => {
     const dateObj = new Date(date);
@@ -18,12 +25,21 @@ export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd }) => {
     var hf = "AM";
     if (h >= 12) {
       hf = "PM";
-      h -= 12;
+      if (h>12){
+        h -= 12;
+      }
     }
-    // console.log(y,m,d,hf,String(h).padStart(2, "0"),String(mi).padStart(2, "0"));
-    return `${m}월 ${d}일\n${hf} ${String(h).padStart(2, "0")}:${String(
-      mi
-    ).padStart(2, "0")}`;
+    if (isDate){
+      // console.log(y,m,d,hf,String(h).padStart(2, "0"),String(mi).padStart(2, "0"));
+      return `${m}월 ${d}일\n${hf} ${String(h).padStart(2, "0")}:${String(
+        mi
+      ).padStart(2, "0")}`;
+    } else {
+      return `${hf} ${String(h).padStart(2, "0")}:${String(
+        mi
+      ).padStart(2, "0")}`;
+    }
+    
   };
 
   // modiTodo 함수 정의
@@ -115,7 +131,7 @@ export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd }) => {
   };
 
   return (
-    <table className="table-fixed w-full">
+    <table className={`table-fixed w-full ${ibmplex.className}`}>
       {/*수정 시 나오는 모달창*/}
       <ModiModal
         isOpen={isOpen}
@@ -310,7 +326,7 @@ const TodoList = ({
   //(지윤) 필터링 방식 변경 이벤트 핸들러
   const handleFilterBy = (filter) => {
     if (filterBy === filter) {
-      return; // 이미 선택된 필터링 방식이면 초기화
+      setFilterBy(""); // 이미 선택된 필터링 방식이면 초기화
     } else {
       setFilterBy(filter); // 선택된 필터링 방식으로 변경
     }
@@ -375,7 +391,7 @@ const TodoList = ({
   }, [addIsOpen]);
 
   return (
-    <div className="max-w-full w-full overflow-y-scroll p-5 no-scrollbar">
+    <div className={`max-w-full w-full overflow-y-scroll p-5 no-scrollbar`}>
       <div className="flex w-full h-13 border-b-[1px] justify-between items-center">
         {/*추가 시 나오는 모달창*/}
         <AddModal
@@ -442,6 +458,7 @@ const TodoList = ({
             delTodo={delTodo}
             openModi={openModi}
             handleAdd={handleAdd}
+            isDate={true}
           />
         )}
       </div>

@@ -9,6 +9,7 @@ const Feedback = ({
   todoLoading,
   modiTodo,
   onSendMessage,
+  messages,
 }) => {
   const titleStyle = "text-xl text-gray-darkest font-semibold mt-4 mb-2 pt-3";
   const inputStyle =
@@ -193,6 +194,24 @@ const Feedback = ({
       handleSend();
     }
   };
+
+  //메시지 불러오는 기능 추가
+  useEffect(()=>{
+    // console.log("called");
+    // console.log(messages[messages.length-1]["content"].includes("제가 조언"))
+    // 트리거는 위에서 설정한 "제가 조언~"으로 설정했습니다.
+    // 프롬프트를 바꾸고 싶으시면 이 부분 참고해주세요
+    const trigger="제가 조언"
+    const lastMessage=messages[messages.length-1]["content"]
+    if (lastMessage.includes(trigger) && finish===""){
+      //해당 트리거 직전까지 자르기
+      // const startIndex=lastMessage.indexOf(trigger);
+      // setfinish(lastMessage.slice(0,startIndex-2));
+      setfinish(lastMessage);
+    } else {
+      console.log("failed!");
+    }
+  },[messages])
 
   return (
     <div className="flex flex-col w-full p-5 overflow-y-scroll no-scrollbar ">

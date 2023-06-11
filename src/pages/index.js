@@ -5,6 +5,13 @@ import Feedback from "../components/Feedback";
 import { Chat } from "@/components/Chat";
 import ModiModal from "@/components/ModiModal";
 
+import { IBM_Plex_Sans_KR } from 'next/font/google';
+const ibmplex = IBM_Plex_Sans_KR({
+  // preload: true, 기본값
+  subsets: ["latin"], // 또는 preload: false
+  weight: ["300", "400", "500", "700"], // 가변 폰트가 아닌 경우, 사용할 fontWeight 배열
+});
+
 import Modal from "react-modal";
 import React, { useState, useEffect, useRef } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -23,6 +30,7 @@ import {
   where,
   Timestamp,
 } from "firebase/firestore";
+
 
 //일정 db - 필드 이름(타입) : userId(str) / userName(str) / content(str) / timeStart(timestamp) / timeEnd(timestamp) / progress(int)
 const todoDB = collection(db, "todoDB");
@@ -245,14 +253,18 @@ export default function Home() {
       const jStr = JSON.parse(match[0]);
 
       if (jStr.method === "add") {
-        addTodos({
-          _content: jStr.content,
-          _category: jStr.category,
-          _timeStart: jStr.timeStart,
-          _timeEnd: jStr.timeEnd,
-          _progress: 0,
-        });
-        handleAdd("assistant", "일정이 추가되었습니다!");
+        if (jStr.timeStart=="0" || jStr.timeEnd=="0"){
+          handleAdd("assistant", "날짜, 시간을 인식할 수 없습니다. 다시 시도해주세요.");
+        } else {
+          addTodos({
+            _content: jStr.content,
+            _category: jStr.category,
+            _timeStart: jStr.timeStart,
+            _timeEnd: jStr.timeEnd,
+            _progress: 0,
+          });
+          handleAdd("assistant", "일정이 추가되었습니다!");
+        }
       } else if (jStr.method === "delete") {
         const resultFind = findSchedule(jStr);
         console.log("result", resultFind);
@@ -391,8 +403,10 @@ export default function Home() {
 
     if (!response.ok) {
       setLoading(false);
-      console.log("response", response);
-      throw new Error(response.statusText);
+      // console.log("response", response);
+      // throw new Error(response.statusText);
+      alert("API 에러가 발생했습니다. 다시 시도해주세요");
+      // location.reload();
     }
 
     //firebase에 요청 메시지 추가(기본)
@@ -455,7 +469,14 @@ export default function Home() {
     //   date:now,
     // });
   };
-
+  //기본 메시지로그
+  const defaultLog={
+    role: "assistant",
+    content: `안녕하세요! 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
+◼ 일정 추가를 원하시면 <b>"[일시], [일정] 추가해줘."</b>를 입력해주세요.\n
+◼ 일정 변경을 원하시면 <b>"[일정 이름] 변경해줘."</b>를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
+◼ 일정 삭제를 원하시면 <b>"[일정 이름] 삭제해줘"</b>를 입력해주세요.`,
+  }
   //메시지 로그 불러오기
   const handleReset = async () => {
     if (!data?.user?.name) {
@@ -478,13 +499,7 @@ export default function Home() {
     });
     setMessages([
       ...logs_arr,
-      {
-        role: "assistant",
-        content: `안녕하세요! 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
-◼ 일정 추가를 원하시면 <b>"[일시], [일정 이름] 추가해줘."</b>를 입력해주세요.\n
-◼ 일정 변경을 원하시면 <b>"[일정 이름] 변경해줘."</b>를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
-◼ 일정 삭제를 원하시면 <b>"[일정 이름] 삭제해줘"</b>를 입력해주세요.`,
-      },
+      defaultLog,
     ]);
   };
 
@@ -496,13 +511,7 @@ export default function Home() {
       deleteDoc(doc.ref);
     });
     setMessages([
-      {
-        role: "assistant",
-        content: `안녕하세요! 저는 ${data?.user?.name}님의 일정을 관리하는 GPT입니다.\n
-1. 일정 추가를 원하시면 "[일시], [일정 이름] 추가해줘."를 입력해주세요.\n
-2. 일정 변경을 원하시면 "[일정 이름] 변경해줘."를 입력해주세요. 해당 일정의 수정페이지로 넘어갑니다.\n
-3. 일정 삭제를 원하시면 "[일정 이름] 삭제해줘"를 입력해주세요.`,
-      },
+      defaultLog,
     ]);
   };
 
@@ -538,7 +547,7 @@ export default function Home() {
   const circleLight = "flex mx-auto h-3 w-3 bg-gray rounded-full";
 
   return (
-    <div className="mx-auto max-w-5xl h-screen pt-6 pb-10 no-scrollbar">
+    <div className={`${ibmplex.className} mx-auto max-w-5xl h-screen pt-6 pb-10 no-scrollbar`}>
       <div
         id="root"
         className="flex flex-col w-full h-max-screen h-full relative isolate overflow-hidden bg-gray-lightest shadow-xl rounded-3xl"
@@ -714,6 +723,7 @@ export default function Home() {
                     setTodos={setTodos}
                     modiTodo={modiTodo}
                     onSendMessage={handleSend}
+                    messages={messages}
                   />
                 </div>
               )}
