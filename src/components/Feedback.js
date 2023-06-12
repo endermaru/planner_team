@@ -11,6 +11,7 @@ const Feedback = ({
   modiTodo,
   onSendMessage,
   messages,
+  updateFeedback,
 }) => {
   const titleStyle = "text-xl text-gray-darkest font-semibold mt-4 mb-2 pt-3";
   const inputStyle =
@@ -191,16 +192,20 @@ const Feedback = ({
   }, [finish]);
 
   const todayFeedback = feedback.find((item) => item.date === date);
+  const [isSave,setSave]=useState(false);
   useEffect(() => {
     if (todayFeedback) {
       setscore(todayFeedback.score);
       setReflection(todayFeedback.reflection);
       setfinish(todayFeedback.finish);
+      setSave(true);
+    } else {
+      setSave(false);
     }
-    console.log(yescatepro);
-    console.log(tocatepro);
+    // console.log(yescatepro);
+    // console.log(tocatepro);
   }, []);
-
+  
   // // (지윤) TodoList 목록 정렬을 위한 css 설정
 
   const handleSend = () => {
@@ -213,16 +218,15 @@ const Feedback = ({
     const feedPrompt = [
       {
         role: "system",
-        content: `Write in Markdown, Write only JSON format.
-        return {"method":"reflection","content":feedback content}
-        feedback content should be based on following rules.
-        너는 아주 유능한 일정관리 전문가 역할을 연기해야해.
-        사용자가 자신의 하루에 대해서 성찰한 것에 대해서 피드백을 하면 돼.
-        어떤 점을 잘했고, 어떤 점이 부족했는지.
-        이와 더불어서 부족한 점에 대해서는 어떤 것을 보완할 수 있는지에 대한 조언까지 간단하게 해줘.
-        존댓말로 작성하고 인사치레는 필요없어.
-        "}
-        .`,
+        content: `Write in Markdown, Write only JSON format; {"method":"reflection","content":feedback content}`
+      },
+      {
+        role: "system",
+        content: `너는 아주 유능한 일정관리 전문가 역할을 연기해야해.
+        사용자가 자신의 하루에 대해서 성찰한 것에 대해서 존댓말로 피드백을 하면 돼.
+        어떤 점을 잘했고, 어떤 점이 부족했는지. 부족한 점에 대해서는 어떤 것을 보완할 수 있는지에 대한 추천과 조언을 간단하게 해줘.
+        질문을 받았으면 그에 대한 최선의 대답을 해줘.
+        모든 답변에 대해 {"method":"reflection","content":feedback content}의 형태는 유지해.`,
       },
     ];
     onSendMessage(feedPrompt, reflection, 1);
@@ -240,19 +244,21 @@ const Feedback = ({
     // 메시지 트리거
     const trigger = "★제가";
     const lastMessage = messages[messages.length - 1]["content"];
-    if (lastMessage.includes(trigger) && finish === "") {
+    if (lastMessage.includes(trigger) && !isSave) {
       //해당 트리거 직전까지 자르기
+      console.log(isSave); 
       const startIndex = lastMessage.indexOf(trigger);
-      setfinish(lastMessage.slice(0, startIndex - 1));
+      setfinish(finish+lastMessage.slice(0, startIndex - 1));
     }
   }, [messages]);
+
 
   return (
     <div className="flex flex-col w-full p-5 overflow-y-scroll no-scrollbar ">
       <p
         className={`border-gray-darkest border-b-[1px] pb-3 font-bold text-2xl text-gray-darkest w-full left-align`}
       >
-        {date} 일정 마무리하기
+        {date} 일정 마무리하기 
       </p>
       <p className={titleStyle}>✔ 진행도 정리하기</p>
       {!todoLoading && ( //todos를 불러올때까지
@@ -289,7 +295,7 @@ const Feedback = ({
                           item.progress
                         )
                       }
-                      disabled={todayFeedback}
+                      disabled={isSave}
                     >
                       {item.progress}
                     </button>
@@ -344,48 +350,48 @@ const Feedback = ({
       <div class="flex flex-row-reverse justify-center my-4">
         <button
           className={`bg-gray-light border-[1px] border-gray-darkest peer ${
-            todayFeedback ? "" : "peer-hover:bg-orange hover:bg-orange"
+            isSave ? "" : "peer-hover:bg-orange hover:bg-orange"
           } focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${
             score >= 5 ? "bg-orange" : ""
           }`}
           onClick={() => setscore(5)}
-          disabled={todayFeedback}
+          disabled={isSave}
         ></button>
         <button
           className={`bg-gray-light border-[1px] border-gray-darkest peer ${
-            todayFeedback ? "" : "peer-hover:bg-orange hover:bg-orange"
+            isSave ? "" : "peer-hover:bg-orange hover:bg-orange"
           } focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${
             score >= 4 ? "bg-orange" : ""
           }`}
           onClick={() => setscore(4)}
-          disabled={todayFeedback}
+          disabled={isSave}
         ></button>
         <button
           className={`bg-gray-light border-[1px] border-gray-darkest peer ${
-            todayFeedback ? "" : "peer-hover:bg-orange hover:bg-orange"
+            isSave ? "" : "peer-hover:bg-orange hover:bg-orange"
           } focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${
             score >= 3 ? "bg-orange" : ""
           }`}
           onClick={() => setscore(3)}
-          disabled={todayFeedback}
+          disabled={isSave}
         ></button>
         <button
           className={`bg-gray-light border-[1px] border-gray-darkest peer ${
-            todayFeedback ? "" : "peer-hover:bg-orange hover:bg-orange"
+            isSave ? "" : "peer-hover:bg-orange hover:bg-orange"
           } focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${
             score >= 2 ? "bg-orange" : ""
           }`}
           onClick={() => setscore(2)}
-          disabled={todayFeedback}
+          disabled={isSave}
         ></button>
         <button
           className={`bg-gray-light border-[1px] border-gray-darkest peer ${
-            todayFeedback ? "" : "peer-hover:bg-orange hover:bg-orange"
+            isSave ? "" : "peer-hover:bg-orange hover:bg-orange"
           } focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${
             score >= 1 ? "bg-orange" : ""
           }`}
           onClick={() => setscore(1)}
-          disabled={todayFeedback}
+          disabled={isSave}
         ></button>
       </div>
       <p className={titleStyle}>
@@ -400,7 +406,7 @@ const Feedback = ({
         placeholder={`칭찬할 점: \n아쉬운 점: \n개선할 점:`}
         onChange={(e) => setReflection(e.target.value)}
         rows={3}
-        disabled={todayFeedback}
+        disabled={isSave}
         onKeyDown={handleKeyDown}
       />
       <p className="text-right mt-1">Tip : Ctrl+Enter를 눌러 GPT의 조언받기</p>
@@ -412,20 +418,30 @@ const Feedback = ({
         className={`${inputStyle} `}
         onChange={(e) => setfinish(e.target.value)}
         rows={2}
-        disabled={todayFeedback}
+        disabled={isSave}
       />
       <div className="flex justify-end mt-3 ">
         <button
-          className={`mt-4  w-1/5 p-1 bg-orange font-semibold text-[#ffffff] border-[1px] border-orange rounded-[20px] hover:bg-gray-lightest hover:font:bold hover:text-orange focus:border-2 ${
-            todayFeedback ? "hidden" : ""
+          className={`mt-4  w-1/5 p-1 font-semibold text-[#ffffff] border-[1px] rounded-[20px] hover:bg-gray-lightest hover:font:bold focus:border-2 ${
+            isSave ? "bg-blue border-blue hover:text-blue" : "bg-orange border-orange hover:text-orange"
           }`}
           onClick={() => {
+            if (isSave){
+              setSave(false);
+              alert("기록을 수정합니다. 저장 버튼을 눌러야 수정한 내용이 저장됩니다.")
+              return;
+            }
             if (score && reflection && finish) {
               const confirmed = window.confirm(
-                "저장하시겠습니까? 저장 후에는 다시 수정할 수 없습니다"
+                "기록을 저장합니다. 하루가 지나면 수정이 불가능하니 유의해주세요!"
               );
               if (confirmed) {
-                addFeedback(date, score, reflection, finish);
+                if (todayFeedback){
+                  updateFeedback(todayFeedback?.id,score,reflection,finish);
+                } else {
+                  addFeedback(date, score, reflection, finish);
+                }
+                setSave(true);
               }
             } else {
               alert("모든 문항을 채운 후 다시 시도해주세요.");
@@ -433,7 +449,7 @@ const Feedback = ({
             }
           }}
         >
-          저장하기
+          {isSave? `수정하기`:`저장하기`}
         </button>
       </div>
     </div>
