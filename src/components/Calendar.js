@@ -197,7 +197,10 @@ const RenderCells = ({
                     el
                   )}
                   )}`}
-                  /*style={{ WebkitTextStroke: '1px black', textStroke: '1px black' }}*/
+                  style={{
+                    WebkitTextStroke: "1px black",
+                    textStroke: "1px black",
+                  }}
                 >
                   ●
                 </p>
