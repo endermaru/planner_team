@@ -12,15 +12,15 @@ function FeedbackChart({cate}) {
     datasets: [
       {
         data: Object.values(cate),
-        // backgroundColor: Object.keys(cate).map(
-        //   (category) =>
-        //     ({
-        //       학업: "#FF645C",
-        //       대외활동: "#7575EA",
-        //       자격증: "#FFD400",
-        //       인턴:"#92E385"
-        //     }[category] || "#B9B9B8")
-        // ),
+        backgroundColor: Object.keys(cate).map(
+          (category) =>
+            ({
+              학업: "#FF645C",
+              대외활동: "#7575EA",
+              자격증: "#FFD400",
+              인턴:"#92E385"
+            }[category] || "#B9B9B8")
+        ),
       },
     ],
   };
@@ -30,7 +30,7 @@ function FeedbackChart({cate}) {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: true, // 범주 제거
+        display: false, // 범주 제거
         position: "right",
         onClick: () => {},
       },
@@ -51,9 +51,9 @@ function FeedbackChart({cate}) {
   console.log(Object.keys(cate).length)
 
   return (
-    <div className="h-40 w-full justify-center items-center text-center">
+    <div className="h-[65%] w-full justify-center items-center text-center">
         <Doughnut data={data} options={options}/>
-        <p className="mb-1 mt-2 font-bold "style={{ whiteSpace: 'pre-line' }}>
+        <p className="mb-1 mt-2.5 font-bold "style={{ whiteSpace: 'pre-line' }}>
                 {Object.keys(cate) != "일정이 존재하지 않습니다" ? `일정 분류 개수 : ${Object.keys(cate).length} 개` : `일정이 없습니다`} 
             </p>
     </div>

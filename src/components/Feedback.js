@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import FeedbackChart from ".//Chart";
 import ProChart from ".//lineChart";
+import LineChart from "./cateline";
 
 const Feedback = ({
   todos,
@@ -96,7 +97,37 @@ const Feedback = ({
   };
 
   const tocate = transformData(todayTodos);
-  const yescate = transformData(yesTodo);
+
+
+  const calProByCategory = (todo) => {
+    const categoryMap = {
+      학업: [],
+      대외활동: [],
+      인턴: [],
+      자격증: [],
+      기타: [],
+    };
+  
+    // 카테고리별로 분류
+    todo.forEach((item) => {
+      const category = categoryMap.hasOwnProperty(item.category) ? item.category : "기타";
+      categoryMap[category].push(item.progress);
+    });
+  
+    // 각 카테고리별로 평균 계산
+    const categoryAverages = {};
+    for (const category in categoryMap) {
+      const progressList = categoryMap[category];
+      const sum = progressList.reduce((acc, cur) => acc + cur, 0);
+      const average = sum / progressList.length;
+      categoryAverages[category] = average;
+    }
+  
+    return categoryAverages;
+  };
+
+  const yescatepro = calProByCategory(yesTodo)
+  const tocatepro = calProByCategory(todayTodos)
 
   const getButtonStyle = (progress) => {
     switch (progress) {
@@ -165,6 +196,8 @@ const Feedback = ({
       setReflection(todayFeedback.reflection);
       setfinish(todayFeedback.finish);
     }
+    console.log(yescatepro)
+    console.log(tocatepro)
   }, []);
 
   // // (지윤) TodoList 목록 정렬을 위한 css 설정
@@ -237,37 +270,74 @@ const Feedback = ({
                   종료시간
                 </th>
               </tr>
-          </thead>
-        </table>
-      <p className={`${titleStyle}`}>2. 어제와 비교한 오늘 확인하기</p>
-      <div className="flex w-auto">
-
-        <div className="mr-2 pr-2 w-[35%] border-r-2 border-dashed border-gray ">
+            </thead>
+            <tbody>
+              {todayTodos.map((item, index) => (
+                <tr key={index}>
+                  <td className={`${tableCell} text-center`}>
+                    <button
+                      className=""
+                      style={getButtonStyle(item.progress)}
+                      onClick={() =>
+                        handleModiTodo(
+                          item.id,
+                          item.content,
+                          item.category,
+                          item.timeStart,
+                          item.timeEnd,
+                          item.progress
+                        )
+                      }
+                      disabled={todayFeedback}
+                    >
+                      {item.progress}
+                    </button>
+                  </td>
+                  <td className={`${tableCell} text-center`}>
+                    {item.category}
+                  </td>
+                  <td className={tableCell}>{item.content}</td>
+                  <td className={`${tableCell}`}>
+                    {item.timeStart.toLocaleTimeString("en-EN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </td>
+                  <td className={tableCell}>-</td>
+                  <td className={tableCell}>
+                    {item.timeEnd.toLocaleTimeString("en-EN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <p className={`${titleStyle}`}>✔ 어제와 오늘 비교하기</p>
+      <div className="flex w-auto pb-4">
+        <div className="mr-2 w-1/3 border-b-[1px] border-gray-darkest ">
           <p className="mb-2 text-center">전체 진행도 비교</p>
-          <ProChart prosum={prosum}/>
-          <p className="font-bold text-center"style={{ whiteSpace: 'pre-line' }}>
-                {prosum.includes(NaN)?`일정이 없습니다`:
-                prosum[1]-prosum[0] > 0 ?`어제보다 ${((prosum[1]-prosum[0])/prosum[0]*100).toFixed(0)}% 증가`
-                : prosum[1]-prosum[0] < 0 ?`어제보다 ${((prosum[0]-prosum[1])/prosum[1]*100).toFixed(0)}% 감소`
-                :prosum} 
-          </p>
-        </div>       
-        
-        {/* <div className="mr-2 w-4/12 pr-2 border-r-2 border-dashed border-gray" style={{ display: 'flex', justifyContent: 'center' }}>
-                <td>
-                  <p className="mb-3 text-center">분류별 진행도 비교</p>
-                  <ProChart 
-                  cate={yescate} 
-                  cat={tocate}
-                  />
-                </td>
-        </div> */}
-     
-        <div className=" mr-2 w-4/12" style={{ display: 'flex', justifyContent: 'center' }}>
-                <td>
-                  <p className="mb-3 text-center">오늘의 분류 분포</p>
-                  <FeedbackChart cate={tocate} />
-                </td>
+          <ProChart prosum={prosum} />
+        </div>
+
+        <div
+          className="pl-1 mr-2 w-1/3 border-b-[1px] border-gray-darkest items-center"
+        >
+            <p className="mb-3 text-center">분류별 진행도 비교</p>
+            <LineChart yescatepro={yescatepro} tocatepro={tocatepro} />
+        </div>
+
+        <div
+          className="mr-2 w-1/3 border-b-[1px]"
+          style={{ display: "flex", justifyContent: "center" }}
+        >
+          <td className="w-full ">
+            <p className="mb-3 text-center">오늘의 분류 분포</p>
+            <FeedbackChart cate={tocate} />
+          </td>
         </div>
       </div>
       <p className={titleStyle}>{`✔ 오늘 하루 별점은? ${
