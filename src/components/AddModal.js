@@ -63,7 +63,7 @@ const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
 
   const allDay = () => {
     const stStr = timeStart;
-    console.log("stSTr", stStr);
+    // console.log("stSTr", stStr);
     setTimeStart(stStr.slice(0, 10) + "T00:00");
     setTimeEnd(stStr.slice(0, 10) + "T23:59");
   };
@@ -74,7 +74,7 @@ const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
 
   useEffect(() => {
     if (isOpen) {
-      console.log(dateToString(defaultDay));
+      // console.log(dateToString(defaultDay));
       setTimeStart(dateToString(defaultDay));
       setTimeEnd(dateToString(defaultDay));
     } else {
@@ -93,7 +93,7 @@ const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
       timeStart !== "" &&
       timeEnd !== ""
     ) {
-      console.log(content, "!!!");
+      // console.log(content, "!!!");
       await addfunc({
         _content: content,
         _category: category,
@@ -219,7 +219,7 @@ const AddModal = ({ isOpen, closeModal, addfunc, handleAdd, defaultDay }) => {
             className="col-span-2 align-middle p-1 border-b-[1px] border-grat-darkest bg-gray-lightest"
             value={timeStart}
             onChange={(e) => {
-              console.log("e", e);
+              // console.log("e", e);
               if (e !== "") {
                 setTimeStart(e.target.value);
               }

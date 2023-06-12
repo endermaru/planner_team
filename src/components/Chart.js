@@ -48,13 +48,12 @@ function FeedbackChart({cate}) {
   }
 
   const cateratio = calAver(Object.values(cate))
-  console.log(Object.keys(cate).length)
 
   return (
     <div className="h-[65%] w-full justify-center items-center text-center">
         <Doughnut data={data} options={options}/>
-        <p className="mb-1 mt-2.5 font-bold "style={{ whiteSpace: 'pre-line' }}>
-                {Object.keys(cate) != "일정이 존재하지 않습니다" ? `일정 분류 개수 : ${Object.keys(cate).length} 개` : `일정이 없습니다`} 
+        <p className="mb-1 mt-2 font-bold "style={{ whiteSpace: 'pre-line' }}>
+                {Object.keys(cate) != "일정이 존재하지 않습니다" ? `총 ${Object.keys(cate).length} 개의 일정 분류` : `일정이 없습니다`} 
             </p>
     </div>
   );

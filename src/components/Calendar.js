@@ -382,18 +382,18 @@ const Calendar = ({
     setSelectedDate(day);
     setModalIsOpen(true);
     setCloseHover(false);
-    console.log(day);
+    // console.log(day);
   };
 
   const closeModal = () => {
-    console.log("start", modalIsOpen);
+    // console.log("start", modalIsOpen);
 
     const day = new Date(1995, 11, 17);
 
-    console.log(day, modalIsOpen);
+    // console.log(day, modalIsOpen);
     setSelectedDate(day);
     setModalIsOpen(false);
-    console.log(day, modalIsOpen);
+    // console.log(day, modalIsOpen);
   };
 
   const isCloseHovering = () => {
