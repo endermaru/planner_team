@@ -68,14 +68,14 @@ function ProChart({ prosum }) {
       };
   
     return (
-        <div className=" mr-2">
+        <div className=" mr-2 h-full">
                 <Line data={data} options={options}/>
                 <p className="mb-1 font-bold text-center"style={{ whiteSpace: 'pre-line' }}>
                 {isNaN(prosum[1])? `오늘 일정이 없습니다`:
                 isNaN(prosum[0])? `어제 일정이 없습니다`:
-                prosum[1]-prosum[0] > 0 ?`어제보다 ${(prosum[1]-prosum[0])} 증가`
-                : prosum[1]-prosum[0] < 0 ?`어제보다 ${(prosum[0]-prosum[1])} 감소`
-                : "어제와 진행도가 동일합니다"} 
+                prosum[1]-prosum[0] > 0 ?`어제보다 ${(prosum[1]-prosum[0]).toFixed(1)} 증가`
+                : prosum[1]-prosum[0] < 0 ?`어제보다 ${(prosum[0]-prosum[1]).toFixed(1)} 감소`
+                : "어제와 동일"} 
                 </p>
         </div>
     );
