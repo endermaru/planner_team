@@ -88,7 +88,7 @@ export default function Home() {
     _timeEnd,
     _progress,
   }) => {
-    console.log(_content, _category);
+    // console.log(_content, _category);
     const docRef = await addDoc(todoDB, {
       userId: data?.user?.id,
       userName: data?.user?.name,
@@ -190,7 +190,7 @@ export default function Home() {
   //todos 배열 출력(확인용)
   const printTodos = (_todos) => {
     // setid_moditodo(_todos[0]?.id)
-    console.log(_todos);
+    // console.log(_todos);
     // setIsOpen(!isOpen);
   };
 
@@ -245,7 +245,7 @@ export default function Home() {
 
   //정규표현식 함수
   const re_f = async (sent) => {
-    console.log(sent);
+    // console.log(sent);
     const sentence = sent.replace(/\n/g, "");
     const pattern = /\{.*?\}/;
     const match = sentence.match(pattern);
@@ -267,7 +267,7 @@ export default function Home() {
         }
       } else if (jStr.method === "delete") {
         const resultFind = findSchedule(jStr);
-        console.log("result", resultFind);
+        // console.log("result", resultFind);
         if (resultFind === 0) {
           handleAdd(
             "assistant",
@@ -297,7 +297,13 @@ export default function Home() {
           openModimodal(resultFind);
           handleAdd("assistant", "일정 수정페이지로 이동합니다.");
         }
-      } else {
+      } else if (jStr.method==="reflection"){
+        handleAdd(
+          "assistant",
+          jStr.content+"\n★제가 조언해드린 내용을 바탕으로 참고할 점을 작성한 후 마무리하세요!★"
+        )
+
+      }else {
         //정규표현식은 작동했으나 명령 수행 불가
         handleAdd(
           "assistant",
@@ -306,7 +312,7 @@ export default function Home() {
       }
     } else {
       //정규표현식 작동 안함
-      console.log("re_f failed");
+      // console.log("re_f failed");
       return -1;
     }
   };
@@ -333,7 +339,7 @@ export default function Home() {
         2,
         "0"
       )}`;
-      console.log(_timeStart.slice(0, 10));
+      // console.log(_timeStart.slice(0, 10));
 
       for (const item of todos) {
         //각 todo에 대한 문자열 생성
@@ -406,7 +412,7 @@ export default function Home() {
       // console.log("response", response);
       // throw new Error(response.statusText);
       alert("API 에러가 발생했습니다. 다시 시도해주세요");
-      // location.reload();
+      location.reload();
     }
 
     //firebase에 요청 메시지 추가(기본)
@@ -423,7 +429,7 @@ export default function Home() {
     if (!result) {
       return;
     }
-    console.log("result", result);
+    // console.log("result", result);
 
     //messages에 요청 메시지 추가
     setLoading(false);
@@ -437,7 +443,7 @@ export default function Home() {
 
     //응답값 저장
     if (isSave) {
-      console.log(result);
+      // console.log(result);
       //messges배열에
       setMessages((messages) => [...messages, result]);
       //firebase배열에
@@ -522,7 +528,7 @@ export default function Home() {
     getTodos();
     getFeedback();
     handleReset();
-    console.log("completed");
+    // console.log("completed");
   }, [data?.user?.name]); //세션이 불러와지면 실행
 
   //스타일 지정

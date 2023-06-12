@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import FeedbackChart from ".//Chart";
 import ProChart from ".//lineChart";
+import LineChart from "./cateline";
 
 const Feedback = ({
   todos,
@@ -87,7 +88,7 @@ const Feedback = ({
       } else if (item === "자격증") {
         acc["자격증"] = (acc["자격증"] || 0) + 1;
       } else {
-        acc["기타"] = (acc["기타"] || 0) + 1;
+        acc[item] = (acc[item] || 0) + 1;
       }
       return acc;
     }, {});
@@ -96,7 +97,38 @@ const Feedback = ({
   };
 
   const tocate = transformData(todayTodos);
-  const yescate = transformData(yesTodo);
+
+  const calProByCategory = (todo) => {
+    const categoryMap = {
+      학업: [],
+      대외활동: [],
+      인턴: [],
+      자격증: [],
+      기타: [],
+    };
+
+    // 카테고리별로 분류
+    todo.forEach((item) => {
+      const category = categoryMap.hasOwnProperty(item.category)
+        ? item.category
+        : "기타";
+      categoryMap[category].push(item.progress);
+    });
+
+    // 각 카테고리별로 평균 계산
+    const categoryAverages = {};
+    for (const category in categoryMap) {
+      const progressList = categoryMap[category];
+      const sum = progressList.reduce((acc, cur) => acc + cur, 0);
+      const average = sum / progressList.length;
+      categoryAverages[category] = average;
+    }
+
+    return categoryAverages;
+  };
+
+  const yescatepro = calProByCategory(yesTodo);
+  const tocatepro = calProByCategory(todayTodos);
 
   const getButtonStyle = (progress) => {
     switch (progress) {
@@ -165,6 +197,8 @@ const Feedback = ({
       setReflection(todayFeedback.reflection);
       setfinish(todayFeedback.finish);
     }
+    console.log(yescatepro);
+    console.log(tocatepro);
   }, []);
 
   // // (지윤) TodoList 목록 정렬을 위한 css 설정
@@ -174,15 +208,21 @@ const Feedback = ({
       alert("메시지를 입력하세요.");
       return;
     }
+    //프롬프트 수정했습니다. 관련 요청에 대해서 json 형식으로 return하고
+    //index의 re_f에서 인식하여 줄바꿈 뒤의 문장이 추가됩니다. 참고해주세요.
     const feedPrompt = [
       {
         role: "system",
-        content: `너는 아주 유능한 학습관리 전문가야.
-        학생들이 자신의 하루에 대해서 성찰한 것에 대해서 피드백을 하면 돼.
+        content: `Write in Markdown, Write only JSON format.
+        return {"method":"reflection","content":feedback content}
+        feedback content should be based on following rules.
+        너는 아주 유능한 일정관리 전문가 역할을 연기해야해.
+        사용자가 자신의 하루에 대해서 성찰한 것에 대해서 피드백을 하면 돼.
         어떤 점을 잘했고, 어떤 점이 부족했는지.
         이와 더불어서 부족한 점에 대해서는 어떤 것을 보완할 수 있는지에 대한 조언까지 간단하게 해줘.
-        그리고 마지막 말로 "★제가 조언해드린 내용을 바탕으로 참고할 점을 작성한 후 마무리하세요!★"라는 문장을 반드시 줄바꿈하여 덧붙여야 해.
-        너의 답변도 보기 좋게 줄바꿈해주면 더욱 좋을 것 같아.`,
+        존댓말로 작성하고 인사치레는 필요없어.
+        "}
+        .`,
       },
     ];
     onSendMessage(feedPrompt, reflection, 1);
@@ -196,22 +236,16 @@ const Feedback = ({
   };
 
   //메시지 불러오는 기능 추가
-  useEffect(()=>{
-    // console.log("called");
-    // console.log(messages[messages.length-1]["content"].includes("제가 조언"))
-    // 트리거는 위에서 설정한 "제가 조언~"으로 설정했습니다.
-    // 프롬프트를 바꾸고 싶으시면 이 부분 참고해주세요
-    const trigger="제가 조언"
-    const lastMessage=messages[messages.length-1]["content"]
-    if (lastMessage.includes(trigger) && finish===""){
+  useEffect(() => {
+    // 메시지 트리거
+    const trigger = "★제가";
+    const lastMessage = messages[messages.length - 1]["content"];
+    if (lastMessage.includes(trigger) && finish === "") {
       //해당 트리거 직전까지 자르기
-      // const startIndex=lastMessage.indexOf(trigger);
-      // setfinish(lastMessage.slice(0,startIndex-2));
-      setfinish(lastMessage);
-    } else {
-      console.log("failed!");
+      const startIndex = lastMessage.indexOf(trigger);
+      setfinish(lastMessage.slice(0, startIndex - 1));
     }
-  },[messages])
+  }, [messages]);
 
   return (
     <div className="flex flex-col w-full p-5 overflow-y-scroll no-scrollbar ">
@@ -233,7 +267,7 @@ const Feedback = ({
                   시작시간
                 </th>
                 <th className={`${tableCategory} w-1/24 text-left`}>-</th>
-                <th className={`${tableCategory} w-2/12 text-left`}>
+                <th className={`${tableCategory} w-3/12 pl-2 text-left`}>
                   종료시간
                 </th>
               </tr>
@@ -271,7 +305,7 @@ const Feedback = ({
                     })}
                   </td>
                   <td className={tableCell}>-</td>
-                  <td className={tableCell}>
+                  <td className={`${tableCell} pl-2`}>
                     {item.timeEnd.toLocaleTimeString("en-EN", {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -285,29 +319,22 @@ const Feedback = ({
       )}
       <p className={`${titleStyle}`}>✔ 어제와 오늘 비교하기</p>
       <div className="flex w-auto pb-4">
-        <div className="mr-2 w-[36%] border-b-[1px] border-gray-darkest ">
-          <p className="mb-2 text-center">진행도 비교 결과</p>
-          <ProChart prosum={prosum} />
-        </div>
-
         <div
-          className="mr-2 w-4/12 pr-2 border-b-[1px] border-dashed border-gray"
+          className="mr-2 w-1/3 border-b-[1px]"
           style={{ display: "flex", justifyContent: "center" }}
         >
-          <td>
-            <p className="mb-3 text-center">어제의 분류 분포</p>
-            <FeedbackChart cate={yescate} />
-          </td>
-        </div>
-
-        <div
-          className=" mr-2 w-4/12"
-          style={{ display: "flex", justifyContent: "center" }}
-        >
-          <td>
+          <td className="w-full ">
             <p className="mb-3 text-center">오늘의 분류 분포</p>
             <FeedbackChart cate={tocate} />
           </td>
+        </div>
+        <div className="pl-1 mr-2 w-1/3 border-b-[1px] border-gray-darkest items-center">
+          <p className="mb-3 text-center">분류별 진행도 비교</p>
+          <LineChart yescatepro={yescatepro} tocatepro={tocatepro} />
+        </div>
+        <div className="mr-2 w-1/3 border-b-[1px] border-gray-darkest ">
+          <p className="mb-2 text-center">전체 진행도 비교</p>
+          <ProChart prosum={prosum} />
         </div>
       </div>
       <p className={titleStyle}>{`✔ 오늘 하루 별점은? ${
@@ -316,7 +343,7 @@ const Feedback = ({
       {/* <p className={titleStyle}>{score}</p> */}
       <div class="flex flex-row-reverse justify-center my-4">
         <button
-          className={`bg-gray-light peer ${
+          className={`bg-gray-light border-[1px] border-gray-darkest peer ${
             todayFeedback ? "" : "peer-hover:bg-orange hover:bg-orange"
           } focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${
             score >= 5 ? "bg-orange" : ""
@@ -325,7 +352,7 @@ const Feedback = ({
           disabled={todayFeedback}
         ></button>
         <button
-          className={`bg-gray-light peer ${
+          className={`bg-gray-light border-[1px] border-gray-darkest peer ${
             todayFeedback ? "" : "peer-hover:bg-orange hover:bg-orange"
           } focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${
             score >= 4 ? "bg-orange" : ""
@@ -334,7 +361,7 @@ const Feedback = ({
           disabled={todayFeedback}
         ></button>
         <button
-          className={`bg-gray-light peer ${
+          className={`bg-gray-light border-[1px] border-gray-darkest peer ${
             todayFeedback ? "" : "peer-hover:bg-orange hover:bg-orange"
           } focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${
             score >= 3 ? "bg-orange" : ""
@@ -343,7 +370,7 @@ const Feedback = ({
           disabled={todayFeedback}
         ></button>
         <button
-          className={`bg-gray-light peer ${
+          className={`bg-gray-light border-[1px] border-gray-darkest peer ${
             todayFeedback ? "" : "peer-hover:bg-orange hover:bg-orange"
           } focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${
             score >= 2 ? "bg-orange" : ""
@@ -352,7 +379,7 @@ const Feedback = ({
           disabled={todayFeedback}
         ></button>
         <button
-          className={`bg-gray-light peer ${
+          className={`bg-gray-light border-[1px] border-gray-darkest peer ${
             todayFeedback ? "" : "peer-hover:bg-orange hover:bg-orange"
           } focus:bg-orange peer-focus:bg-orange rounded-full w-12 h-12 mx-2 ${
             score >= 1 ? "bg-orange" : ""

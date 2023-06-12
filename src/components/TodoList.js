@@ -4,14 +4,20 @@ import "firebase/firestore";
 import ModiModal from "./ModiModal";
 import AddModal from "./AddModal";
 
-import { IBM_Plex_Sans_KR } from 'next/font/google';
+import { IBM_Plex_Sans_KR } from "next/font/google";
 const ibmplex = IBM_Plex_Sans_KR({
   // preload: true, 기본값
   subsets: ["latin"], // 또는 preload: false
   weight: ["300", "400", "500", "700"], // 가변 폰트가 아닌 경우, 사용할 fontWeight 배열
 });
 
-export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd, isDate }) => {
+export const TodoTable = ({
+  sortedTodos,
+  modiTodo,
+  delTodo,
+  handleAdd,
+  isDate,
+}) => {
   //날짜 변환기
   const dateToString = (date) => {
     const dateObj = new Date(date);
@@ -25,21 +31,21 @@ export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd, isDate })
     var hf = "AM";
     if (h >= 12) {
       hf = "PM";
-      if (h>12){
+      if (h > 12) {
         h -= 12;
       }
     }
-    if (isDate){
+    if (isDate) {
       // console.log(y,m,d,hf,String(h).padStart(2, "0"),String(mi).padStart(2, "0"));
       return `${m}월 ${d}일\n${hf} ${String(h).padStart(2, "0")}:${String(
         mi
       ).padStart(2, "0")}`;
     } else {
-      return `${hf} ${String(h).padStart(2, "0")}:${String(
-        mi
-      ).padStart(2, "0")}`;
+      return `${hf} ${String(h).padStart(2, "0")}:${String(mi).padStart(
+        2,
+        "0"
+      )}`;
     }
-    
   };
 
   // modiTodo 함수 정의
@@ -161,7 +167,7 @@ export const TodoTable = ({ sortedTodos, modiTodo, delTodo, handleAdd, isDate })
       <tbody>
         {sortedTodos.map((item, index) => (
           <tr key={index}>
-            <td className={`${tableCell} text-center pl-[10px]`}>
+            <td className={`${tableCell} text-center pl-[8px]`}>
               <button
                 style={getButtonStyle(item.progress)}
                 onClick={() =>
@@ -229,6 +235,7 @@ const TodoList = ({
   const dateStartOfWeek = new Date(
     dateToday.setDate(dateToday.getDate() - dateToday.getDay())
   );
+
   const dateStartOfMonth = new Date(
     dateToday.getFullYear(),
     dateToday.getMonth(),
@@ -249,11 +256,19 @@ const TodoList = ({
     });
   };
 
-  // (지윤) TodoList 목록을 시작 날짜가 이번주(일요일 시작)인 항목들만 필터링하는 함수
+  // (지윤) TodoList 목록을 시작 날짜가 이번주(월요일 시작)인 항목들만 필터링하는 함수
   const filterByWeek = (todos) => {
+    const dateToday = new Date();
+    const dateStartOfWeek = new Date(dateToday);
+    dateStartOfWeek.setDate(
+      dateStartOfWeek.getDate() - dateStartOfWeek.getDay() + 1
+    ); // 월요일로 설정
+    const dateEndOfWeek = new Date(dateToday);
+    dateEndOfWeek.setDate(dateEndOfWeek.getDate() - dateEndOfWeek.getDay() + 7); // 다음 주 일요일로 설정
+
     return todos.filter((item) => {
       const itemDate = new Date(item.timeStart);
-      return itemDate >= dateStartOfWeek;
+      return itemDate >= dateStartOfWeek && itemDate <= dateEndOfWeek;
     });
   };
 
