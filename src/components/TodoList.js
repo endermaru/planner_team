@@ -282,7 +282,14 @@ const TodoList = ({
 
   // (지윤) TodoList 목록을 시작 날짜가 이른 순으로 정렬하는 함수
   const sortByStartDate = (todos) => {
-    return todos.slice().sort((a, b) => a.timeStart - b.timeStart);
+    const today = new Date().setHours(0, 0, 0, 0);
+    return todos
+      .filter((item) => {
+        const itemDate = new Date(item.timeStart).setHours(0, 0, 0, 0);
+        return itemDate <= today; // Filter out days after today by using <= instead of ===
+      })
+      .slice()
+      .sort((a, b) => a.timeStart - b.timeStart);
   };
 
   // (지윤) TodoList 정렬 방식 변경 이벤트 핸들러
@@ -423,7 +430,7 @@ const TodoList = ({
             } pr-4 left-algin`}
             onClick={handleSortByStartDate}
           >
-            최신순
+            가까운 날짜순
           </button>
           <button
             className={`${
