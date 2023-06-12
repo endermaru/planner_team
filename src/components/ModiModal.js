@@ -2,6 +2,13 @@ import React from "react";
 import Modal from "react-modal";
 import react, { useEffect, useState } from "react";
 
+import { IBM_Plex_Sans_KR } from 'next/font/google';
+const ibmplex = IBM_Plex_Sans_KR({
+  // preload: true, 기본값
+  subsets: ["latin"], // 또는 preload: false
+  weight: ["300", "400", "500", "700"], // 가변 폰트가 아닌 경우, 사용할 fontWeight 배열
+});
+
 const ModiModal = ({
   isOpen,
   closeModal,
@@ -96,16 +103,16 @@ const ModiModal = ({
     switch (progress) {
       case 0:
         return {
-          backgroundColor: "white",
-          border: "1px solid black",
+          backgroundColor: "#F3F3F3",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       case 1:
         return {
-          backgroundColor: "#B9B9B8",
-          border: "1px solid black",
+          backgroundColor: "#D8D8D8",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
@@ -113,22 +120,22 @@ const ModiModal = ({
       case 2:
         return {
           backgroundColor: "#FFA08D",
-          border: "1px solid black",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       case 3:
         return {
-          backgroundColor: "#7575EA",
-          border: "1px solid black",
+          backgroundColor: "#FF645C",
+          border: "1px solid #2A2A2A",
           width: "30px",
           height: "30px",
           borderRadius: "50%",
         };
       default:
         return {
-          backgroundColor: "white",
+          backgroundColor: "#F3F3F3",
           border: "1px solid black",
           width: "30px",
           height: "30px",
@@ -152,7 +159,7 @@ const ModiModal = ({
       boxShadow: "10px 20px 10px -10px rgba(0, 0, 0, 0.2)",
       padding: 0,
       border: 0,
-      borderRadius: "10px",
+      borderRadius: "20px",
     },
   };
   return (
@@ -163,7 +170,7 @@ const ModiModal = ({
       shouldCloseOnOverlayClick={false}
       contentLabel="Modal for modification"
     >
-      <div className="bg-gray-lightest w-full h-full flex flex-col rounded-t-xl">
+      <div className={`bg-gray-lightest w-full h-full flex flex-col rounded-t-[20px] ${ibmplex.className}`}>
         <div className="w-full bg-red-500">
           <p className="px-5 py-3 bg-orange text-gray-lightest text-2xl font-semibold">
             일정 수정하기

@@ -1,39 +1,42 @@
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from "chart.js";
 import { Doughnut} from "react-chartjs-2";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, Colors);
 
 function FeedbackChart({cate}) {
   if (Object.keys(cate).length===0){
-    cate = {"일정이 존재하지 않습니다":1};
+    cate = {"일정이 없습니다":1};
   }
   const data = {
     labels: Object.keys(cate),
     datasets: [
       {
         data: Object.values(cate),
-        backgroundColor: Object.keys(cate).map(
-          (category) =>
-            ({
-              학업: "#FF645C",
-              대외활동: "#7575EA",
-              자격증: "#FFD400",
-              인턴:"#92E385"
-            }[category] || "#B9B9B8")
-        ),
+        // backgroundColor: Object.keys(cate).map(
+        //   (category) =>
+        //     ({
+        //       학업: "#FF645C",
+        //       대외활동: "#7575EA",
+        //       자격증: "#FFD400",
+        //       인턴:"#92E385"
+        //     }[category] || "#B9B9B8")
+        // ),
       },
     ],
   };
 
   const options = {
+    responsive:true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false, // 범주 제거
+        display: true, // 범주 제거
+        position: "right",
+        onClick: () => {},
       },
       
     }
-    
-
+  
   };
 
 
@@ -45,12 +48,13 @@ function FeedbackChart({cate}) {
   }
 
   const cateratio = calAver(Object.values(cate))
+  console.log(Object.keys(cate).length)
 
   return (
-    <div className="h-36 justify-center items-center text-center">
+    <div className="h-40 w-full justify-center items-center text-center">
         <Doughnut data={data} options={options}/>
-        <p className="mb-1 mt-3 font-bold "style={{ whiteSpace: 'pre-line' }}>
-                {Object.keys(cate) != "일정이 존재하지 않습니다" ? `분포 점수 : ${cateratio}점` : `일정이 없습니다`} 
+        <p className="mb-1 mt-2 font-bold "style={{ whiteSpace: 'pre-line' }}>
+                {Object.keys(cate) != "일정이 존재하지 않습니다" ? `일정 분류 개수 : ${Object.keys(cate).length} 개` : `일정이 없습니다`} 
             </p>
     </div>
   );
