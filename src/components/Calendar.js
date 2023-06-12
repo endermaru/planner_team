@@ -11,13 +11,12 @@ import TodoList from "./TodoList";
 import { TodoTable } from "./TodoList";
 import AddModal from "./AddModal";
 
-import { IBM_Plex_Sans_KR } from 'next/font/google';
+import { IBM_Plex_Sans_KR } from "next/font/google";
 const ibmplex = IBM_Plex_Sans_KR({
   // preload: true, 기본값
   subsets: ["latin"], // 또는 preload: false
   weight: ["300", "400", "500", "700"], // 가변 폰트가 아닌 경우, 사용할 fontWeight 배열
 });
-
 
 const RenderHeader = ({
   currentMonth,
@@ -194,9 +193,11 @@ const RenderCells = ({
             <div className="w-12 flex flex-row justify-self-center justify-center flex-wrap content-center">
               {arr.map((el) => (
                 <p
-                  className={`justify-self-center h-3 mx-px text-[0.1rem] self-start ${getButtonStyle(el)}
+                  className={`justify-self-center h-3 mx-px text-[0.1rem] self-start ${getButtonStyle(
+                    el
+                  )}
                   )}`}
-                  style={{ WebkitTextStroke: '1px black', textStroke: '1px black' }}
+                  /*style={{ WebkitTextStroke: '1px black', textStroke: '1px black' }}*/
                 >
                   ●
                 </p>
@@ -257,7 +258,9 @@ const RenderCells = ({
   };
 
   //피드백 불러오기
-  const feedToday=feedback.filter((feedback) => feedback.date === format(selectedDate, "M월 d일"))[0];
+  const feedToday = feedback.filter(
+    (feedback) => feedback.date === format(selectedDate, "M월 d일")
+  )[0];
   // console.log(feedToday);
 
   return (
@@ -271,7 +274,9 @@ const RenderCells = ({
         onRequestClose={() => setModalIsOpen(false)}
         shouldCloseOnOverlayClick={false}
       >
-        <div className={`${ibmplex.className} w-full flex-row items-center p-3 px-6 grid grid-cols-10 bg-blue text-xl text-gray-lightest rounded-t-[20px]`}>
+        <div
+          className={`${ibmplex.className} w-full flex-row items-center p-3 px-6 grid grid-cols-10 bg-blue text-xl text-gray-lightest rounded-t-[20px]`}
+        >
           <div className="col-span-6 text-xl font-semibold">
             {format(selectedDate, "MM월 dd일")} 일정
           </div>
@@ -307,25 +312,35 @@ const RenderCells = ({
           )}
           <div className={`${ibmplex.className} mt-3 w-full`}>
             <p className="mb-3 text-lg font-bold underline decoration-wavy underline-offset-4">{`하루 마무리 기록`}</p>
-            {feedToday?
-            <div className="mx-1">
-              <div className="flex flex-row items-center h-7">
-                <p className="font-semibold mb-1">{`✔ 하루 별점 : `}</p>
-                <p className="text-6xl text-orange mb-2" style={{ verticalAlign: 'top' }}>{Array(feedToday.score).fill('•').join('')}</p>
-                <p className="text-6xl text-gray mb-2">{Array(5-feedToday.score).fill('•').join('')}</p>
+            {feedToday ? (
+              <div className="mx-1">
+                <div className="flex flex-row items-center h-7">
+                  <p className="font-semibold mb-1">{`✔ 하루 별점 : `}</p>
+                  <p
+                    className="text-6xl text-orange my-2 "
+                    style={{ verticalAlign: "top" }}
+                  >
+                    {Array(feedToday.score).fill("•").join("")}
+                  </p>
+                  <p className="text-6xl text-gray my-2 ">
+                    {Array(5 - feedToday.score)
+                      .fill("•")
+                      .join("")}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-semibold mt-2 mb-1">{`✔ 칭찬할 점과 아쉬운 점, 개선할 점`}</p>
+                  <p>{feedToday["reflection"]}</p>
+                </div>
+                <div>
+                  <p className="font-semibold mt-2 mb-1">{`✔ 참고할 점`}</p>
+                  <p>{feedToday["finish"]}</p>
+                </div>
               </div>
-              <div >
-                <p className="font-semibold mt-2 mb-1">{`✔ 칭찬할 점과 아쉬운 점, 개선할 점`}</p>
-                <p>{feedToday['reflection']}</p>
-              </div>
-              <div>
-                <p className="font-semibold mt-2 mb-1">{`✔ 참고할 점`}</p>
-                <p>{feedToday['finish']}</p>
-              </div>
-            </div>
-            :<p>기록이 존재하지 않습니다!</p>}
+            ) : (
+              <p>기록이 존재하지 않습니다!</p>
+            )}
           </div>
-          
         </div>
       </Modal>
       <AddModal
