@@ -111,7 +111,7 @@ export const TodoTable = ({
   const tableCategory =
     "py-2 font-semibold text-gray-darkest border-b-[1px] border-gray-darkest";
   const tableCell =
-    " py-2 text-sm border-b-[1px] border-gray-dark text-gray-darkest";
+    "py-2 text-sm border-b-[1px] border-gray-dark text-gray-darkest";
 
   const modibutton =
     "text-xs font-semibold border-[1px] rounded-full border-blue p-2 bg-blue-light text-gray-lightest\
@@ -134,6 +134,12 @@ export const TodoTable = ({
   const openModi = (id) => {
     setid_moditodo(id);
     openModal();
+  };
+
+  const isPastTodo = (todo) => {
+    const today = new Date().setHours(0, 0, 0, 0);
+    const todoDate = new Date(todo.timeStart).setHours(0, 0, 0, 0);
+    return todoDate < today;
   };
 
   return (
@@ -166,7 +172,10 @@ export const TodoTable = ({
       </thead>
       <tbody>
         {sortedTodos.map((item, index) => (
-          <tr key={index}>
+          <tr
+            key={index}
+            className={`${isPastTodo(item) ? "bg-gray-light" : ""}`}
+          >
             <td className={`${tableCell} text-center pl-[8px]`}>
               <button
                 style={getButtonStyle(item.progress)}
@@ -378,7 +387,7 @@ const TodoList = ({
   const tableCategory = "py-2 font-semibold  text-left  pl-2";
   const tableCell = " text-sm text-left border-b-[1px] border-gray-dark";
 
-  const grayCell = " text-gray";
+  const grayCell = "text-gray";
   const activeCell = "font-bold text-gray-darkest";
 
   //추가 모달창
