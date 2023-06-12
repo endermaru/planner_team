@@ -318,17 +318,6 @@ const Feedback = ({
       )}
       <p className={`${titleStyle}`}>✔ 어제와 오늘 비교하기</p>
       <div className="flex w-auto pb-4">
-        <div className="mr-2 w-1/3 border-b-[1px] border-gray-darkest ">
-          <p className="mb-2 text-center">전체 진행도 비교</p>
-          <ProChart prosum={prosum} />
-        </div>
-
-        <div
-          className="pl-1 mr-2 w-1/3 border-b-[1px] border-gray-darkest items-center"
-        >
-            <p className="mb-3 text-center">분류별 진행도 비교</p>
-            <LineChart yescatepro={yescatepro} tocatepro={tocatepro} />
-        </div>
 
         <div
           className="mr-2 w-1/3 border-b-[1px]"
@@ -339,6 +328,17 @@ const Feedback = ({
             <FeedbackChart cate={tocate} />
           </td>
         </div>
+        <div
+          className="pl-1 mr-2 w-1/3 border-b-[1px] border-gray-darkest items-center"
+        >
+            <p className="mb-3 text-center">분류별 진행도 비교</p>
+            <LineChart yescatepro={yescatepro} tocatepro={tocatepro} />
+        </div>
+        <div className="mr-2 w-1/3 border-b-[1px] border-gray-darkest ">
+          <p className="mb-2 text-center">전체 진행도 비교</p>
+          <ProChart prosum={prosum} />
+        </div>
+
       </div>
       <p className={titleStyle}>{`✔ 오늘 하루 별점은? ${
         score > 0 ? `: ${score}점` : ""
