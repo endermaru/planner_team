@@ -239,13 +239,33 @@ export default function Home() {
     ]);
   };
 
+  const updateFeedback = async(modid,score,reflection,finish)=>{
+    const upFeed=feedback.map((feed)=>{
+      if (feed.id==modid){
+        const feedDoc=doc(feedbackDB,modid);
+        updateDoc(feedDoc,{
+          finish:finish,
+          reflection:reflection,
+          score:score,
+        });
+        return{
+          ...feed,
+          finish:finish,
+          reflection:reflection,
+          score:score,
+        };
+      } else {
+        return feed;
+      }
+    });
+  }
+
   //챗봇
   const [messages, setMessages] = useState([]); //메시지 로그 배열
   const [loading, setLoading] = useState(false); //메시지 로딩 중
 
   //정규표현식 함수
   const re_f = async (sent) => {
-    // console.log(sent);
     const sentence = sent.replace(/\n/g, "");
     const pattern = /\{.*?\}/;
     const match = sentence.match(pattern);
@@ -436,7 +456,12 @@ export default function Home() {
 
     //정규표현식을 통과하면 메시지 표시 없이 내부 처리
     isSave = 0;
-    const cnt = await re_f(result.content);
+    var cnt=-1;
+    try {
+      cnt = await re_f(result.content);
+    } catch (error){
+      cnt=-1;
+    }
     if (cnt == -1) {
       isSave = 1;
     }
@@ -667,7 +692,7 @@ export default function Home() {
   3. 오늘 하루 칭찬할 점, 아쉬운 점, 개선할 점을 적어주세요. \n
   4. ◼Ctrl+Enter◼ 를 눌러 GPT에게 조언을 얻으세요.\n
   5. 조언을 바탕으로 참고할 점을 작성하며 마무리하세요.\n
-  ★저장한 이후에는 수정이 불가하니 주의해주세요★
+  ★하루가 지나면 수정이 불가능하니 유의해주세요!★
                 `,
                       },
                     ]);
@@ -730,6 +755,7 @@ export default function Home() {
                     modiTodo={modiTodo}
                     onSendMessage={handleSend}
                     messages={messages}
+                    updateFeedback={updateFeedback}
                   />
                 </div>
               )}
